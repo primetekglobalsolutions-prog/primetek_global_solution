@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Plus, Search, ToggleLeft, ToggleRight, X, Loader2 } from 'lucide-react';
+import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { toggleEmployeeStatus, createEmployee } from './actions';
@@ -112,7 +113,9 @@ export default function EmployeesClient({ initialEmployees }: { initialEmployees
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         {emp.avatar_url ? (
-                          <img src={emp.avatar_url} alt={emp.name} className="w-9 h-9 rounded-full object-cover" />
+                          <div className="relative w-9 h-9">
+                            <Image src={emp.avatar_url} alt={emp.name} fill className="rounded-full object-cover" sizes="36px" />
+                          </div>
                         ) : (
                           <div className="w-9 h-9 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-xs font-bold">
                             {emp.name.split(' ').map((n) => n[0]).join('').substring(0, 2).toUpperCase()}

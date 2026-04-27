@@ -83,10 +83,12 @@ export default function Navbar() {
         <button
           onClick={() => setIsOpen(!isOpen)}
           className={cn(
-            'md:hidden p-2 rounded-lg transition-colors',
+            'md:hidden p-2.5 min-w-[44px] min-h-[44px] flex items-center justify-center rounded-lg transition-colors',
             isScrolled ? 'text-navy-900 hover:bg-gray-100' : 'text-white hover:bg-white/10'
           )}
-          aria-label="Toggle navigation menu"
+          aria-expanded={isOpen}
+          aria-controls="mobile-navigation"
+          aria-label={isOpen ? 'Close navigation menu' : 'Open navigation menu'}
         >
           {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
         </button>
@@ -100,6 +102,7 @@ export default function Navbar() {
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.3, ease: 'easeInOut' }}
+            id="mobile-navigation"
             className="md:hidden bg-white border-b border-border overflow-hidden"
           >
             <div className="container-wide py-4 flex flex-col gap-1">

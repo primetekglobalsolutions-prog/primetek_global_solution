@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { MapPin, Save, Loader2, CheckCircle2, ExternalLink, Navigation, Building } from 'lucide-react';
+import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { OFFICE_LOCATION } from '@/lib/location';
@@ -162,17 +163,13 @@ export default function AdminSettingsPage() {
               href={googleMapsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="block rounded-xl overflow-hidden border border-border hover:border-primary-300 transition-colors"
+              className="block relative w-full h-48 bg-surface-alt rounded-xl overflow-hidden border border-border hover:border-primary-300 transition-colors"
             >
-              <img
+              <Image
                 src={`https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&height=300&center=lonlat:${lng},${lat}&zoom=15.5&marker=lonlat:${lng},${lat};color:%230d9488;size:large&apiKey=demo`}
                 alt="Office location map preview"
-                className="w-full h-48 object-cover bg-surface-alt"
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = 'none';
-                  target.parentElement!.innerHTML = `<div class="w-full h-48 bg-surface-alt flex items-center justify-center text-text-muted text-sm"><span>📍 ${lat}, ${lng}</span></div>`;
-                }}
+                fill
+                className="object-cover"
               />
             </a>
             <div className="flex items-center justify-between mt-3">

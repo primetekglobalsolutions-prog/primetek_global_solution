@@ -2,6 +2,7 @@
 
 import { useState, useRef } from 'react';
 import { Save, Loader2, CheckCircle2, Camera } from 'lucide-react';
+import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { updateProfile, updateAvatar } from './actions';
@@ -88,7 +89,7 @@ export default function ProfileClient({ employee }: { employee: EmployeeProfile 
             onClick={() => fileInputRef.current?.click()}
           >
             {currentAvatarUrl ? (
-              <img src={currentAvatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              <Image src={currentAvatarUrl} alt={`${employee.name}'s profile avatar`} fill className="object-cover" sizes="96px" priority />
             ) : (
               employee.name ? employee.name.split(' ').map((n: string) => n[0]).join('') : 'U'
             )}
