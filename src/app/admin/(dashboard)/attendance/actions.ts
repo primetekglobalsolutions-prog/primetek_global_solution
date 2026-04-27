@@ -1,8 +1,12 @@
 'use server';
 
 import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getSession } from '@/lib/auth';
 
 export async function getAdminAttendance() {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
   const { data, error } = await supabaseAdmin
     .from('attendance')
     .select(`
@@ -43,6 +47,9 @@ export async function getAdminAttendance() {
 }
 
 export async function getEmployeesList() {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
   const { data, error } = await supabaseAdmin
     .from('employees')
     .select('id, name')

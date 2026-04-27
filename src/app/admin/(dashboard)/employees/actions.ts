@@ -2,8 +2,12 @@
 
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/lib/auth';
 
 export async function getAdminEmployees() {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
   const { data, error } = await supabaseAdmin
     .from('employees')
     .select('*')
@@ -17,6 +21,9 @@ export async function getAdminEmployees() {
 }
 
 export async function toggleEmployeeStatus(id: string, currentStatus: string) {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
   const newStatus = currentStatus === 'Active' ? 'Inactive' : 'Active';
   const { error } = await supabaseAdmin
     .from('employees')

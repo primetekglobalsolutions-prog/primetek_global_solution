@@ -2,8 +2,12 @@
 
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { revalidatePath } from 'next/cache';
+import { getSession } from '@/lib/auth';
 
 export async function getAdminApplications() {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
   const { data, error } = await supabaseAdmin
     .from('applications')
     .select(`
@@ -27,6 +31,9 @@ export async function getAdminApplications() {
 }
 
 export async function updateApplicationStatus(id: string, status: string) {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
   const { error } = await supabaseAdmin
     .from('applications')
     .update({ status })
@@ -41,6 +48,9 @@ export async function updateApplicationStatus(id: string, status: string) {
 }
 
 export async function updateApplicationNotes(id: string, notes: string) {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
   // In a full implementation, we'd add a 'notes' column to the DB
   // For now we'll just pretend to save it if the schema doesn't have it.
   // Assuming schema might not have it yet, we just revalidate or log.
