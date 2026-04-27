@@ -21,7 +21,7 @@ export const jobSchema = z.object({
   description: z.string().min(20, 'Description must be at least 20 characters'),
   requirements: z.string().min(10, 'Requirements must be at least 10 characters'),
   salary_range: z.string().optional(),
-  is_active: z.boolean().default(true),
+  is_active: z.boolean().optional().default(true),
 });
 
 export const applicationSchema = z.object({
@@ -29,11 +29,11 @@ export const applicationSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
   email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
-  experience_years: z.coerce.number().min(0).max(50).optional(),
+  experience_years: z.number().min(0).max(50).optional(),
   cover_letter: z.string().optional(),
 });
 
 export type InquiryFormData = z.infer<typeof inquirySchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
-export type JobFormData = z.infer<typeof jobSchema>;
-export type ApplicationFormData = z.infer<typeof applicationSchema>;
+export type JobFormData = z.input<typeof jobSchema>;
+export type ApplicationFormData = z.input<typeof applicationSchema>;
