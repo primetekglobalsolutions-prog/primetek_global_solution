@@ -1,0 +1,42 @@
+'use server';
+
+import { supabaseAdmin } from '@/lib/supabase-admin';
+import { revalidatePath } from 'next/cache';
+
+export async function getAdminJobs() {
+  const { data, error } = await supabaseAdmin
+    .from('jobs')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Error fetching admin jobs:', error);
+    return [];
+  }
+  return data;
+}
+
+export async function toggleJobActive(id: string, currentStatus: boolean) {
+  const { error } = await supabaseAdmin
+    .from('jobs')
+    .update({ is_active: !currentStatus })
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error toggling job:', error);
+    throw new Error('Failed to toggle job');
+  }
+
+  revalidatePath('/admin/jobs');
+}
+
+export async function saveJob(data: any, id?: string) {
+  if (id) {
+    const { error } = await supabaseAdmin.from('jobs').update(data).eq('id', id);
+    if (error) throw new Error(error.message);
+  } else {
+    const { error } = await supabaseAdmin.from('jobs').insert([data]);
+    if (error) throw new Error(error.message);
+  }
+  revalidatePath('/admin/jobs');
+}

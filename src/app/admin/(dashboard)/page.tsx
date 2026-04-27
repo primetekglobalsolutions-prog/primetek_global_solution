@@ -1,21 +1,8 @@
-import { MessageSquare, Users, TrendingUp, Clock, Briefcase, FileText } from 'lucide-react';
+import { MessageSquare, Users, Clock, Briefcase } from 'lucide-react';
 import Card from '@/components/ui/Card';
-
-// Demo data — replace with Supabase queries when DB is connected
-const stats = [
-  { label: 'Total Inquiries', value: '47', icon: MessageSquare, color: 'bg-primary-50 text-primary-500', trend: '+12%' },
-  { label: 'Active Jobs', value: '10', icon: Briefcase, color: 'bg-amber-50 text-amber-500', trend: '3 departments' },
-  { label: 'Employees', value: '5', icon: Users, color: 'bg-emerald-50 text-emerald-500', trend: '4 active' },
-  { label: 'Attendance Today', value: '—', icon: Clock, color: 'bg-violet-50 text-violet-500', trend: 'Live tracking' },
-];
-
-const recentInquiries = [
-  { id: 1, name: 'Rahul Mehra', company: 'TechVista', email: 'rahul@techvista.com', requirement: 'Need 5 React developers for a 6-month project', status: 'new', date: '2026-04-27' },
-  { id: 2, name: 'Anita Rao', company: 'MedCore Healthcare', email: 'anita@medcore.com', requirement: 'Looking for healthcare IT consultants', status: 'contacted', date: '2026-04-26' },
-  { id: 3, name: 'David Chen', company: 'FinServe Global', email: 'david@finserve.com', requirement: 'IT outsourcing for banking platform', status: 'qualified', date: '2026-04-25' },
-  { id: 4, name: 'Priya Nair', company: 'RetailMax', email: 'priya@retailmax.com', requirement: 'UX designers and frontend developers', status: 'new', date: '2026-04-25' },
-  { id: 5, name: 'James Wilson', company: 'AutoMfg Corp', email: 'james@automfg.com', requirement: 'Supply chain optimization consulting', status: 'closed', date: '2026-04-24' },
-];
+import { supabaseAdmin } from '@/lib/supabase-admin';
+import { formatDate } from '@/lib/utils';
+import Link from 'next/link';
 
 const statusColors: Record<string, string> = {
   new: 'bg-blue-50 text-blue-600 border-blue-200',
@@ -24,7 +11,26 @@ const statusColors: Record<string, string> = {
   closed: 'bg-gray-100 text-gray-500 border-gray-200',
 };
 
-export default function AdminDashboard() {
+export default async function AdminDashboard() {
+  const [
+    { count: inquiriesCount },
+    { count: activeJobsCount },
+    { count: employeesCount },
+    { data: recentInquiries }
+  ] = await Promise.all([
+    supabaseAdmin.from('inquiries').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('jobs').select('*', { count: 'exact', head: true }).eq('is_active', true),
+    supabaseAdmin.from('employees').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('inquiries').select('*').order('created_at', { ascending: false }).limit(5)
+  ]);
+
+  const stats = [
+    { label: 'Total Inquiries', value: inquiriesCount || '0', icon: MessageSquare, color: 'bg-primary-50 text-primary-500', trend: 'Live' },
+    { label: 'Active Jobs', value: activeJobsCount || '0', icon: Briefcase, color: 'bg-amber-50 text-amber-500', trend: 'Live' },
+    { label: 'Employees', value: employeesCount || '0', icon: Users, color: 'bg-emerald-50 text-emerald-500', trend: 'Live' },
+    { label: 'Attendance Today', value: '—', icon: Clock, color: 'bg-violet-50 text-violet-500', trend: 'Live tracking' },
+  ];
+
   return (
     <div className="space-y-6">
       <div>
@@ -54,15 +60,15 @@ export default function AdminDashboard() {
       <Card hover={false} className="p-0 overflow-hidden">
         <div className="px-6 py-4 border-b border-border flex items-center justify-between">
           <h2 className="font-heading font-bold text-navy-900">Recent Inquiries</h2>
-          <a href="/admin/inquiries" className="text-sm text-primary-500 hover:text-primary-600 font-medium">
+          <Link href="/admin/inquiries" className="text-sm text-primary-500 hover:text-primary-600 font-medium">
             View All →
-          </a>
+          </Link>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="border-b border-border bg-surface-alt/50">
-                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Name</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Contact</th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Company</th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Requirement</th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
@@ -70,24 +76,32 @@ export default function AdminDashboard() {
               </tr>
             </thead>
             <tbody>
-              {recentInquiries.map((inquiry) => (
-                <tr key={inquiry.id} className="border-b border-border last:border-0 hover:bg-surface-alt/30 transition-colors">
-                  <td className="px-6 py-4">
-                    <div>
-                      <p className="text-sm font-medium text-navy-900">{inquiry.name}</p>
-                      <p className="text-xs text-text-muted">{inquiry.email}</p>
-                    </div>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-text-secondary">{inquiry.company}</td>
-                  <td className="px-6 py-4 text-sm text-text-secondary max-w-xs truncate">{inquiry.requirement}</td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium border ${statusColors[inquiry.status]}`}>
-                      {inquiry.status.charAt(0).toUpperCase() + inquiry.status.slice(1)}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-text-muted">{inquiry.date}</td>
+              {(!recentInquiries || recentInquiries.length === 0) ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-8 text-center text-sm text-text-muted">No recent inquiries.</td>
                 </tr>
-              ))}
+              ) : (
+                recentInquiries.map((inq) => (
+                  <tr key={inq.id} className="border-b border-border last:border-0 hover:bg-surface-alt/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-navy-900">{inq.name}</p>
+                      <p className="text-xs text-text-muted">{inq.email}</p>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-text-secondary">{inq.company || '—'}</td>
+                    <td className="px-6 py-4 text-sm text-text-secondary max-w-xs truncate">
+                      {inq.message}
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className={`px-2.5 py-1 rounded-full text-xs font-medium border ${statusColors[inq.status] || statusColors.new}`}>
+                        {inq.status.charAt(0).toUpperCase() + inq.status.slice(1)}
+                      </span>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-text-muted whitespace-nowrap">
+                      {formatDate(inq.created_at)}
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

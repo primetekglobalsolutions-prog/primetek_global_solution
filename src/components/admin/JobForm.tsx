@@ -7,8 +7,10 @@ import { Save, ArrowLeft } from 'lucide-react';
 import { jobSchema, type JobFormData } from '@/lib/validations';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
+import { saveJob } from '@/app/admin/(dashboard)/jobs/actions';
 
 interface JobFormProps {
+  jobId?: string;
   defaultValues?: Partial<JobFormData>;
   isEditing?: boolean;
 }
@@ -22,7 +24,7 @@ const jobTypes = [
   { value: 'part-time', label: 'Part-time' },
 ];
 
-export default function JobForm({ defaultValues, isEditing }: JobFormProps) {
+export default function JobForm({ jobId, defaultValues, isEditing }: JobFormProps) {
   const router = useRouter();
 
   const {
@@ -38,10 +40,13 @@ export default function JobForm({ defaultValues, isEditing }: JobFormProps) {
   });
 
   const onSubmit = async (data: JobFormData) => {
-    // TODO: POST/PUT to API when Supabase is connected
-    console.log(isEditing ? 'Update job:' : 'Create job:', data);
-    alert(isEditing ? 'Job updated (demo)' : 'Job created (demo)');
-    router.push('/admin/jobs');
+    try {
+      await saveJob(data, jobId);
+      router.push('/admin/jobs');
+    } catch (err) {
+      console.error(err);
+      alert('Failed to save job. See console.');
+    }
   };
 
   const inputClasses = 'w-full px-4 py-3 rounded-lg border border-border bg-white text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent text-sm';

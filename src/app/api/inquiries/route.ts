@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
           email: validated.email,
           phone: validated.phone || null,
           company: validated.company || null,
-          message: validated.message,
+          message: validated.requirement,
           status: 'new'
         }
       ]);

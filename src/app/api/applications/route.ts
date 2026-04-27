@@ -38,8 +38,26 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ error: 'Only PDF and DOCX files are accepted' }, { status: 400 });
       }
 
-      // TODO: Upload to Supabase Storage when connected
-      resumeUrl = `demo-resume-${Date.now()}.${resume.name.split('.').pop()}`;
+      // Upload to Supabase Storage
+      const fileExt = resume.name.split('.').pop();
+      const fileName = `${validated.job_id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+      
+      const buffer = Buffer.from(await resume.arrayBuffer());
+      
+      const { data: uploadData, error: uploadError } = await supabaseAdmin
+        .storage
+        .from('resumes')
+        .upload(fileName, buffer, {
+          contentType: resume.type,
+          upsert: false
+        });
+
+      if (uploadError) {
+        console.error('Resume upload error:', uploadError);
+        return NextResponse.json({ error: 'Failed to upload resume' }, { status: 500 });
+      }
+      
+      resumeUrl = uploadData.path;
     }
 
     const { error } = await supabaseAdmin.from('applications').insert([

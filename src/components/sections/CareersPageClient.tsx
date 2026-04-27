@@ -2,12 +2,11 @@
 
 import { useState, useMemo } from 'react';
 import { Briefcase, SearchX } from 'lucide-react';
-import { demoJobs } from '@/lib/demo-data';
 import JobFilters from '@/components/sections/JobFilters';
 import JobCard from '@/components/sections/JobCard';
 import SectionHeading from '@/components/ui/SectionHeading';
 
-export default function CareersPageClient() {
+export default function CareersPageClient({ initialJobs }: { initialJobs: any[] }) {
   const [filters, setFilters] = useState({
     search: '',
     department: 'All',
@@ -16,7 +15,7 @@ export default function CareersPageClient() {
   });
 
   const filtered = useMemo(() => {
-    return demoJobs.filter((job) => {
+    return initialJobs.filter((job) => {
       if (!job.is_active) return false;
 
       if (filters.search) {
@@ -35,7 +34,7 @@ export default function CareersPageClient() {
 
       return true;
     });
-  }, [filters]);
+  }, [initialJobs, filters]);
 
   return (
     <>

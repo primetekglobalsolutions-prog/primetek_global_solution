@@ -3,7 +3,18 @@
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { MapPin, Clock, Briefcase, ArrowRight, IndianRupee } from 'lucide-react';
-import type { Job } from '@/lib/demo-data';
+
+export interface Job {
+  id: string;
+  title: string;
+  department: string;
+  location: string;
+  type: string;
+  salary_range?: string | null;
+  created_at: string;
+  description?: string;
+  is_active?: boolean;
+}
 
 interface JobCardProps {
   job: Job;

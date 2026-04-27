@@ -40,7 +40,7 @@ export default function Footer() {
               {[
                 { Icon: Globe, href: '#', label: 'LinkedIn' },
                 { Icon: Globe, href: '#', label: 'Twitter' },
-                { Icon: Mail, href: 'mailto:contact@primetek.com', label: 'Email' },
+                { Icon: Mail, href: 'mailto:hr@globalprimetek.com', label: 'Email' },
               ].map(({ Icon, href, label }) => (
                 <a
                   key={label}
@@ -94,16 +94,17 @@ export default function Footer() {
             <ul className="space-y-4">
               <li className="flex items-start gap-3">
                 <Mail className="w-4 h-4 text-primary-400 mt-1 shrink-0" />
-                <span className="text-gray-400 text-sm">contact@primetekglobal.com</span>
+                <span className="text-gray-400 text-sm">hr@globalprimetek.com</span>
               </li>
               <li className="flex items-start gap-3">
                 <Phone className="w-4 h-4 text-primary-400 mt-1 shrink-0" />
-                <span className="text-gray-400 text-sm">+91 98765 43210</span>
+                <span className="text-gray-400 text-sm">+1 (219) 345-6559</span>
               </li>
               <li className="flex items-start gap-3">
                 <MapPin className="w-4 h-4 text-primary-400 mt-1 shrink-0" />
                 <span className="text-gray-400 text-sm">
-                  Hyderabad, Telangana, India
+                  1680, Unit 2G, 14th Ave S<br />
+                  Birmingham, AL 35205, USA
                 </span>
               </li>
             </ul>

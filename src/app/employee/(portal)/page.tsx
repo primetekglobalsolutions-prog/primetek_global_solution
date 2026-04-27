@@ -1,24 +1,55 @@
-'use client';
-
-import { useMemo } from 'react';
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Clock, CalendarCheck, CalendarX, AlertTriangle, ArrowRight } from 'lucide-react';
-import { demoAttendance } from '@/lib/demo-data';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { getSession } from '@/lib/auth';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
-export default function EmployeeDashboard() {
-  // Demo: use emp-001's data
-  const empId = 'emp-001';
-  const empRecords = useMemo(() => demoAttendance.filter((r) => r.employee_id === empId), []);
+export default async function EmployeeDashboard() {
+  const session = await getSession();
+  
+  if (!session || !session.id) {
+    redirect('/employee/login');
+  }
+
+  const { data: employee } = await supabaseAdmin
+    .from('employees')
+    .select('name')
+    .eq('id', session.id)
+    .single();
+
+  const { data: records, error } = await supabaseAdmin
+    .from('attendance')
+    .select('*')
+    .eq('employee_id', session.id)
+    .order('check_in_time', { ascending: false });
+
+  const empRecords = (records || []).map(r => {
+    const checkIn = new Date(r.check_in_time);
+    const checkOut = r.check_out_time ? new Date(r.check_out_time) : null;
+    let durationHours = 0;
+    if (checkOut) {
+      durationHours = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60) * 10) / 10;
+    }
+    return {
+      id: r.id,
+      date: r.check_in_time.split('T')[0],
+      check_in: checkIn.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+      check_out: checkOut ? checkOut.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
+      duration_hours: durationHours,
+      status: r.status,
+    };
+  });
+
   const today = new Date().toISOString().split('T')[0];
   const todayRecord = empRecords.find((r) => r.date === today);
 
   const currentMonth = new Date().getMonth();
   const monthRecords = empRecords.filter((r) => new Date(r.date).getMonth() === currentMonth);
-  const present = monthRecords.filter((r) => r.status === 'present').length;
-  const late = monthRecords.filter((r) => r.status === 'late').length;
-  const absent = monthRecords.filter((r) => r.status === 'absent').length;
+  const present = monthRecords.filter((r) => r.status.toLowerCase() === 'present').length;
+  const late = monthRecords.filter((r) => r.status.toLowerCase() === 'late').length;
+  const absent = monthRecords.filter((r) => r.status.toLowerCase() === 'absent').length;
 
   const recentRecords = empRecords.slice(0, 7);
 
@@ -41,7 +72,7 @@ export default function EmployeeDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-heading font-bold text-navy-900">Dashboard</h1>
-          <p className="text-text-secondary text-sm mt-1">Welcome back, Rajesh.</p>
+          <p className="text-text-secondary text-sm mt-1">Welcome back, {employee?.name?.split(' ')[0] || 'Employee'}.</p>
         </div>
         <Link href="/employee/attendance">
           <Button size="sm">
@@ -61,7 +92,7 @@ export default function EmployeeDashboard() {
                   Checked in at {todayRecord.check_in}
                   {todayRecord.check_out && ` — Out at ${todayRecord.check_out}`}
                 </p>
-                <span className={`inline-block mt-2 px-2.5 py-1 rounded-full text-xs font-medium border ${statusColors[todayRecord.status]}`}>
+                <span className={`inline-block mt-2 px-2.5 py-1 rounded-full text-xs font-medium border ${statusColors[todayRecord.status.toLowerCase()] || statusColors.present}`}>
                   {todayRecord.status.charAt(0).toUpperCase() + todayRecord.status.slice(1)}
                 </span>
               </>
@@ -109,19 +140,23 @@ export default function EmployeeDashboard() {
               </tr>
             </thead>
             <tbody>
-              {recentRecords.map((record) => (
-                <tr key={record.id} className="border-b border-border last:border-0 hover:bg-surface-alt/30 transition-colors">
-                  <td className="px-6 py-4 text-sm text-navy-900 font-medium">{new Date(record.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', weekday: 'short' })}</td>
-                  <td className="px-6 py-4 text-sm text-text-secondary">{record.check_in || '—'}</td>
-                  <td className="px-6 py-4 text-sm text-text-secondary">{record.check_out || '—'}</td>
-                  <td className="px-6 py-4 text-sm text-text-secondary">{record.duration_hours > 0 ? `${record.duration_hours}h` : '—'}</td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium border ${statusColors[record.status]}`}>
-                      {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+              {recentRecords.length === 0 ? (
+                <tr><td colSpan={5} className="px-6 py-8 text-center text-sm text-text-muted">No attendance records found.</td></tr>
+              ) : (
+                recentRecords.map((record) => (
+                  <tr key={record.id} className="border-b border-border last:border-0 hover:bg-surface-alt/30 transition-colors">
+                    <td className="px-6 py-4 text-sm text-navy-900 font-medium">{new Date(record.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', weekday: 'short' })}</td>
+                    <td className="px-6 py-4 text-sm text-text-secondary">{record.check_in || '—'}</td>
+                    <td className="px-6 py-4 text-sm text-text-secondary">{record.check_out || '—'}</td>
+                    <td className="px-6 py-4 text-sm text-text-secondary">{record.duration_hours > 0 ? `${record.duration_hours}h` : '—'}</td>
+                    <td className="px-6 py-4">
+                      <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium border ${statusColors[record.status.toLowerCase()] || statusColors.present}`}>
+                        {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

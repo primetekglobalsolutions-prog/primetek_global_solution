@@ -1,19 +1,18 @@
-'use client';
-
-import { useParams } from 'next/navigation';
-import { demoJobs } from '@/lib/demo-data';
+import { notFound } from 'next/navigation';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import JobForm from '@/components/admin/JobForm';
 
-export default function EditJobPage() {
-  const params = useParams();
-  const job = demoJobs.find((j) => j.id === params.id);
+export default async function EditJobPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  
+  const { data: job, error } = await supabaseAdmin
+    .from('jobs')
+    .select('*')
+    .eq('id', id)
+    .single();
 
-  if (!job) {
-    return (
-      <div className="text-center py-16">
-        <h2 className="text-xl font-heading font-bold text-navy-900">Job not found</h2>
-      </div>
-    );
+  if (error || !job) {
+    notFound();
   }
 
   return (
@@ -24,14 +23,15 @@ export default function EditJobPage() {
       </div>
       <JobForm
         isEditing
+        jobId={job.id}
         defaultValues={{
           title: job.title,
           department: job.department,
           location: job.location,
-          type: job.type,
+          type: job.type as any,
           description: job.description,
           requirements: job.requirements,
-          salary_range: job.salary_range,
+          salary_range: job.salary_range || undefined,
           is_active: job.is_active,
         }}
       />

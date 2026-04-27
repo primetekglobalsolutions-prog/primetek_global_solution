@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, MapPin, Clock, Briefcase, IndianRupee, Building } from 'lucide-react';
-import { demoJobs } from '@/lib/demo-data';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 import ApplicationForm from '@/components/sections/ApplicationForm';
 
 interface PageProps {
@@ -10,8 +10,15 @@ interface PageProps {
 
 export async function generateMetadata({ params }: PageProps) {
   const { id } = await params;
-  const job = demoJobs.find((j) => j.id === id);
+  
+  const { data: job } = await supabaseAdmin
+    .from('jobs')
+    .select('title, department, location')
+    .eq('id', id)
+    .single();
+
   if (!job) return { title: 'Job Not Found' };
+  
   return {
     title: job.title,
     description: `Apply for ${job.title} at Primetek Global Solutions. ${job.department} | ${job.location}`,
@@ -27,9 +34,14 @@ const typeLabels: Record<string, string> = {
 
 export default async function JobDetailPage({ params }: PageProps) {
   const { id } = await params;
-  const job = demoJobs.find((j) => j.id === id);
+  
+  const { data: job, error } = await supabaseAdmin
+    .from('jobs')
+    .select('*')
+    .eq('id', id)
+    .single();
 
-  if (!job) notFound();
+  if (error || !job) notFound();
 
   return (
     <>
@@ -53,7 +65,7 @@ export default async function JobDetailPage({ params }: PageProps) {
               <MapPin className="w-4 h-4 text-primary-400" /> {job.location}
             </span>
             <span className="flex items-center gap-1.5">
-              <Briefcase className="w-4 h-4 text-primary-400" /> {typeLabels[job.type]}
+              <Briefcase className="w-4 h-4 text-primary-400" /> {typeLabels[job.type] || job.type}
             </span>
             {job.salary_range && (
               <span className="flex items-center gap-1.5">
@@ -82,7 +94,7 @@ export default async function JobDetailPage({ params }: PageProps) {
               <div>
                 <h2 className="text-xl font-heading font-bold text-navy-900 mb-4">Requirements</h2>
                 <div className="space-y-2">
-                  {job.requirements.split('\n').map((req, i) => (
+                  {job.requirements.split('\n').map((req: string, i: number) => (
                     <p key={i} className="text-text-secondary leading-relaxed">{req}</p>
                   ))}
                 </div>

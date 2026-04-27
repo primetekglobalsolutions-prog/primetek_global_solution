@@ -58,7 +58,7 @@ export default function Hero() {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/10 text-primary-300 text-sm font-medium mb-8 backdrop-blur-sm"
         >
           <Sparkles className="w-4 h-4" />
-          Trusted by 500+ Enterprises Worldwide
+          US-Based IT Staffing & Recruiting
         </motion.div>
 
         {/* Heading */}
@@ -67,7 +67,7 @@ export default function Hero() {
           className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-bold text-white leading-[1.1] mb-6 max-w-5xl mx-auto opacity-0"
         >
           Empowering Businesses with{' '}
-          <span className="gradient-text">World-Class Talent</span>
+          <span className="gradient-text">World-Class IT Talent</span>
         </h1>
 
         {/* Subtitle */}
@@ -77,8 +77,7 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="text-lg md:text-xl text-gray-300 max-w-2xl mx-auto mb-10 leading-relaxed"
         >
-          Your trusted partner for staffing, consulting, and outsourcing solutions.
-          We connect the right talent with the right opportunity.
+          We specialize in placing highly skilled IT professionals with US-based clients across Fortune 500 companies, mid-size enterprises, and startups.
         </motion.p>
 
         {/* CTAs */}

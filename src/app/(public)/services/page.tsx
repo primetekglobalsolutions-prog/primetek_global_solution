@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { Users, BarChart3, Globe, Briefcase, UserCheck, Settings, Cpu, HeadphonesIcon, Database, CheckCircle2 } from 'lucide-react';
+import { Users, Code, Cloud, Shield, Database, LayoutDashboard, Settings, UserCheck, Briefcase, FileText, CheckCircle2 } from 'lucide-react';
 import SectionHeading from '@/components/ui/SectionHeading';
 import Card from '@/components/ui/Card';
 import CTASection from '@/components/sections/CTASection';
@@ -7,49 +7,41 @@ import CTASection from '@/components/sections/CTASection';
 export const metadata: Metadata = {
   title: 'Our Services',
   description:
-    'Explore Primetek Global Solutions\' comprehensive services — IT & Non-IT Staffing, Strategic Consulting, and Business Outsourcing.',
+    'Explore Primetek Global Solutions\' comprehensive services — IT Staffing, Contract, C2C, and Full-Time Recruitment.',
 };
 
 const serviceCategories = [
   {
     id: 'staffing',
     icon: <Users className="w-8 h-8" />,
-    title: 'IT & Non-IT Staffing',
+    title: 'Our IT Staffing & Talent Solutions',
     gradient: 'from-primary-500 to-primary-700',
-    description: 'We connect top talent with leading organizations across all skill levels and industries.',
+    description: 'We connect top IT talent with leading organizations across the US market.',
     subservices: [
-      { icon: <Briefcase className="w-5 h-5" />, title: 'Contract Staffing', description: 'Flexible workforce solutions for project-based needs with rapid deployment.' },
-      { icon: <UserCheck className="w-5 h-5" />, title: 'Full-Time Hiring', description: 'End-to-end recruitment for permanent roles — from sourcing to onboarding.' },
-      { icon: <Settings className="w-5 h-5" />, title: 'Temp-to-Hire', description: 'Evaluate talent on the job before committing to a full-time offer.' },
-      { icon: <Users className="w-5 h-5" />, title: 'Executive Search', description: 'C-suite and senior leadership recruitment for mission-critical roles.' },
+      { icon: <Briefcase className="w-5 h-5" />, title: 'Contract Staffing', description: 'Short-to-mid term IT professionals for project-based needs.' },
+      { icon: <FileText className="w-5 h-5" />, title: 'C2C (Contractor-to-Client)', description: 'Direct placement of independent contractors for specialized roles.' },
+      { icon: <Settings className="w-5 h-5" />, title: 'Contract-to-Hire', description: 'Try-before-you-buy model to evaluate candidates before permanent hire.' },
+      { icon: <UserCheck className="w-5 h-5" />, title: 'Full-Time Recruitment', description: 'End-to-end permanent IT hiring for US-based roles.' },
+      { icon: <Users className="w-5 h-5" />, title: 'Talent Pipeline Building', description: 'Proactive sourcing and pre-screening for recurring hiring needs.' },
+      { icon: <Database className="w-5 h-5" />, title: 'Bench-Ready Talent', description: 'Ready-to-start IT professionals for US clients.' },
     ],
   },
   {
-    id: 'consulting',
-    icon: <BarChart3 className="w-8 h-8" />,
-    title: 'Strategic Consulting',
+    id: 'domains',
+    icon: <Code className="w-8 h-8" />,
+    title: 'Technology Domains We Cover',
     gradient: 'from-gold-500 to-gold-600',
-    description: 'Data-driven advisory services that optimize operations and accelerate growth.',
+    description: 'Expertise across the modern technology stack.',
     subservices: [
-      { icon: <BarChart3 className="w-5 h-5" />, title: 'Strategy Advisory', description: 'Business strategy and market analysis for competitive advantage.' },
-      { icon: <Cpu className="w-5 h-5" />, title: 'Digital Transformation', description: 'Modernize your tech stack and workflows for the digital era.' },
-      { icon: <Settings className="w-5 h-5" />, title: 'Process Optimization', description: 'Streamline operations to reduce costs and improve efficiency.' },
-      { icon: <Users className="w-5 h-5" />, title: 'Change Management', description: 'Navigate organizational transformation with structured methodology.' },
+      { icon: <Code className="w-5 h-5" />, title: 'Software Development & Architecture', description: 'Java, .NET, Python, JavaScript, and Full-Stack Engineering.' },
+      { icon: <Database className="w-5 h-5" />, title: 'Data Science & AI/ML', description: 'Advanced analytics, machine learning, and data engineering.' },
+      { icon: <Cloud className="w-5 h-5" />, title: 'Cloud & DevOps', description: 'AWS, Azure, GCP, Docker, Kubernetes, and CI/CD pipelines.' },
+      { icon: <Shield className="w-5 h-5" />, title: 'Cybersecurity', description: 'Information security, risk assessment, and compliance.' },
+      { icon: <Settings className="w-5 h-5" />, title: 'QA & Test Automation', description: 'SDETs, manual testing, and automated frameworks.' },
+      { icon: <LayoutDashboard className="w-5 h-5" />, title: 'ERP Technologies', description: 'SAP, Oracle, Workday, integrations & support.' },
+      { icon: <Briefcase className="w-5 h-5" />, title: 'Business Analysis', description: 'Project/Program Management and Product Ownership.' },
     ],
-  },
-  {
-    id: 'outsourcing',
-    icon: <Globe className="w-8 h-8" />,
-    title: 'Outsourcing Solutions',
-    gradient: 'from-navy-600 to-navy-800',
-    description: 'Scalable outsourcing partnerships that let you focus on core business.',
-    subservices: [
-      { icon: <HeadphonesIcon className="w-5 h-5" />, title: 'BPO Services', description: 'Customer support, data entry, and back-office process management.' },
-      { icon: <Database className="w-5 h-5" />, title: 'KPO Services', description: 'Research, analytics, and knowledge-intensive process outsourcing.' },
-      { icon: <Cpu className="w-5 h-5" />, title: 'IT Outsourcing', description: 'Software development, maintenance, and infrastructure management.' },
-      { icon: <Settings className="w-5 h-5" />, title: 'Managed Services', description: 'End-to-end IT operations management with SLA guarantees.' },
-    ],
-  },
+  }
 ];
 
 export default function ServicesPage() {
@@ -62,10 +54,10 @@ export default function ServicesPage() {
             Our Services
           </span>
           <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white mb-5 max-w-4xl mx-auto">
-            Comprehensive Workforce Solutions
+            IT Staffing & Talent Solutions
           </h1>
           <p className="text-lg text-gray-300 max-w-2xl mx-auto">
-            From talent acquisition to strategic consulting — everything you need to build and scale high-performing teams.
+            Empowering businesses with scalable, high-quality IT talent solutions that drive innovation and growth.
           </p>
         </div>
       </section>
@@ -88,7 +80,7 @@ export default function ServicesPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               {category.subservices.map((sub) => (
                 <Card key={sub.title} className="p-6">
                   <div className="w-11 h-11 rounded-lg bg-primary-50 text-primary-500 flex items-center justify-center mb-4">
@@ -102,28 +94,6 @@ export default function ServicesPage() {
           </div>
         </section>
       ))}
-
-      {/* Why Choose Us */}
-      <section className="section-padding bg-navy-900">
-        <div className="container-wide">
-          <SectionHeading label="Why Primetek" title="Our Competitive Edge" light />
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {[
-              'Deep industry expertise across 15+ verticals',
-              'Rigorous 6-stage candidate screening process',
-              'Average 48-hour time-to-shortlist',
-              '98% client satisfaction rate',
-              'Dedicated account manager for every client',
-              'ISO-certified quality management processes',
-            ].map((item) => (
-              <div key={item} className="flex items-start gap-3 p-4 rounded-xl bg-white/5 border border-white/5">
-                <CheckCircle2 className="w-5 h-5 text-primary-400 shrink-0 mt-0.5" />
-                <span className="text-gray-200 text-sm">{item}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
       <CTASection />
     </>

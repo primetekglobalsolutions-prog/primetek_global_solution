@@ -160,7 +160,13 @@ CREATE POLICY "Public can insert applications" ON public.applications
 -- and employee operations. RLS policies here are primarily to restrict direct client-side (anon key) access.
 
 -- ==========================================
--- Storage Buckets (Run this if you want to use Supabase Storage)
+-- Storage Buckets
 -- ==========================================
--- insert into storage.buckets (id, name, public) values ('resumes', 'resumes', false);
--- insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true);
+insert into storage.buckets (id, name, public) values ('resumes', 'resumes', false) ON CONFLICT (id) DO NOTHING;
+insert into storage.buckets (id, name, public) values ('avatars', 'avatars', true) ON CONFLICT (id) DO NOTHING;
+
+-- Storage Policies for Avatars (Public Read, Authenticated Write handled via Service Role in API)
+CREATE POLICY "Public can view avatars" ON storage.objects FOR SELECT USING (bucket_id = 'avatars');
+
+-- Storage Policies for Resumes (Private, handled via Service Role in API)
+-- No public policies needed for resumes as they are handled entirely backend-side via Service Role.

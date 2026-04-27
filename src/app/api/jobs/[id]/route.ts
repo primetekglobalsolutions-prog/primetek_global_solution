@@ -1,16 +1,26 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { demoJobs } from '@/lib/demo-data';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function GET(
   _request: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const { id } = await params;
-  const job = demoJobs.find((j) => j.id === id);
+  try {
+    const { id } = await params;
+    
+    const { data: job, error } = await supabaseAdmin
+      .from('jobs')
+      .select('*')
+      .eq('id', id)
+      .single();
 
-  if (!job) {
-    return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+    if (error || !job) {
+      return NextResponse.json({ error: 'Job not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ data: job });
+  } catch (err) {
+    console.error('Error fetching job details:', err);
+    return NextResponse.json({ error: 'Failed to fetch job details' }, { status: 500 });
   }
-
-  return NextResponse.json({ data: job });
 }
