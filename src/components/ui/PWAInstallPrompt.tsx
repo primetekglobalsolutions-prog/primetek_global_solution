@@ -30,71 +30,78 @@ export default function PWAInstallPrompt() {
     };
   }, []);
 
-  // Show prompt when on correct route AND we have a deferred prompt
+  // Show prompt when on correct route
   useEffect(() => {
     const isLoginPath = pathname.toLowerCase().includes('login');
     const isPortal = pathname.toLowerCase().includes('employee') || pathname.toLowerCase().includes('admin');
     
-    if (isLoginPath && isPortal && deferredPrompt) {
-      setIsVisible(true);
+    // Check if it's iOS
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches;
+
+    if (isLoginPath && isPortal && !isStandalone) {
+      // Small delay to ensure smooth transition
+      const timer = setTimeout(() => setIsVisible(true), 1500);
+      return () => clearTimeout(timer);
     } else {
       setIsVisible(false);
     }
-  }, [pathname, deferredPrompt]);
+  }, [pathname]);
 
   const handleInstall = async () => {
-    if (!deferredPrompt) return;
-    
-    // Show the prompt
-    deferredPrompt.prompt();
-    
-    // Wait for the user to respond to the prompt
-    const { outcome } = await deferredPrompt.userChoice;
-    console.log(`User response to the install prompt: ${outcome}`);
-    
-    // We've used the prompt, and can't use it again, throw it away
-    setDeferredPrompt(null);
-    setIsVisible(false);
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+        setIsVisible(false);
+      }
+    } else {
+      // Manual instruction fallback for iOS or browsers without prompt support
+      alert("To install: \n1. Tap the Share icon (bottom of screen)\n2. Scroll down and tap 'Add to Home Screen'");
+    }
   };
 
   if (!isVisible) return null;
 
   const isEmployee = pathname.includes('/employee');
-  const title = isEmployee ? "Install Employee Portal" : "Install Admin Dashboard";
-  const desc = isEmployee 
-    ? "Access your attendance, profile, and HR tools faster by installing the Primetek app." 
-    : "Access the admin control center securely from your desktop or home screen.";
+  const title = isEmployee ? "Employee Portal App" : "Admin Dashboard App";
 
   return (
-    <div className="fixed top-4 left-4 right-4 md:left-auto md:right-4 md:top-4 z-[100] max-w-[280px] animate-in fade-in slide-in-from-top-4 duration-500">
-      <Card className="p-0 overflow-hidden shadow-xl border-primary-100 ring-1 ring-black/5 bg-white/95 backdrop-blur-md">
-        <div className="p-3">
-          <div className="flex justify-between items-center mb-2">
-            <Logo className="w-20 h-auto" />
-            <button 
-              onClick={() => setIsVisible(false)} 
-              className="text-text-muted hover:text-navy-900 transition-colors p-1"
+    <div className="fixed top-0 left-0 right-0 md:top-4 md:right-4 md:left-auto z-[9999] p-4 pointer-events-none">
+      <div className="max-w-sm mx-auto md:mx-0 pointer-events-auto animate-in fade-in slide-in-from-top-10 duration-700">
+        <Card className="p-0 overflow-hidden shadow-2xl border-primary-100 ring-1 ring-black/10 bg-white/95 backdrop-blur-lg">
+          <div className="p-4">
+            <div className="flex justify-between items-center mb-3">
+              <Logo className="w-20 h-auto" />
+              <button 
+                onClick={() => setIsVisible(false)} 
+                className="text-text-muted hover:text-navy-900 transition-colors p-1.5 bg-surface-alt rounded-full"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            
+            <h3 className="font-heading font-bold text-navy-900 text-sm mb-1 leading-tight">
+              Install {title}
+            </h3>
+            <p className="text-text-secondary text-[11px] leading-snug mb-4">
+              {isEmployee 
+                ? "Get the app for faster attendance and HR updates." 
+                : "Secure, standalone access to your control center."}
+            </p>
+            
+            <Button 
+              onClick={handleInstall}
+              size="sm"
+              className="w-full py-2 h-auto text-xs font-bold shadow-lg shadow-primary-500/20"
             >
-              <X className="w-4 h-4" />
-            </button>
+              <Download className="w-3.5 h-3.5 mr-2" /> 
+              {deferredPrompt ? "Install App Now" : "How to Install"}
+            </Button>
           </div>
-          
-          <h3 className="font-heading font-bold text-navy-900 text-sm mb-1 leading-tight">
-            {title}
-          </h3>
-          <p className="text-text-secondary text-[11px] leading-snug mb-3">
-            {isEmployee ? "Fast access to attendance & HR tools." : "Secure dashboard control center."}
-          </p>
-          
-          <Button 
-            onClick={handleInstall}
-            size="sm"
-            className="w-full py-1.5 h-auto text-xs shadow-md shadow-primary-500/10"
-          >
-            <Download className="w-3.5 h-3.5 mr-1.5" /> Install App
-          </Button>
-        </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 }
