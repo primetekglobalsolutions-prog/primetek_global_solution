@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Globe, Mail, Phone, MapPin } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 
 const quickLinks = [
   { href: '/', label: 'Home' },
@@ -24,13 +25,8 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 lg:gap-12">
           {/* Brand Column */}
           <div className="lg:col-span-1">
-            <Link href="/" className="flex items-center gap-2 mb-4">
-              <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold text-lg">
-                P
-              </div>
-              <span className="font-heading font-bold text-lg text-white">
-                Primetek<span className="text-primary-400">.</span>
-              </span>
+            <Link href="/" className="flex items-center mb-4">
+              <Logo className="w-48 h-auto" dark={true} />
             </Link>
             <p className="text-gray-400 text-sm leading-relaxed mb-6">
               Empowering businesses with world-class talent solutions. Your trusted partner for
