@@ -111,10 +111,10 @@ export default function Footer() {
       {/* Bottom Bar */}
       <div className="border-t border-white/10">
         <div className="container-wide py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-gray-500 text-sm">
+          <p className="text-gray-400 text-sm">
             © {new Date().getFullYear()} Primetek Global Solutions. All rights reserved.
           </p>
-          <div className="flex gap-6 text-sm text-gray-500">
+          <div className="flex gap-6 text-sm text-gray-400">
             <Link href="#" className="hover:text-primary-400 transition-colors">Privacy Policy</Link>
             <Link href="#" className="hover:text-primary-400 transition-colors">Terms of Service</Link>
           </div>

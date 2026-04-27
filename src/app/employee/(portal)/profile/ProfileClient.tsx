@@ -126,29 +126,29 @@ export default function ProfileClient({ employee }: { employee: EmployeeProfile 
           <div className="space-y-5">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-navy-900 mb-1.5">Full Name</label>
-                <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClasses} />
+                <label htmlFor="profile-name" className="block text-sm font-medium text-navy-900 mb-1.5">Full Name</label>
+                <input id="profile-name" type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClasses} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-navy-900 mb-1.5">Email</label>
-                <input type="email" value={form.email} disabled className={`${inputClasses} bg-surface-alt cursor-not-allowed`} />
+                <label htmlFor="profile-email" className="block text-sm font-medium text-navy-900 mb-1.5">Email</label>
+                <input id="profile-email" type="email" value={form.email} disabled className={`${inputClasses} bg-surface-alt cursor-not-allowed`} />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
               <div>
-                <label className="block text-sm font-medium text-navy-900 mb-1.5">Phone</label>
-                <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputClasses} />
+                <label htmlFor="profile-phone" className="block text-sm font-medium text-navy-900 mb-1.5">Phone</label>
+                <input id="profile-phone" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputClasses} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-navy-900 mb-1.5">Department</label>
-                <input type="text" value={form.department} disabled className={`${inputClasses} bg-surface-alt cursor-not-allowed`} />
+                <label htmlFor="profile-department" className="block text-sm font-medium text-navy-900 mb-1.5">Department</label>
+                <input id="profile-department" type="text" value={form.department} disabled className={`${inputClasses} bg-surface-alt cursor-not-allowed`} />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-navy-900 mb-1.5">Designation</label>
-              <input type="text" value={form.designation} disabled className={`${inputClasses} bg-surface-alt cursor-not-allowed`} />
+              <label htmlFor="profile-designation" className="block text-sm font-medium text-navy-900 mb-1.5">Designation</label>
+              <input id="profile-designation" type="text" value={form.designation} disabled className={`${inputClasses} bg-surface-alt cursor-not-allowed`} />
             </div>
 
             <div className="flex items-center gap-3 pt-2">

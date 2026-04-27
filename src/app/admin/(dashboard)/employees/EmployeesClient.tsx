@@ -169,25 +169,25 @@ export default function EmployeesClient({ initialEmployees }: { initialEmployees
               ) : (
                 <form onSubmit={handleAddEmployee} className="space-y-4">
                   <div>
-                    <label className="block text-sm font-medium text-navy-900 mb-1">Full Name</label>
-                    <input required type="text" value={newEmployeeData.name} onChange={(e) => setNewEmployeeData({...newEmployeeData, name: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-border focus:ring-2 focus:ring-primary-400 focus:outline-none" />
+                    <label htmlFor="new-emp-name" className="block text-sm font-medium text-navy-900 mb-1">Full Name</label>
+                    <input id="new-emp-name" required type="text" value={newEmployeeData.name} onChange={(e) => setNewEmployeeData({...newEmployeeData, name: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-border focus:ring-2 focus:ring-primary-400 focus:outline-none" />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-navy-900 mb-1">Email Address</label>
-                    <input required type="email" value={newEmployeeData.email} onChange={(e) => setNewEmployeeData({...newEmployeeData, email: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-border focus:ring-2 focus:ring-primary-400 focus:outline-none" />
+                    <label htmlFor="new-emp-email" className="block text-sm font-medium text-navy-900 mb-1">Email Address</label>
+                    <input id="new-emp-email" required type="email" value={newEmployeeData.email} onChange={(e) => setNewEmployeeData({...newEmployeeData, email: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-border focus:ring-2 focus:ring-primary-400 focus:outline-none" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-sm font-medium text-navy-900 mb-1">Role</label>
-                      <select value={newEmployeeData.role} onChange={(e) => setNewEmployeeData({...newEmployeeData, role: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-border focus:ring-2 focus:ring-primary-400 focus:outline-none bg-white">
+                      <label htmlFor="new-emp-role" className="block text-sm font-medium text-navy-900 mb-1">Role</label>
+                      <select id="new-emp-role" value={newEmployeeData.role} onChange={(e) => setNewEmployeeData({...newEmployeeData, role: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-border focus:ring-2 focus:ring-primary-400 focus:outline-none bg-white">
                         <option value="employee">Employee</option>
                         <option value="admin">Admin</option>
                         <option value="hr">HR</option>
                       </select>
                     </div>
                     <div>
-                      <label className="block text-sm font-medium text-navy-900 mb-1">Department</label>
-                      <input required type="text" placeholder="e.g. Engineering" value={newEmployeeData.department} onChange={(e) => setNewEmployeeData({...newEmployeeData, department: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-border focus:ring-2 focus:ring-primary-400 focus:outline-none" />
+                      <label htmlFor="new-emp-dept" className="block text-sm font-medium text-navy-900 mb-1">Department</label>
+                      <input id="new-emp-dept" required type="text" placeholder="e.g. Engineering" value={newEmployeeData.department} onChange={(e) => setNewEmployeeData({...newEmployeeData, department: e.target.value})} className="w-full px-3 py-2 rounded-lg border border-border focus:ring-2 focus:ring-primary-400 focus:outline-none" />
                     </div>
                   </div>
                   <div className="pt-2 flex justify-end gap-3">

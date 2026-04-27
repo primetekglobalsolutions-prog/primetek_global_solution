@@ -36,13 +36,13 @@ function StatItem({ icon, value, suffix, label, delay }: StatItemProps) {
       <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-primary-500/10 text-primary-500 mb-4 group-hover:bg-primary-500 group-hover:text-white transition-all duration-300">
         {icon}
       </div>
-      <div className="flex items-baseline justify-center gap-0.5">
-        <motion.span className="text-4xl md:text-5xl font-bold text-navy-900">
+      <div className="flex items-baseline justify-center gap-0.5" aria-label={`${value}${suffix} ${label}`}>
+        <motion.span aria-hidden="true" className="text-4xl md:text-5xl font-bold text-navy-900">
           {rounded}
         </motion.span>
-        <span className="text-2xl md:text-3xl font-bold text-gold-500">{suffix}</span>
+        <span aria-hidden="true" className="text-2xl md:text-3xl font-bold text-gold-500">{suffix}</span>
       </div>
-      <p className="text-text-secondary mt-2 text-sm font-medium">{label}</p>
+      <h3 className="text-text-secondary mt-2 text-sm font-medium">{label}</h3>
     </motion.div>
   );
 }
@@ -59,6 +59,7 @@ export default function Stats() {
     <section className="section-padding bg-surface-alt relative">
       <div className="absolute inset-0 bg-gradient-to-b from-navy-900/5 to-transparent" />
       <div className="container-wide relative">
+        <h2 className="sr-only">Our Impact and Statistics</h2>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-8 md:gap-12">
           {stats.map((stat, index) => (
             <StatItem key={stat.label} {...stat} delay={index * 0.15} />
