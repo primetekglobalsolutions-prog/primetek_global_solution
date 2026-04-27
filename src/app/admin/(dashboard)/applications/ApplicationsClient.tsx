@@ -1,11 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Filter, Download, Eye, X } from 'lucide-react';
-import { formatDate, truncate } from '@/lib/utils';
+import { Search, Download, Eye, X } from 'lucide-react';
+import { formatDate } from '@/lib/utils';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { updateApplicationStatus, updateApplicationNotes } from './actions';
+import { updateApplicationStatus } from './actions';
 
 export interface ApplicationRecord {
   id: string;
@@ -60,7 +60,7 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
     
     try {
       await updateApplicationStatus(id, status);
-    } catch (err) {
+    } catch {
       alert('Failed to update status.');
     }
   };

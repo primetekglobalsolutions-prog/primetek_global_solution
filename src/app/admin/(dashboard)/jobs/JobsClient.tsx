@@ -41,7 +41,7 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
     );
     try {
       await toggleJobActive(id, currentStatus);
-    } catch (err) {
+    } catch {
       // Revert on failure
       setJobs((prev) =>
         prev.map((job) => (job.id === id ? { ...job, is_active: currentStatus } : job))

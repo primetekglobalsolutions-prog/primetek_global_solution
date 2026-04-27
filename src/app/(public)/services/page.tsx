@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
-import { Users, Code, Cloud, Shield, Database, LayoutDashboard, Settings, UserCheck, Briefcase, FileText, CheckCircle2 } from 'lucide-react';
-import SectionHeading from '@/components/ui/SectionHeading';
+import { Users, Code, Cloud, Shield, Database, LayoutDashboard, Settings, UserCheck, Briefcase, FileText } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import CTASection from '@/components/sections/CTASection';
 

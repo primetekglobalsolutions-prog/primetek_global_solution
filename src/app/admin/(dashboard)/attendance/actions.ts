@@ -22,7 +22,7 @@ export async function getAdminAttendance() {
     return [];
   }
   
-  return data.map((record: any) => {
+  return data.map((record: Record<string, any>) => {
     const checkIn = new Date(record.check_in_time);
     const checkOut = record.check_out_time ? new Date(record.check_out_time) : null;
     let durationHours = 0;

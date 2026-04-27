@@ -37,7 +37,7 @@ export async function toggleJobActive(id: string, currentStatus: boolean) {
   revalidatePath('/admin/jobs');
 }
 
-export async function saveJob(data: any, id?: string) {
+export async function saveJob(data: Record<string, unknown>, id?: string) {
   const session = await getSession();
   if (!session || session.role !== 'admin') throw new Error('Unauthorized');
 

@@ -6,7 +6,18 @@ export default async function InquiriesPage() {
 
   // Map the database fields to the component expectations
   // 'message' from DB maps to 'requirement' in component
-  const formattedInquiries = inquiries.map((inq: any) => ({
+  interface DBInquiry {
+    id: string;
+    name: string;
+    email: string;
+    company?: string;
+    phone?: string;
+    message: string;
+    status: string;
+    created_at: string;
+  }
+
+  const formattedInquiries = inquiries.map((inq: DBInquiry) => ({
     id: inq.id,
     name: inq.name,
     email: inq.email,

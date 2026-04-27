@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ArrowRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Button from '@/components/ui/Button';
+import Logo from '@/components/ui/Logo';
 
 const navLinks = [
   { href: '/', label: 'Home' },
@@ -28,9 +29,11 @@ export default function Navbar() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  useEffect(() => {
-    setIsOpen(false);
-  }, [pathname]);
+  const [prevPathname, setPrevPathname] = useState(pathname);
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    if (isOpen) setIsOpen(false);
+  }
 
   return (
     <header
@@ -43,18 +46,8 @@ export default function Navbar() {
     >
       <nav className="container-wide flex items-center justify-between h-16 md:h-20">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:shadow-primary-500/30 transition-shadow">
-            P
-          </div>
-          <span
-            className={cn(
-              'font-heading font-bold text-lg transition-colors',
-              isScrolled ? 'text-navy-900' : 'text-white'
-            )}
-          >
-            Primetek<span className="text-primary-500">.</span>
-          </span>
+        <Link href="/" className="flex items-center group">
+          <Logo className="w-56 h-auto" dark={!isScrolled} />
         </Link>
 
         {/* Desktop Links */}

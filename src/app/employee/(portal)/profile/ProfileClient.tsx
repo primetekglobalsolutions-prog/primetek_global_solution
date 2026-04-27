@@ -6,7 +6,18 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { updateProfile, updateAvatar } from './actions';
 
-export default function ProfileClient({ employee }: { employee: any }) {
+export interface EmployeeProfile {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  department?: string;
+  designation?: string;
+  avatar_url?: string;
+  created_at?: string;
+}
+
+export default function ProfileClient({ employee }: { employee: EmployeeProfile }) {
   const [form, setForm] = useState({
     name: employee.name || '',
     email: employee.email || '',

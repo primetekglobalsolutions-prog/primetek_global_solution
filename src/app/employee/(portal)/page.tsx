@@ -19,7 +19,7 @@ export default async function EmployeeDashboard() {
     .eq('id', session.id)
     .single();
 
-  const { data: records, error } = await supabaseAdmin
+  const { data: records } = await supabaseAdmin
     .from('attendance')
     .select('*')
     .eq('employee_id', session.id)

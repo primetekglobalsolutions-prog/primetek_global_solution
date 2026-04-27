@@ -28,7 +28,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
           title: job.title,
           department: job.department,
           location: job.location,
-          type: job.type as any,
+          type: job.type as 'full-time' | 'part-time' | 'contract' | 'remote',
           description: job.description,
           requirements: job.requirements,
           salary_range: job.salary_range || undefined,

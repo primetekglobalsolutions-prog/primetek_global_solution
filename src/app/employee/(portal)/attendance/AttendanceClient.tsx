@@ -13,7 +13,19 @@ const statusColors: Record<string, string> = {
   'half-day': 'bg-blue-50 text-blue-600 border-blue-200',
 };
 
-export default function AttendanceClient({ initialRecords }: { initialRecords: any[] }) {
+export interface AttendanceRecord {
+  id: string;
+  date: string;
+  check_in: string | null;
+  check_out: string | null;
+  check_in_raw: string | null;
+  duration_hours: number;
+  status: string;
+}
+
+const getRandomOffset = () => (Math.random() - 0.5) * 0.001;
+
+export default function AttendanceClient({ initialRecords }: { initialRecords: AttendanceRecord[] }) {
   const [currentTime, setCurrentTime] = useState(new Date());
   const [gpsStatus, setGpsStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
@@ -25,7 +37,7 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: a
 
   const checkedIn = !!todayRecord;
   const isCheckedOut = todayRecord && todayRecord.check_out;
-  const checkInTime = todayRecord ? new Date(todayRecord.check_in_raw) : null;
+  const checkInTime = todayRecord && todayRecord.check_in_raw ? new Date(todayRecord.check_in_raw) : null;
 
   useEffect(() => {
     const timer = setInterval(() => setCurrentTime(new Date()), 1000);
@@ -49,8 +61,8 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: a
       await checkIn(lat, lng);
     } catch {
       // Demo fallback
-      const lat = 17.385 + (Math.random() - 0.5) * 0.001;
-      const lng = 78.4867 + (Math.random() - 0.5) * 0.001;
+      const lat = 17.385 + getRandomOffset();
+      const lng = 78.4867 + getRandomOffset();
       setCoords({ lat, lng });
       setGpsStatus('success');
       await checkIn(lat, lng);
@@ -75,8 +87,8 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: a
       await checkOut(todayRecord.id, lat, lng);
     } catch {
       // Demo fallback
-      const lat = 17.385 + (Math.random() - 0.5) * 0.001;
-      const lng = 78.4867 + (Math.random() - 0.5) * 0.001;
+      const lat = 17.385 + getRandomOffset();
+      const lng = 78.4867 + getRandomOffset();
       setCoords({ lat, lng });
       setGpsStatus('success');
       await checkOut(todayRecord.id, lat, lng);

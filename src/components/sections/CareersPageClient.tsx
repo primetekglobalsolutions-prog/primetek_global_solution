@@ -1,12 +1,22 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Briefcase, SearchX } from 'lucide-react';
+import { SearchX } from 'lucide-react';
 import JobFilters from '@/components/sections/JobFilters';
 import JobCard from '@/components/sections/JobCard';
-import SectionHeading from '@/components/ui/SectionHeading';
 
-export default function CareersPageClient({ initialJobs }: { initialJobs: any[] }) {
+export interface PublicJob {
+  id: string;
+  title: string;
+  description: string;
+  department: string;
+  location: string;
+  type: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+export default function CareersPageClient({ initialJobs }: { initialJobs: PublicJob[] }) {
   const [filters, setFilters] = useState({
     search: '',
     department: 'All',

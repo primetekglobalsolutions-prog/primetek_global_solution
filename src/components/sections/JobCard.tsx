@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { motion } from 'framer-motion';
-import { MapPin, Clock, Briefcase, ArrowRight, IndianRupee } from 'lucide-react';
+import { MapPin, Clock, ArrowRight, IndianRupee } from 'lucide-react';
 
 export interface Job {
   id: string;

@@ -1,6 +1,3 @@
-import Sidebar from '@/components/admin/Sidebar';
-import { getSession } from '@/lib/auth';
-import { redirect } from 'next/navigation';
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   // Check if we're on the login page by checking session

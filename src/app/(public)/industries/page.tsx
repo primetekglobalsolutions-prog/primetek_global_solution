@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { Monitor, HeartPulse, Landmark, Factory, ShoppingBag, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
-import SectionHeading from '@/components/ui/SectionHeading';
+
 import Card from '@/components/ui/Card';
 import CTASection from '@/components/sections/CTASection';
 

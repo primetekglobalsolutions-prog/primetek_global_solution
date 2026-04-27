@@ -64,8 +64,12 @@ export default function EmployeesClient({ initialEmployees }: { initialEmployees
       setTimeout(() => {
         window.location.reload();
       }, 5000); // Reload after 5 seconds to let them copy credentials
-    } catch (err: any) {
-      alert(err.message || 'Failed to create employee');
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        alert(err.message || 'Failed to create employee');
+      } else {
+        alert('Failed to create employee');
+      }
       setIsSubmitting(false);
     }
   };

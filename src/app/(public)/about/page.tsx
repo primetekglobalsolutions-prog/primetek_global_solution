@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Target, Eye, Heart, Award, Users, Lightbulb, Zap, Briefcase } from 'lucide-react';
+import Link from 'next/link';
+import { Target, Eye, Award, Users, Lightbulb, Zap, Briefcase } from 'lucide-react';
 import SectionHeading from '@/components/ui/SectionHeading';
 import Card from '@/components/ui/Card';
 import CTASection from '@/components/sections/CTASection';
@@ -159,10 +160,10 @@ export default function AboutPage() {
             <p className="text-text-secondary leading-relaxed mb-8 text-lg">
               Primetek Global Solutions is growing rapidly and looking for US IT recruiters, bench‑sales professionals, and marketing/talent‑acquisition specialists to help us scale our US‑IT‑placement pipeline. If you are passionate about connecting talent with opportunity, we’d love to hear from you.
             </p>
-            <a href="/careers" className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white transition-all rounded-lg bg-primary-600 hover:bg-primary-700">
+            <Link href="/careers" className="inline-flex items-center justify-center px-8 py-4 text-base font-semibold text-white transition-all rounded-lg bg-primary-600 hover:bg-primary-700">
               <Briefcase className="w-5 h-5 mr-2" />
               View Internal Opportunities
-            </a>
+            </Link>
           </div>
         </div>
       </section>

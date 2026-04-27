@@ -3,6 +3,7 @@
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { revalidatePath } from 'next/cache';
 import { getSession } from '@/lib/auth';
+import type { ApplicationRecord } from './ApplicationsClient';
 
 export async function getAdminApplications() {
   const session = await getSession();
@@ -23,11 +24,12 @@ export async function getAdminApplications() {
     return [];
   }
 
+
   // Format data to match client expectations
-  return data.map((app: any) => ({
+  return data.map((app: Record<string, any>) => ({
     ...app,
     job_title: app.jobs?.title || 'Unknown Job',
-  }));
+  })) as ApplicationRecord[];
 }
 
 export async function updateApplicationStatus(id: string, status: string) {
