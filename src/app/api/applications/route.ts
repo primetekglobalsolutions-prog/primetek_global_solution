@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { applicationSchema } from '@/lib/validations';
 import { z } from 'zod';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(request: NextRequest) {
   try {
@@ -41,7 +42,20 @@ export async function POST(request: NextRequest) {
       resumeUrl = `demo-resume-${Date.now()}.${resume.name.split('.').pop()}`;
     }
 
-    console.log('New application:', { ...validated, resume: resumeUrl });
+    const { error } = await supabaseAdmin.from('applications').insert([
+      {
+        job_id: validated.job_id,
+        name: validated.name,
+        email: validated.email,
+        phone: validated.phone || null,
+        experience_years: validated.experience_years || null,
+        cover_letter: validated.cover_letter || null,
+        resume_url: resumeUrl || null,
+        status: 'pending'
+      }
+    ]);
+
+    if (error) throw error;
 
     return NextResponse.json(
       { success: true, message: 'Application submitted successfully' },

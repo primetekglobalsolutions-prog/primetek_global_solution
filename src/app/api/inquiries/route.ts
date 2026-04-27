@@ -1,21 +1,27 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { z } from 'zod';
 import { inquirySchema } from '@/lib/validations';
+import { supabaseAdmin } from '@/lib/supabase-admin';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const validated = inquirySchema.parse(body);
 
-    // For now, log the inquiry (Supabase integration when DB is connected)
-    console.log('New inquiry:', validated);
+    const { error } = await supabaseAdmin
+      .from('inquiries')
+      .insert([
+        {
+          name: validated.name,
+          email: validated.email,
+          phone: validated.phone || null,
+          company: validated.company || null,
+          message: validated.message,
+          status: 'new'
+        }
+      ]);
 
-    // TODO: Save to Supabase when connected
-    // const supabase = await createClient();
-    // const { data, error } = await supabase.from('inquiries').insert({...}).select().single();
-
-    // TODO: Send email notification via Resend when API key is configured
-    // resend.emails.send({...}).catch(console.error);
+    if (error) throw error;
 
     return NextResponse.json(
       { success: true, message: 'Inquiry received successfully' },
@@ -37,6 +43,17 @@ export async function POST(request: NextRequest) {
 }
 
 export async function GET() {
-  // TODO: Protected route — fetch inquiries from Supabase
-  return NextResponse.json({ data: [], message: 'Inquiries API ready' });
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('inquiries')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) throw error;
+
+    return NextResponse.json({ data });
+  } catch (err) {
+    console.error('Error fetching inquiries:', err);
+    return NextResponse.json({ error: 'Failed to fetch inquiries' }, { status: 500 });
+  }
 }
