@@ -51,7 +51,7 @@ export default function EmployeeLoginForm() {
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="rajesh@primetek.com"
+          placeholder="Enter your email"
           required
           className="w-full px-4 py-3 rounded-lg border border-border bg-white text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm"
         />
@@ -92,10 +92,6 @@ export default function EmployeeLoginForm() {
           <><LogIn className="w-5 h-5" /> Sign In</>
         )}
       </Button>
-
-      <p className="text-center text-xs text-text-muted">
-        Demo: rajesh@primetek.com / employee123
-      </p>
     </form>
   );
 }

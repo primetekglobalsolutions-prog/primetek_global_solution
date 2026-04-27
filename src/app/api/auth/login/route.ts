@@ -2,35 +2,39 @@ import { NextRequest, NextResponse } from 'next/server';
 import { loginSchema } from '@/lib/validations';
 import { createToken } from '@/lib/auth';
 import { z } from 'zod';
-
-// Demo admin credentials (replace with Supabase lookup in production)
-const DEMO_ADMIN = {
-  id: 'admin-001',
-  name: 'Admin',
-  email: 'admin@primetek.com',
-  password: 'admin123',
-  role: 'admin',
-};
+import { supabaseAdmin } from '@/lib/supabase-admin';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { email, password } = loginSchema.parse(body);
 
-    // TODO: Replace with Supabase user lookup + bcrypt comparison
-    if (email !== DEMO_ADMIN.email || password !== DEMO_ADMIN.password) {
+    const { data: admin, error } = await supabaseAdmin
+      .from('employees')
+      .select('id, email, password_hash, name, role')
+      .eq('email', email)
+      .eq('role', 'admin')
+      .single();
+
+    if (error || !admin) {
+      return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
+    }
+
+    const isValidPassword = await bcrypt.compare(password, admin.password_hash);
+    if (!isValidPassword) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
     const token = await createToken({
-      id: DEMO_ADMIN.id,
-      email: DEMO_ADMIN.email,
-      role: DEMO_ADMIN.role,
+      id: admin.id,
+      email: admin.email,
+      role: admin.role,
     });
 
     const response = NextResponse.json({
       success: true,
-      user: { id: DEMO_ADMIN.id, name: DEMO_ADMIN.name, role: DEMO_ADMIN.role },
+      user: { id: admin.id, name: admin.name, role: admin.role },
     });
 
     response.cookies.set('auth-token', token, {

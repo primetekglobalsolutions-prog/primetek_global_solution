@@ -62,7 +62,7 @@ export default function LoginForm() {
           id="login-email"
           type="email"
           autoComplete="email"
-          placeholder="admin@primetek.com"
+          placeholder="Enter your email"
           {...register('email')}
           className="w-full px-4 py-3 rounded-lg border border-gray-200 bg-white text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent transition-all text-sm"
         />
@@ -107,11 +107,6 @@ export default function LoginForm() {
           </>
         )}
       </Button>
-
-      {/* Demo hint */}
-      <p className="text-center text-xs text-text-muted mt-4">
-        Demo: admin@primetek.com / admin123
-      </p>
     </form>
   );
 }

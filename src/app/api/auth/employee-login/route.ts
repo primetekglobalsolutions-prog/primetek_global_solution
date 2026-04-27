@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { createToken } from '@/lib/auth';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,8 +21,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Account is inactive' }, { status: 403 });
     }
 
-    // Basic password check for demo purposes
-    if (employee.password_hash !== password) {
+    const isValidPassword = await bcrypt.compare(password, employee.password_hash);
+    if (!isValidPassword) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
