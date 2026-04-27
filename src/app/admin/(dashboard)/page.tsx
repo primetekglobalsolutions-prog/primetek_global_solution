@@ -5,8 +5,8 @@ import Card from '@/components/ui/Card';
 const stats = [
   { label: 'Total Inquiries', value: '47', icon: MessageSquare, color: 'bg-primary-50 text-primary-500', trend: '+12%' },
   { label: 'Active Jobs', value: '10', icon: Briefcase, color: 'bg-amber-50 text-amber-500', trend: '3 departments' },
-  { label: 'Applications', value: '6', icon: FileText, color: 'bg-emerald-50 text-emerald-500', trend: '2 new' },
-  { label: 'Unique Companies', value: '31', icon: Users, color: 'bg-violet-50 text-violet-500', trend: '15 industries' },
+  { label: 'Employees', value: '5', icon: Users, color: 'bg-emerald-50 text-emerald-500', trend: '4 active' },
+  { label: 'Attendance Today', value: '—', icon: Clock, color: 'bg-violet-50 text-violet-500', trend: 'Live tracking' },
 ];
 
 const recentInquiries = [

@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { LayoutDashboard, MessageSquare, Briefcase, FileText, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
+import { LayoutDashboard, MessageSquare, Briefcase, FileText, Users, Clock, LogOut, ChevronLeft, ChevronRight } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useState } from 'react';
 
@@ -11,6 +11,8 @@ const navItems = [
   { href: '/admin/inquiries', icon: MessageSquare, label: 'Inquiries' },
   { href: '/admin/jobs', icon: Briefcase, label: 'Jobs' },
   { href: '/admin/applications', icon: FileText, label: 'Applications' },
+  { href: '/admin/employees', icon: Users, label: 'Employees' },
+  { href: '/admin/attendance', icon: Clock, label: 'Attendance' },
 ];
 
 interface SidebarProps {

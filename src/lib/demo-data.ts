@@ -157,3 +157,89 @@ export const demoApplications: Application[] = [
   { id: 'app-005', job_id: 'job-005', job_title: 'Financial Risk Analyst', name: 'Pooja Menon', email: 'pooja@email.com', phone: '+91 98765 55555', experience_years: 3, cover_letter: 'CFA Level 2 candidate with hands-on risk modeling experience in banking.', resume_url: '#', status: 'rejected', notes: 'Insufficient experience for the role', created_at: '2026-04-23T09:00:00Z' },
   { id: 'app-006', job_id: 'job-007', job_title: 'UX/UI Designer', name: 'Ananya Reddy', email: 'ananya@email.com', phone: '+91 98765 66666', experience_years: 4, cover_letter: 'Creative designer with experience at top agencies and tech startups.', resume_url: '#', status: 'reviewing', notes: 'Beautiful portfolio, check availability', created_at: '2026-04-22T11:00:00Z' },
 ];
+
+// ─── Employee & Attendance (Phase 3) ───
+
+export interface Employee {
+  id: string;
+  name: string;
+  email: string;
+  phone: string;
+  department: string;
+  designation: string;
+  password: string;
+  is_active: boolean;
+  joined_at: string;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  employee_id: string;
+  employee_name: string;
+  date: string;
+  check_in: string;
+  check_out: string;
+  duration_hours: number;
+  lat: number;
+  lng: number;
+  status: 'present' | 'late' | 'absent' | 'half-day';
+}
+
+export const demoEmployees: Employee[] = [
+  { id: 'emp-001', name: 'Rajesh Kumar', email: 'rajesh@primetek.com', phone: '+91 98765 10001', department: 'Information Technology', designation: 'Senior Developer', password: 'employee123', is_active: true, joined_at: '2024-03-15' },
+  { id: 'emp-002', name: 'Sneha Patel', email: 'sneha@primetek.com', phone: '+91 98765 10002', department: 'Information Technology', designation: 'UX Designer', password: 'employee123', is_active: true, joined_at: '2024-06-01' },
+  { id: 'emp-003', name: 'Amit Singh', email: 'amit@primetek.com', phone: '+91 98765 10003', department: 'Healthcare', designation: 'IT Consultant', password: 'employee123', is_active: true, joined_at: '2025-01-10' },
+  { id: 'emp-004', name: 'Divya Reddy', email: 'divya@primetek.com', phone: '+91 98765 10004', department: 'Banking & Finance', designation: 'Risk Analyst', password: 'employee123', is_active: true, joined_at: '2025-04-20' },
+  { id: 'emp-005', name: 'Kiran Verma', email: 'kiran@primetek.com', phone: '+91 98765 10005', department: 'Manufacturing', designation: 'Supply Chain Lead', password: 'employee123', is_active: false, joined_at: '2024-09-01' },
+];
+
+function generateAttendance(): AttendanceRecord[] {
+  const records: AttendanceRecord[] = [];
+  const activeEmps = demoEmployees.filter((e) => e.is_active);
+  const today = new Date();
+
+  for (let dayOffset = 1; dayOffset <= 20; dayOffset++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - dayOffset);
+    if (d.getDay() === 0 || d.getDay() === 6) continue; // skip weekends
+
+    for (const emp of activeEmps) {
+      const isLate = Math.random() < 0.15;
+      const isAbsent = Math.random() < 0.08;
+      if (isAbsent) {
+        records.push({
+          id: `att-${emp.id}-${dayOffset}`,
+          employee_id: emp.id,
+          employee_name: emp.name,
+          date: d.toISOString().split('T')[0],
+          check_in: '',
+          check_out: '',
+          duration_hours: 0,
+          lat: 0,
+          lng: 0,
+          status: 'absent',
+        });
+        continue;
+      }
+      const checkInHour = isLate ? 10 + Math.floor(Math.random() * 2) : 9;
+      const checkInMin = Math.floor(Math.random() * 30);
+      const durationH = 7 + Math.random() * 2;
+      records.push({
+        id: `att-${emp.id}-${dayOffset}`,
+        employee_id: emp.id,
+        employee_name: emp.name,
+        date: d.toISOString().split('T')[0],
+        check_in: `${String(checkInHour).padStart(2, '0')}:${String(checkInMin).padStart(2, '0')}`,
+        check_out: `${String(checkInHour + Math.floor(durationH)).padStart(2, '0')}:${String(Math.floor((durationH % 1) * 60)).padStart(2, '0')}`,
+        duration_hours: Math.round(durationH * 10) / 10,
+        lat: 17.385 + (Math.random() - 0.5) * 0.002,
+        lng: 78.4867 + (Math.random() - 0.5) * 0.002,
+        status: isLate ? 'late' : 'present',
+      });
+    }
+  }
+
+  return records.sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export const demoAttendance: AttendanceRecord[] = generateAttendance();
