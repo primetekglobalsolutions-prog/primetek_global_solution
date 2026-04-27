@@ -25,7 +25,7 @@ export default function PWAInstallPrompt() {
       setDeferredPrompt(e);
       
       // Only show if on login pages
-      if (pathname.includes('/employee-login') || pathname.includes('/admin-login')) {
+      if (pathname.includes('/employee/login') || pathname.includes('/admin/login')) {
         setIsVisible(true);
       }
     };

@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import LoginForm from '@/components/admin/LoginForm';
+import Logo from '@/components/ui/Logo';
 
 export const metadata: Metadata = {
   title: 'Admin Login',
@@ -14,14 +15,11 @@ export default function AdminLoginPage() {
 
       <div className="w-full max-w-md relative">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-700 text-white font-bold text-2xl mb-4 shadow-xl shadow-primary-500/20">
-            P
+        <div className="text-center mb-8 flex flex-col items-center">
+          <div className="mb-4">
+            <Logo className="w-48 h-auto" dark={true} />
           </div>
-          <h1 className="text-2xl font-heading font-bold text-white">
-            Primetek Admin
-          </h1>
-          <p className="text-gray-400 text-sm mt-1">Sign in to manage your dashboard</p>
+          <p className="text-gray-400 text-sm mt-1">Admin Control Center</p>
         </div>
 
         {/* Form Card */}
