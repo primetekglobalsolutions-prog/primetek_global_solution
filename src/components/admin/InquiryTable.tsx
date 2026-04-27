@@ -55,11 +55,20 @@ export default function InquiryTable({ inquiries }: InquiryTableProps) {
   const totalPages = Math.ceil(filtered.length / ITEMS_PER_PAGE);
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
-  const handleStatusChange = (id: string, newStatus: string) => {
+  const handleStatusChange = async (id: string, newStatus: string) => {
     setLocalInquiries((prev) =>
       prev.map((inq) => (inq.id === id ? { ...inq, status: newStatus } : inq))
     );
-    // TODO: PATCH to /api/inquiries/[id] when Supabase is connected
+    try {
+      const { updateInquiryStatus } = await import('@/app/admin/(dashboard)/inquiries/actions');
+      await updateInquiryStatus(id, newStatus);
+    } catch (error) {
+      console.error('Failed to update status', error);
+      // Revert if failed
+      setLocalInquiries((prev) =>
+        prev.map((inq) => (inq.id === id ? { ...inq, status: prev.find(i => i.id === id)?.status || 'new' } : inq))
+      );
+    }
   };
 
   const handleExportCSV = () => {

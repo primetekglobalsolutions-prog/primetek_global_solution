@@ -5,13 +5,16 @@ import bcrypt from 'bcryptjs';
 
 export async function POST(request: NextRequest) {
   try {
-    const { email, password } = await request.json();
+    const { email, password } = await request.json(); // 'email' field might actually contain employee_id
 
-    const { data: employee, error } = await supabaseAdmin
+    const isEmail = email.includes('@');
+    const query = supabaseAdmin
       .from('employees')
-      .select('id, email, password_hash, status, name, role')
-      .eq('email', email)
-      .single();
+      .select('id, email, password_hash, status, name, role');
+      
+    const { data: employee, error } = await (isEmail 
+      ? query.eq('email', email).single() 
+      : query.eq('employee_id', email).single());
 
     if (error || !employee) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
