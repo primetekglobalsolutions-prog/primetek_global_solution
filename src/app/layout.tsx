@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
 import PWAInstallPrompt from '@/components/ui/PWAInstallPrompt';
+import PWAStandaloneManager from '@/components/ui/PWAStandaloneManager';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -61,6 +62,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col overflow-x-hidden w-full">
         {children}
         <PWAInstallPrompt />
+        <PWAStandaloneManager />
       </body>
     </html>
   );
