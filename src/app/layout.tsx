@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
 import './globals.css';
+import PWAInstallPrompt from '@/components/ui/PWAInstallPrompt';
 
 const inter = Inter({
   subsets: ['latin'],
@@ -44,6 +45,10 @@ export const metadata: Metadata = {
     description: 'Leading staffing and consulting firm.',
   },
   robots: { index: true, follow: true },
+  manifest: '/manifest.json',
+  icons: {
+    apple: '/icon.svg',
+  },
 };
 
 export default function RootLayout({
@@ -53,7 +58,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className={`h-full antialiased overflow-x-hidden ${inter.variable} ${playfair.variable}`}>
-      <body className="min-h-full flex flex-col overflow-x-hidden w-full">{children}</body>
+      <body className="min-h-full flex flex-col overflow-x-hidden w-full">
+        {children}
+        <PWAInstallPrompt />
+      </body>
     </html>
   );
 }

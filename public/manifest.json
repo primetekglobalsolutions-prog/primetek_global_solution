@@ -1,0 +1,17 @@
+{
+  "name": "Primetek Global Portal",
+  "short_name": "Primetek",
+  "description": "Enterprise HR and Staffing Portal",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a1628",
+  "theme_color": "#097d95",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
