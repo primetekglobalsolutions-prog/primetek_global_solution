@@ -1,11 +1,11 @@
-import { MessageSquare, Users, TrendingUp, Clock } from 'lucide-react';
+import { MessageSquare, Users, TrendingUp, Clock, Briefcase, FileText } from 'lucide-react';
 import Card from '@/components/ui/Card';
 
 // Demo data — replace with Supabase queries when DB is connected
 const stats = [
   { label: 'Total Inquiries', value: '47', icon: MessageSquare, color: 'bg-primary-50 text-primary-500', trend: '+12%' },
-  { label: 'New (Unread)', value: '8', icon: Clock, color: 'bg-amber-50 text-amber-500', trend: 'This week' },
-  { label: 'Qualified Leads', value: '23', icon: TrendingUp, color: 'bg-emerald-50 text-emerald-500', trend: '+5%' },
+  { label: 'Active Jobs', value: '10', icon: Briefcase, color: 'bg-amber-50 text-amber-500', trend: '3 departments' },
+  { label: 'Applications', value: '6', icon: FileText, color: 'bg-emerald-50 text-emerald-500', trend: '2 new' },
   { label: 'Unique Companies', value: '31', icon: Users, color: 'bg-violet-50 text-violet-500', trend: '15 industries' },
 ];
 
