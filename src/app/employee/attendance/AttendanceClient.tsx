@@ -285,8 +285,9 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
                       {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
                     </span>
                   </td>
-                </tr>
-              ))}
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>

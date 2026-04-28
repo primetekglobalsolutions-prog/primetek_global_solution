@@ -111,6 +111,11 @@ export default function ClientProfilesClient({ initialProfiles, employees }: { i
         const uploadData = new FormData();
         uploadData.append('resume', resumeFile);
         const res = await uploadClientResume(uploadData);
+        if (res.error) {
+          setResumeError(res.error);
+          setLoading(false);
+          return;
+        }
         if (res.success) {
           finalResumeUrl = res.url;
         }

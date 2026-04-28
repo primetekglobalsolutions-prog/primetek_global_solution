@@ -75,40 +75,45 @@ export async function getAllEmployees() {
 }
 
 export async function uploadClientResume(formData: FormData) {
-  const session = await getSession();
-  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+  try {
+    const session = await getSession();
+    if (!session || session.role !== 'admin') return { error: 'Unauthorized' };
 
-  const file = formData.get('resume') as File | null;
-  if (!file) throw new Error('No file provided');
+    const file = formData.get('resume') as File | null;
+    if (!file) return { error: 'No file provided' };
 
-  if (file.size > 1 * 1024 * 1024) throw new Error('Resume must be under 1MB');
-  if (!file.name.toLowerCase().endsWith('.docx') && file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-    throw new Error('Only DOCX format is supported');
+    if (file.size > 1 * 1024 * 1024) return { error: 'Resume must be under 1MB' };
+    
+    const fileExt = file.name.split('.').pop()?.toLowerCase();
+    if (fileExt !== 'docx') return { error: 'Only DOCX format is supported' };
+
+    const fileName = `client-${Date.now()}.docx`;
+    const arrayBuffer = await file.arrayBuffer();
+    const buffer = Buffer.from(arrayBuffer);
+
+    const { data: uploadData, error: uploadError } = await supabaseAdmin
+      .storage
+      .from('resumes')
+      .upload(fileName, buffer, {
+        contentType: 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+        upsert: true
+      });
+
+    if (uploadError) {
+      console.error('Storage Upload Error:', uploadError);
+      return { error: uploadError.message || 'Failed to upload to storage' };
+    }
+
+    const { data: signedData, error: signedError } = await supabaseAdmin
+      .storage
+      .from('resumes')
+      .createSignedUrl(uploadData.path, 315360000); // 10 years
+
+    if (signedError) return { error: 'Failed to generate secure link' };
+
+    return { success: true, url: signedData.signedUrl };
+  } catch (err: any) {
+    console.error('Server Action Crash:', err);
+    return { error: err.message || 'Internal server error' };
   }
-
-  const fileExt = file.name.split('.').pop();
-  const fileName = `client-${Date.now()}.${fileExt}`;
-  const buffer = Buffer.from(await file.arrayBuffer());
-
-  const { data: uploadData, error: uploadError } = await supabaseAdmin
-    .storage
-    .from('resumes')
-    .upload(fileName, buffer, {
-      contentType: file.type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
-      upsert: true
-    });
-
-  if (uploadError) {
-    console.error('Resume upload error:', uploadError);
-    throw new Error('Failed to upload resume');
-  }
-
-  const { data: signedData, error: signedError } = await supabaseAdmin
-    .storage
-    .from('resumes')
-    .createSignedUrl(uploadData.path, 315360000); // 10 years expiry for the link
-
-  if (signedError) throw new Error('Failed to generate secure link');
-
-  return { success: true, url: signedData.signedUrl };
 }
