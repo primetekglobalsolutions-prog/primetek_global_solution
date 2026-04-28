@@ -14,7 +14,9 @@ export async function middleware(request: NextRequest) {
 
     const session = await verifyToken(token);
     if (!session) {
-      return NextResponse.redirect(new URL('/app/login', request.url));
+      const response = NextResponse.redirect(new URL('/app/login', request.url));
+      response.cookies.delete('auth-token');
+      return response;
     }
 
     // Role-based sub-route protection

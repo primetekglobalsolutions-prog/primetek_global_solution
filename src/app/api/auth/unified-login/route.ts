@@ -66,6 +66,12 @@ export async function POST(request: NextRequest) {
 
       if (apiAuthError) {
         console.error('[Auth] Admin Auth failed:', apiAuthError.message);
+        
+        // Pass through specific errors that aren't just "wrong password"
+        if (apiAuthError.message !== 'Invalid login credentials') {
+          return NextResponse.json({ error: apiAuthError.message }, { status: 401 });
+        }
+        
         return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
       }
 
