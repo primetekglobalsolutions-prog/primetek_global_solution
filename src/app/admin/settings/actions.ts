@@ -31,28 +31,42 @@ export async function saveOfficeLocation(data: {
   const session = await getSession();
   if (!session || session.role !== 'admin') throw new Error('Unauthorized');
 
+  console.log('Attempting to save office location:', data);
+
+  if (process.env.SUPABASE_SERVICE_ROLE_KEY === 'placeholder' || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    console.warn('WARNING: Using placeholder or missing SUPABASE_SERVICE_ROLE_KEY. Database operations may fail due to RLS.');
+  }
+
   // Deactivate existing locations
-  await supabaseAdmin
+  const { error: updateError } = await supabaseAdmin
     .from('office_locations')
     .update({ is_active: false })
-    .neq('id', '00000000-0000-0000-0000-000000000000'); // Dummy to match all
+    .eq('is_active', true);
 
-  // Insert or update
-  const { error } = await supabaseAdmin
+  if (updateError) {
+    console.error('Error deactivating old locations:', updateError);
+  }
+
+  // Insert new location
+  const { data: insertedData, error: insertError } = await supabaseAdmin
     .from('office_locations')
-    .insert({
+    .insert([{
       name: data.name,
       lat: data.lat,
       lng: data.lng,
       radius_meters: data.radius_meters,
       is_active: true
-    });
+    }])
+    .select();
 
-  if (error) {
-    console.error('Error saving office location:', error);
-    throw new Error('Failed to save office location');
+  if (insertError) {
+    console.error('CRITICAL: Error saving office location:', insertError);
+    throw new Error(`Database Error: ${insertError.message} (${insertError.code})`);
   }
+
+  console.log('Successfully saved office location:', insertedData);
 
   revalidatePath('/admin/settings');
   revalidatePath('/employee/attendance');
+  return { success: true };
 }
