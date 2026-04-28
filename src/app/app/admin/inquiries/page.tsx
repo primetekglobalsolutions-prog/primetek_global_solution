@@ -13,7 +13,7 @@ export default async function AdminAppInquiriesPage() {
         <h1 className="text-2xl font-heading font-bold text-navy-900 tracking-tight">Inquiries</h1>
         <p className="text-text-secondary text-sm">Manage business and career inquiries.</p>
       </div>
-      <InquiryTable initialInquiries={inquiries || []} />
+      <InquiryTable inquiries={inquiries || []} />
     </div>
   );
 }
