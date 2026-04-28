@@ -2,6 +2,7 @@
 
 import { usePathname } from 'next/navigation';
 import { Bell } from 'lucide-react';
+import Logo from '@/components/ui/Logo';
 
 interface AppHeaderProps {
   userName?: string;
@@ -36,10 +37,13 @@ export default function AppHeader({ userName }: AppHeaderProps) {
   return (
     <header className="h-14 md:h-16 bg-white border-b border-border flex items-center px-4 md:px-6 shrink-0 sticky top-0 z-30">
       <div className="flex-1 min-w-0">
-        {/* Mobile: show page title only */}
-        <h2 className="md:hidden text-base font-heading font-bold text-navy-900 truncate">
-          {getTitle()}
-        </h2>
+        {/* Mobile: show logo + title */}
+        <div className="md:hidden flex items-center gap-2">
+          <Logo className="w-24 h-auto" />
+          <h2 className="text-sm font-heading font-bold text-navy-900 truncate border-l border-border pl-2">
+            {getTitle()}
+          </h2>
+        </div>
         {/* Desktop: show greeting + page context */}
         <div className="hidden md:block">
           <p className="text-[11px] text-text-muted uppercase tracking-widest font-bold leading-none mb-0.5">

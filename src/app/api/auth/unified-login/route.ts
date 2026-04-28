@@ -15,11 +15,14 @@ export async function POST(request: NextRequest) {
   try {
     // 1. Basic Security: Rate Limiting by IP
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || (request as any).ip || 'unknown-ip';
+    console.log(`[Auth] Attempt from IP: ${ip}`);
+
     const now = Date.now();
     const limitRecord = rateLimitMap.get(ip);
     
     if (limitRecord && (now - limitRecord.timestamp < RATE_LIMIT_WINDOW_MS)) {
       if (limitRecord.count >= MAX_ATTEMPTS_PER_WINDOW) {
+        console.warn(`[Auth] Rate limit exceeded for IP: ${ip}`);
         return NextResponse.json({ error: 'Too many login attempts. Please try again in 60 seconds.' }, { status: 429 });
       }
       limitRecord.count += 1;
@@ -28,13 +31,14 @@ export async function POST(request: NextRequest) {
     }
 
     const { email, password } = await request.json();
+    console.log(`[Auth] Login attempt for: ${email}`);
 
     if (!email || !password) {
       return NextResponse.json({ error: 'Email and password are required' }, { status: 400 });
     }
 
     // 2. Input Sanitization: Trim whitespace to prevent accidental spaces
-    const cleanEmail = email.trim();
+    const cleanEmail = email.trim().toLowerCase();
     const cleanPassword = password.trim();
 
     const isEmail = cleanEmail.includes('@');
@@ -42,9 +46,11 @@ export async function POST(request: NextRequest) {
     let authError: any = null;
 
     // 3. Admin Check via Supabase Auth
-    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@globalprimetek.com';
+    const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@globalprimetek.com').trim().toLowerCase();
+    console.log(`[Auth] Checking if ${cleanEmail} matches ADMIN_EMAIL: ${ADMIN_EMAIL}`);
 
     if (cleanEmail === ADMIN_EMAIL) {
+      console.log(`[Auth] Admin detected. Attempting Supabase Auth...`);
       const supabase = await createClient();
       const { data: authData, error: apiAuthError } = await supabase.auth.signInWithPassword({
         email: cleanEmail,

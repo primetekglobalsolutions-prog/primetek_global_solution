@@ -39,9 +39,11 @@ export async function checkIn(lat: number, lng: number) {
     .from('attendance')
     .insert({
       employee_id: session.id,
-      check_in_time: today.toISOString(),
-      check_in_location: { lat, lng },
-      status: today.getHours() >= 10 ? 'late' : 'present',
+      date: todayStr,
+      check_in: today.toISOString(),
+      lat: lat,
+      lng: lng,
+      status: today.getHours() >= 9 ? 'Late' : 'Present',
     });
 
   if (error) {
@@ -61,8 +63,9 @@ export async function checkOut(recordId: string, lat: number, lng: number) {
   const { error } = await supabaseAdmin
     .from('attendance')
     .update({
-      check_out_time: new Date().toISOString(),
-      check_out_location: { lat, lng },
+      check_out: new Date().toISOString(),
+      lat: lat,
+      lng: lng,
     })
     .eq('id', recordId)
     .eq('employee_id', session.id);
