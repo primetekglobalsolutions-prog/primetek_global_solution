@@ -14,13 +14,16 @@ export async function POST(request: NextRequest) {
 
     const isEmail = email.includes('@');
 
+    let authError: any = null;
+
     // 1. First, check if this is an Admin logging in via Supabase Auth
     if (isEmail) {
       const supabase = await createClient();
-      const { data: authData, error: authError } = await supabase.auth.signInWithPassword({
+      const { data: authData, error: apiAuthError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+      authError = apiAuthError;
 
       if (authError) {
         console.error('Supabase Auth attempt failed:', authError.message);
