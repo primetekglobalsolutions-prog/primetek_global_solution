@@ -51,28 +51,23 @@ export default function JobsClient({ initialJobs }: JobsClientProps) {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-heading font-bold text-navy-900">Job Postings</h1>
-          <p className="text-text-secondary text-sm mt-1">Manage all job listings.</p>
+      {/* Search & Actions */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+          <input
+            type="text"
+            placeholder="Search jobs..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400"
+          />
         </div>
-        <Link href="/app/admin/jobs/new">
-          <Button size="sm">
+        <Link href="/app/admin/jobs/new" className="w-full sm:w-auto">
+          <Button size="sm" className="w-full">
             <Plus className="w-4 h-4" /> Create Job
           </Button>
         </Link>
-      </div>
-
-      {/* Search */}
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-        <input
-          type="text"
-          placeholder="Search jobs..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400"
-        />
       </div>
 
       {/* Table */}

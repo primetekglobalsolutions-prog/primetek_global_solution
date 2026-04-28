@@ -77,17 +77,15 @@ export default function EmployeesClient({ initialEmployees }: { initialEmployees
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-heading font-bold text-navy-900">Employees</h1>
-          <p className="text-text-secondary text-sm mt-1">Manage employee records.</p>
+      {/* Search & Actions */}
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div className="relative w-full max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+          <input type="text" placeholder="Search by ID, name, email..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400" />
         </div>
-        <Button size="sm" onClick={() => setIsModalOpen(true)}><Plus className="w-4 h-4" /> Add Employee</Button>
-      </div>
-
-      <div className="relative max-w-sm">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-        <input type="text" placeholder="Search by ID, name, email..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400" />
+        <Button size="sm" onClick={() => setIsModalOpen(true)} className="w-full sm:w-auto">
+          <Plus className="w-4 h-4" /> Add Employee
+        </Button>
       </div>
 
       <Card hover={false} className="p-0 overflow-hidden">

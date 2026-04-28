@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { Search, Download, Eye, X, UserPlus, Loader2, Plus } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { formatDate } from '@/lib/utils';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -89,49 +90,55 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-heading font-bold text-navy-900">Applications</h1>
-        <p className="text-text-secondary text-sm mt-1">Review and manage candidate applications.</p>
-      </div>
-
-      <div className="flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1 max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-          <input type="text" placeholder="Search by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400" />
+      <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-center justify-between">
+        <div className="flex flex-1 flex-col sm:flex-row gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+            <input type="text" placeholder="Search by name or email..." value={search} onChange={(e) => setSearch(e.target.value)} className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400" />
+          </div>
+          <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary-400">
+            {statusOptions.map((s) => <option key={s} value={s}>{s === 'all' ? 'All Status' : s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
+          </select>
+          <select value={jobFilter} onChange={(e) => setJobFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary-400">
+            <option value="all">All Jobs</option>
+            {uniqueJobs.map((j) => <option key={j.id} value={j.id}>{j.title}</option>)}
+          </select>
         </div>
-        <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary-400">
-          {statusOptions.map((s) => <option key={s} value={s}>{s === 'all' ? 'All Status' : s.charAt(0).toUpperCase() + s.slice(1)}</option>)}
-        </select>
-        <select value={jobFilter} onChange={(e) => setJobFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary-400">
-          <option value="all">All Jobs</option>
-          {uniqueJobs.map((j) => <option key={j.id} value={j.id}>{j.title}</option>)}
-        </select>
-        <div className="flex-1" />
-        <Button size="sm" onClick={() => setIsAdding(true)}>
+        <Button size="sm" onClick={() => setIsAdding(true)} className="w-full sm:w-auto">
           <Plus className="w-4 h-4" /> Add Application
         </Button>
       </div>
 
       {/* Add Modal */}
-      {isAdding && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
-          <Card hover={false} className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8 animate-in fade-in zoom-in-95">
-            <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-heading font-bold text-navy-900">New Application</h2>
-              <button onClick={() => setIsAdding(false)} className="p-2 hover:bg-surface-alt rounded-lg text-text-muted">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <AddApplicationForm 
-              onSuccess={() => {
-                setIsAdding(false);
-                window.location.reload(); 
-              }} 
-              onCancel={() => setIsAdding(false)} 
-            />
-          </Card>
-        </div>
-      )}
+      <AnimatePresence>
+        {isAdding && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              className="w-full max-w-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <Card hover={false} className="max-h-[90vh] overflow-y-auto p-6 md:p-8 relative">
+                <div className="flex items-center justify-between mb-6">
+                  <h2 className="text-xl font-heading font-bold text-navy-900">New Application</h2>
+                  <button onClick={() => setIsAdding(false)} className="p-2 hover:bg-surface-alt rounded-lg text-text-muted transition-colors">
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                <AddApplicationForm 
+                  onSuccess={() => {
+                    setIsAdding(false);
+                    window.location.reload(); 
+                  }} 
+                  onCancel={() => setIsAdding(false)} 
+                />
+              </Card>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
       <Card hover={false} className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
@@ -203,51 +210,57 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
       </Card>
 
       {/* Detail Modal */}
-      {selectedApp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/30 backdrop-blur-sm" onClick={() => setSelectedApp(null)}>
-          <div
-            className="w-full max-w-lg h-full bg-white shadow-2xl overflow-y-auto"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <div className="p-6 border-b border-border flex items-center justify-between">
-              <h2 className="text-lg font-heading font-bold text-navy-900">Application Details</h2>
-              <button onClick={() => setSelectedApp(null)} className="p-2 rounded-lg hover:bg-surface-alt text-text-muted">
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="p-6 space-y-5">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Applicant</p>
-                <p className="text-lg font-bold text-navy-900">{selectedApp.name}</p>
-                <p className="text-sm text-text-secondary">{selectedApp.email}</p>
-                {selectedApp.phone && <p className="text-sm text-text-secondary">{selectedApp.phone}</p>}
+      <AnimatePresence>
+        {selectedApp && (
+          <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/30 backdrop-blur-sm" onClick={() => setSelectedApp(null)}>
+            <motion.div
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="w-full max-w-lg h-full bg-white shadow-2xl overflow-y-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-border flex items-center justify-between">
+                <h2 className="text-lg font-heading font-bold text-navy-900">Application Details</h2>
+                <button onClick={() => setSelectedApp(null)} className="p-2 rounded-lg hover:bg-surface-alt text-text-muted">
+                  <X className="w-5 h-5" />
+                </button>
               </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Applied For</p>
-                <p className="text-sm font-medium text-navy-900">{selectedApp.job_title}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Experience</p>
-                <p className="text-sm text-text-secondary">{selectedApp.experience_years || 0} years</p>
-              </div>
-              {selectedApp.cover_letter && (
+              <div className="p-6 space-y-5">
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Cover Letter</p>
-                  <p className="text-sm text-text-secondary leading-relaxed">{selectedApp.cover_letter}</p>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Applicant</p>
+                  <p className="text-lg font-bold text-navy-900">{selectedApp.name}</p>
+                  <p className="text-sm text-text-secondary">{selectedApp.email}</p>
+                  {selectedApp.phone && <p className="text-sm text-text-secondary">{selectedApp.phone}</p>}
                 </div>
-              )}
-              {selectedApp.resume_url && (
                 <div>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Resume</p>
-                  <Button variant="outline" size="sm" onClick={() => window.open(selectedApp.resume_url, '_blank')}>
-                    <Download className="w-4 h-4" /> View Resume
-                  </Button>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Applied For</p>
+                  <p className="text-sm font-medium text-navy-900">{selectedApp.job_title}</p>
                 </div>
-              )}
-            </div>
+                <div>
+                  <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Experience</p>
+                  <p className="text-sm text-text-secondary">{selectedApp.experience_years || 0} years</p>
+                </div>
+                {selectedApp.cover_letter && (
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Cover Letter</p>
+                    <p className="text-sm text-text-secondary leading-relaxed">{selectedApp.cover_letter}</p>
+                  </div>
+                )}
+                {selectedApp.resume_url && (
+                  <div>
+                    <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Resume</p>
+                    <Button variant="outline" size="sm" onClick={() => window.open(selectedApp.resume_url, '_blank')}>
+                      <Download className="w-4 h-4" /> View Resume
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
     </div>
   );
 }
