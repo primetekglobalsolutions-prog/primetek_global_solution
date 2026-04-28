@@ -79,6 +79,9 @@ export async function POST(request: NextRequest) {
       : query.eq('employee_id', email).single());
 
     if (error || !user) {
+      if (authError && authError.message !== 'Invalid login credentials') {
+        return NextResponse.json({ error: `Supabase Auth Error: ${authError.message}` }, { status: 401 });
+      }
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
