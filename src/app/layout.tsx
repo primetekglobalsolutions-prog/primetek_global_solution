@@ -25,6 +25,10 @@ export const metadata: Metadata = {
   description:
     'Leading staffing and consulting firm specializing in IT, Healthcare, Finance, and Manufacturing.',
   manifest: '/manifest.json',
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/icons/icon-192.png',
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',

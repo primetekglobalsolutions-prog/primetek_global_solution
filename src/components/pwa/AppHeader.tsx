@@ -38,10 +38,10 @@ export default function AppHeader({ userName }: AppHeaderProps) {
     <header className="h-14 md:h-16 bg-white border-b border-border flex items-center px-4 md:px-6 shrink-0 sticky top-0 z-30">
       <div className="flex-1 min-w-0">
         {/* Mobile/Tablet: show logo + title */}
-        <div className="flex md:hidden items-center gap-3">
-          <Logo className="w-28 h-auto shrink-0" />
-          <div className="h-6 w-px bg-border" />
-          <h2 className="text-sm font-heading font-bold text-navy-900 truncate">
+        <div className="flex md:hidden items-center gap-3 py-1">
+          <Logo className="w-32 h-auto shrink-0" />
+          <div className="h-5 w-px bg-border/60" />
+          <h2 className="text-[15px] font-heading font-bold text-navy-900 truncate">
             {getTitle()}
           </h2>
         </div>

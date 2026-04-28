@@ -36,7 +36,7 @@ export async function toggleEmployeeStatus(id: string, currentStatus: string) {
   }
 
   revalidatePath('/admin/employees');
-  revalidatePath('/admin/employees');
+  revalidatePath('/admin/dashboard');
 }
 
 export async function createEmployee(data: {
@@ -77,7 +77,7 @@ export async function createEmployee(data: {
   }
 
   revalidatePath('/admin/employees');
-  revalidatePath('/admin/employees');
+  revalidatePath('/admin/dashboard');
   return { success: true, employee_id, password };
 }
 
@@ -96,4 +96,5 @@ export async function deleteEmployee(id: string) {
   }
 
   revalidatePath('/admin/employees');
+  revalidatePath('/admin/dashboard');
 }

@@ -4,8 +4,8 @@
   "description": "Enterprise Portal for Primetek Global Solutions",
   "start_url": "/app/login",
   "display": "standalone",
-  "background_color": "#0a1628",
-  "theme_color": "#097d95",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
   "scope": "/app/",
   "icons": [
     {

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Save, Loader2, CheckCircle2, ExternalLink, Navigation, Building } from 'lucide-react';
 import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { OFFICE_LOCATION } from '@/lib/location';
+import { getOfficeLocation, saveOfficeLocation } from './actions';
 
 export default function AdminSettingsPage() {
   const [lat, setLat] = useState(String(OFFICE_LOCATION.lat));
@@ -16,13 +17,35 @@ export default function AdminSettingsPage() {
   const [saved, setSaved] = useState(false);
   const [detectingLocation, setDetectingLocation] = useState(false);
 
+  useEffect(() => {
+    async function loadLocation() {
+      const office = await getOfficeLocation();
+      if (office) {
+        setLat(String(office.lat));
+        setLng(String(office.lng));
+        setName(office.name);
+        setRadius(String(office.radius_meters));
+      }
+    }
+    loadLocation();
+  }, []);
+
   const handleSave = async () => {
     setSaving(true);
-    // TODO: Persist to Supabase settings table
-    await new Promise((r) => setTimeout(r, 800));
-    setSaving(false);
-    setSaved(true);
-    setTimeout(() => setSaved(false), 4000);
+    try {
+      await saveOfficeLocation({
+        name,
+        lat: parseFloat(lat),
+        lng: parseFloat(lng),
+        radius_meters: parseInt(radius)
+      });
+      setSaved(true);
+      setTimeout(() => setSaved(false), 4000);
+    } catch (err) {
+      alert('Failed to save settings');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const detectCurrentLocation = () => {

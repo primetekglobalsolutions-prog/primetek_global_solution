@@ -35,6 +35,7 @@ export async function updateInquiryStatus(id: string, status: string) {
   }
 
   revalidatePath('/admin/inquiries');
+  revalidatePath('/admin/dashboard');
 }
 
 export async function deleteInquiry(id: string) {
@@ -52,4 +53,5 @@ export async function deleteInquiry(id: string) {
   }
 
   revalidatePath('/admin/inquiries');
+  revalidatePath('/admin/dashboard');
 }
