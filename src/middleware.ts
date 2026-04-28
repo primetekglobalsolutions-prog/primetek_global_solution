@@ -4,37 +4,46 @@ import { verifyToken } from '@/lib/auth';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Admin route protection
-  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
+  // Unified PWA route protection
+  if (pathname.startsWith('/app') && !pathname.startsWith('/app/login')) {
     const token = request.cookies.get('auth-token')?.value;
 
     if (!token) {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
+      return NextResponse.redirect(new URL('/app/login', request.url));
     }
 
     const session = await verifyToken(token);
-    if (!session || session.role !== 'admin') {
-      return NextResponse.redirect(new URL('/admin/login', request.url));
+    if (!session) {
+      return NextResponse.redirect(new URL('/app/login', request.url));
+    }
+
+    // Role-based sub-route protection
+    if (pathname.startsWith('/app/admin') && session.role !== 'admin') {
+      return NextResponse.redirect(new URL('/app/login', request.url));
+    }
+    if (pathname.startsWith('/app/employee') && session.role !== 'employee') {
+      return NextResponse.redirect(new URL('/app/login', request.url));
     }
   }
 
-  // Employee route protection
+  // Legacy route protection (keep for now to avoid breaking existing users)
+  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
+    const token = request.cookies.get('auth-token')?.value;
+    if (!token) return NextResponse.redirect(new URL('/admin/login', request.url));
+    const session = await verifyToken(token);
+    if (!session || session.role !== 'admin') return NextResponse.redirect(new URL('/admin/login', request.url));
+  }
+
   if (pathname.startsWith('/employee') && !pathname.startsWith('/employee/login')) {
     const token = request.cookies.get('auth-token')?.value;
-
-    if (!token) {
-      return NextResponse.redirect(new URL('/employee/login', request.url));
-    }
-
+    if (!token) return NextResponse.redirect(new URL('/employee/login', request.url));
     const session = await verifyToken(token);
-    if (!session || session.role !== 'employee') {
-      return NextResponse.redirect(new URL('/employee/login', request.url));
-    }
+    if (!session || session.role !== 'employee') return NextResponse.redirect(new URL('/employee/login', request.url));
   }
 
   return NextResponse.next();
 }
 
 export const config = {
-  matcher: ['/admin/:path*', '/employee/:path*'],
+  matcher: ['/admin/:path*', '/employee/:path*', '/app/:path*'],
 };

@@ -139,13 +139,14 @@
 .container-wide {
   @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
 }
-/* PWA Standalone Mode - Hide website elements */
-.pwa-mode nav, 
-.pwa-mode footer, 
-.pwa-mode header:not(.portal-header) {
+/* PWA Standalone Mode - Isolation */
+.pwa-standalone nav, 
+.pwa-standalone footer, 
+.pwa-standalone header:not(.portal-header),
+.pwa-standalone .public-nav {
   display: none !important;
 }
 
-.pwa-mode main {
+.pwa-standalone main {
   padding-top: 0 !important;
 }

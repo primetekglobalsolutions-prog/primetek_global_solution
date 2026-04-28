@@ -1,29 +1,29 @@
 {
-  "name": "Primetek Global Portal",
+  "name": "Primetek Global Solutions",
   "short_name": "Primetek",
-  "description": "Enterprise HR and Staffing Portal",
-  "start_url": "/",
+  "description": "Enterprise Portal for Primetek Global Solutions",
+  "start_url": "/app/login",
   "display": "standalone",
   "background_color": "#0a1628",
   "theme_color": "#097d95",
-  "scope": "/",
+  "scope": "/app/",
   "icons": [
     {
-      "src": "/icon.svg",
+      "src": "/icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon.svg",
+      "src": "/icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
+      "type": "image/png",
       "purpose": "any"
     },
     {
-      "src": "/icon.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
       "purpose": "maskable"
     }
   ]
