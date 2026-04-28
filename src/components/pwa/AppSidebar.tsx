@@ -22,28 +22,28 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
   const [collapsed, setCollapsed] = useState(false);
 
   const adminItems = [
-    { href: '/app/admin/dashboard', icon: LayoutDashboard, label: 'Overview' },
-    { href: '/app/admin/inquiries', icon: MessageSquare, label: 'Inquiries' },
-    { href: '/app/admin/jobs', icon: Briefcase, label: 'Jobs' },
-    { href: '/app/admin/client-profiles', icon: FileUser, label: 'Client Profiles' },
-    { href: '/app/admin/employees', icon: Users, label: 'Employees' },
-    { href: '/app/admin/attendance', icon: Clock, label: 'Reports' },
-    { href: '/app/admin/profile', icon: UserCircle, label: 'Profile' },
-    { href: '/app/admin/settings', icon: Settings, label: 'Settings' },
+    { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Overview' },
+    { href: '/admin/inquiries', icon: MessageSquare, label: 'Inquiries' },
+    { href: '/admin/jobs', icon: Briefcase, label: 'Jobs' },
+    { href: '/admin/client-profiles', icon: FileUser, label: 'Client Profiles' },
+    { href: '/admin/employees', icon: Users, label: 'Employees' },
+    { href: '/admin/attendance', icon: Clock, label: 'Reports' },
+    { href: '/admin/profile', icon: UserCircle, label: 'Profile' },
+    { href: '/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
   const employeeItems = [
-    { href: '/app/employee/dashboard', icon: LayoutDashboard, label: 'Overview' },
-    { href: '/app/employee/attendance', icon: Clock, label: 'Attendance' },
-    { href: '/app/employee/assigned-profiles', icon: FileUser, label: 'Profiles' },
-    { href: '/app/employee/profile', icon: UserCircle, label: 'My Profile' },
+    { href: '/employee/dashboard', icon: LayoutDashboard, label: 'Overview' },
+    { href: '/employee/attendance', icon: Clock, label: 'Attendance' },
+    { href: '/employee/assigned-profiles', icon: FileUser, label: 'Profiles' },
+    { href: '/employee/profile', icon: UserCircle, label: 'My Profile' },
   ];
 
   const navItems = role === 'admin' ? adminItems : employeeItems;
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
-    router.replace('/app/login');
+    router.replace('/admin/login');
     router.refresh();
   };
 
@@ -58,7 +58,7 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
         <div className="flex items-center justify-between p-4 border-b border-white/10 h-16">
           {!collapsed ? (
             <>
-              <Link href={role === 'admin' ? '/app/admin/dashboard' : '/app/employee/dashboard'} className="flex items-center gap-2.5">
+              <Link href={role === 'admin' ? '/admin/dashboard' : '/employee/dashboard'} className="flex items-center gap-2.5">
                 <Logo className="w-32 h-auto" dark={true} />
               </Link>
               <button 

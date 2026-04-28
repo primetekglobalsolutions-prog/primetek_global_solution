@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { Loader2, UserPlus, Briefcase, Info, GraduationCap, Link2, MapPin } from 'lucide-react';
 import { fullApplicationSchema, type FullApplicationFormData } from '@/lib/validations';
-import { createFullApplication, getActiveJobs, getAllEmployees } from '@/app/app/admin/applications/actions';
+import { createFullApplication, getActiveJobs, getAllEmployees } from '@/app/admin/applications/actions';
 import Button from '@/components/ui/Button';
 
 interface AddApplicationFormProps {

@@ -5,7 +5,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { ShieldCheck, Loader2, AlertCircle, CheckCircle2 } from 'lucide-react';
 import { changePasswordSchema, type ChangePasswordFormData } from '@/lib/validations';
-import { changePassword } from '@/app/app/profile/actions';
+import { changePassword } from '@/app/admin/profile/actions';
 import Button from '@/components/ui/Button';
 
 export default function PasswordChangeForm() {
