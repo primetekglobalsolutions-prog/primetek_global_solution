@@ -45,37 +45,36 @@ export async function POST(request: NextRequest) {
 
     let authError: any = null;
 
-    // 3. Admin Check via Supabase Auth
-    const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@globalprimetek.com').trim().toLowerCase();
-    
-    if (cleanEmail === ADMIN_EMAIL) {
-      console.log(`[Auth] Admin detected. Authenticating via Supabase Admin Client...`);
+    // 3. Admin Check (Database-first for reliability)
+    // First, check if this email exists in the admin_users table
+    const { data: adminRecord } = await supabaseAdmin
+      .from('admin_users')
+      .select('id, email')
+      .eq('email', cleanEmail)
+      .single();
+
+    const ADMIN_EMAIL_ENV = (process.env.ADMIN_EMAIL || 'admin@globalprimetek.com').trim().toLowerCase();
+    const isAdmin = adminRecord || cleanEmail === ADMIN_EMAIL_ENV;
+
+    if (isAdmin) {
+      console.log(`[Auth] Admin detected (${cleanEmail}). Authenticating via Supabase Auth...`);
       
-      // Use supabaseAdmin for more reliable server-side auth check
       const { data: authData, error: apiAuthError } = await supabaseAdmin.auth.signInWithPassword({
         email: cleanEmail,
         password: cleanPassword,
       });
-      authError = apiAuthError;
 
-      if (authError) {
-        console.error('[Auth] Supabase Admin Auth failed:', authError.message);
-
-        if (authError.message.includes('Email not confirmed')) {
-          return NextResponse.json({ 
-            error: 'Email not confirmed. Please ensure "Auto Confirm User?" was checked in Supabase Dashboard.' 
-          }, { status: 401 });
-        }
-        
-        if (authError.message === 'Invalid login credentials') {
-          return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
-        }
-
-        return NextResponse.json({ error: `Auth Error: ${authError.message}` }, { status: 401 });
+      if (apiAuthError) {
+        console.error('[Auth] Admin Auth failed:', apiAuthError.message);
+        return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
       }
 
       if (authData?.user) {
-        // Successfully authenticated as Admin via Supabase matching the ADMIN_EMAIL
+        // Double check they have admin rights in DB if they weren't found earlier
+        if (!adminRecord) {
+          await supabaseAdmin.from('admin_users').upsert({ id: authData.user.id, email: cleanEmail });
+        }
+
         const token = await createToken({
           id: authData.user.id,
           email: authData.user.email || email,
