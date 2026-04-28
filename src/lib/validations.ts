@@ -47,7 +47,7 @@ export const fullApplicationSchema = z.object({
   name: z.string().min(2, 'Name is required'),
   email: z.string().email('Invalid email address'),
   phone: z.string().optional(),
-  experience_years: z.coerce.number().min(0).optional(),
+  experience_years: z.any().optional(),
   
   // Profile Details
   client_address: z.string().optional(),

@@ -103,8 +103,8 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
   const elapsedSec = elapsed % 60;
 
   // Calendar grid
-  const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+  const monthStart = new Date(currentTime.getFullYear(), currentTime.getMonth(), 1);
+  const daysInMonth = new Date(currentTime.getFullYear(), currentTime.getMonth() + 1, 0).getDate();
   const startDay = monthStart.getDay();
 
   const calendarDays = [];
@@ -112,7 +112,7 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
   for (let d = 1; d <= daysInMonth; d++) calendarDays.push(d);
 
   const getStatusForDay = (day: number) => {
-    const dateStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const dateStr = `${currentTime.getFullYear()}-${String(currentTime.getMonth() + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const record = initialRecords.find((r) => r.date === dateStr);
     return record?.status?.toLowerCase() || null;
   };
@@ -204,7 +204,7 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
         {/* Calendar */}
         <Card hover={false} className="p-6 md:p-8">
           <h2 className="font-heading font-bold text-navy-900 mb-4">
-            {today.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
+            {currentTime.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
           </h2>
 
           {/* Legend */}
@@ -221,11 +221,11 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
             ))}
             {calendarDays.map((day, i) => {
               if (day === null) return <div key={`e-${i}`} />;
-              const dayDate = new Date(today.getFullYear(), today.getMonth(), day);
+              const dayDate = new Date(currentTime.getFullYear(), currentTime.getMonth(), day);
               const isWeekend = dayDate.getDay() === 0 || dayDate.getDay() === 6;
-              const isToday = day === today.getDate();
+              const isToday = day === currentTime.getDate();
               const status = getStatusForDay(day);
-              const isFuture = day > today.getDate();
+              const isFuture = day > currentTime.getDate();
 
               return (
                 <div

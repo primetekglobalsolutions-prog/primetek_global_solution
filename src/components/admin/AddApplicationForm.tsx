@@ -24,9 +24,6 @@ export default function AddApplicationForm({ onSuccess, onCancel }: AddApplicati
     formState: { errors },
   } = useForm<FullApplicationFormData>({
     resolver: zodResolver(fullApplicationSchema),
-    defaultValues: {
-      experience_years: 0,
-    }
   });
 
   useEffect(() => {
