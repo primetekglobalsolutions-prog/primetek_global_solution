@@ -161,8 +161,10 @@ export default function InquiryTable({ inquiries, updateStatus }: InquiryTablePr
                       <p className="text-xs text-text-muted">{inquiry.email}</p>
                     </td>
                     <td className="px-6 py-4 text-sm text-text-secondary">{inquiry.company || '—'}</td>
-                    <td className="px-6 py-4 text-sm text-text-secondary max-w-[250px] truncate">
-                      {inquiry.requirement}
+                    <td className="px-6 py-4">
+                      <div className="text-sm text-text-secondary max-w-[400px] break-words">
+                        {inquiry.requirement}
+                      </div>
                     </td>
                     <td className="px-6 py-4">
                       <select

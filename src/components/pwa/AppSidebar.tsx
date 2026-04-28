@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, Clock, UserCircle, LogOut, 
-  MessageSquare, Briefcase, Users, 
+  MessageSquare, Briefcase, Users, FileUser,
   Settings, ChevronLeft, ChevronRight 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -25,6 +25,7 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
     { href: '/app/admin/dashboard', icon: LayoutDashboard, label: 'Overview' },
     { href: '/app/admin/inquiries', icon: MessageSquare, label: 'Inquiries' },
     { href: '/app/admin/jobs', icon: Briefcase, label: 'Jobs' },
+    { href: '/app/admin/client-profiles', icon: FileUser, label: 'Client Profiles' },
     { href: '/app/admin/employees', icon: Users, label: 'Employees' },
     { href: '/app/admin/attendance', icon: Clock, label: 'Reports' },
     { href: '/app/admin/profile', icon: UserCircle, label: 'Profile' },
@@ -32,10 +33,10 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
   ];
 
   const employeeItems = [
-    { href: '/app/employee/dashboard', icon: LayoutDashboard, label: 'Home' },
+    { href: '/app/employee/dashboard', icon: LayoutDashboard, label: 'Overview' },
     { href: '/app/employee/attendance', icon: Clock, label: 'Attendance' },
-    { href: '/app/employee/assignments', icon: Briefcase, label: 'My Profiles' },
-    { href: '/app/employee/profile', icon: UserCircle, label: 'Profile' },
+    { href: '/app/employee/assigned-profiles', icon: FileUser, label: 'Profiles' },
+    { href: '/app/employee/profile', icon: UserCircle, label: 'My Profile' },
   ];
 
   const navItems = role === 'admin' ? adminItems : employeeItems;

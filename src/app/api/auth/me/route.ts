@@ -15,7 +15,19 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Invalid session' }, { status: 401 });
     }
 
-    // Fetch latest user info from DB
+    // If admin, they don't exist in employees table, so we use session data directly
+    if (session.role === 'admin') {
+      return NextResponse.json({
+        user: {
+          id: session.id,
+          name: session.name || 'Administrator',
+          role: 'admin',
+          email: session.email
+        }
+      });
+    }
+
+    // Fetch latest employee info from DB
     const { data: user, error } = await supabaseAdmin
       .from('employees')
       .select('id, name, role, email')

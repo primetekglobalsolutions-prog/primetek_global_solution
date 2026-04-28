@@ -32,9 +32,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       }
     }
 
-    // Auth Check
+    // Auth Check (Optimized: only run if we don't have a session or on mount)
     const checkAuth = async () => {
       if (isLoginPage) {
+        setIsLoading(false);
+        return;
+      }
+
+      // If we already have a session, don't block the UI with another fetch
+      if (session) {
         setIsLoading(false);
         return;
       }
@@ -55,7 +61,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
     };
 
     checkAuth();
-  }, [router, pathname, isLoginPage]);
+  }, [router, isLoginPage]); // Removed pathname to prevent re-running on every nav
 
   // Loading state
   if (isLoading) {
