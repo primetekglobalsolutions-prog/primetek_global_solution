@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Save, Loader2, CheckCircle2, Camera } from 'lucide-react';
+import { Save, Loader2, CheckCircle2, Camera, Briefcase } from 'lucide-react';
 import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -79,97 +79,153 @@ export default function ProfileClient({ employee }: { employee: EmployeeProfile 
   const inputClasses = 'w-full px-4 py-3 rounded-lg border border-border bg-white text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent text-sm';
 
   return (
-    <div className="space-y-6">
-      <h1 className="text-2xl font-heading font-bold text-navy-900">My Profile</h1>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Avatar Card */}
-        <Card hover={false} className="p-8 text-center">
+    <div className="space-y-8 pb-12">
+      {/* Premium Header */}
+      <div className="relative rounded-[2.5rem] bg-navy-900 p-8 overflow-hidden shadow-2xl">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary-600/20 to-transparent" />
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -mr-20 -mt-20 blur-3xl" />
+        
+        <div className="relative flex flex-col md:flex-row items-center gap-8">
+          {/* Avatar Section */}
           <div 
-            className="w-24 h-24 rounded-full bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-3xl font-bold mx-auto mb-4 relative group cursor-pointer overflow-hidden ring-4 ring-white shadow-lg"
+            className="w-32 h-32 rounded-[2rem] bg-gradient-to-br from-primary-500 to-primary-700 flex items-center justify-center text-white text-4xl font-black relative group cursor-pointer overflow-hidden ring-4 ring-white/10 shadow-2xl shadow-primary-500/20"
             onClick={() => fileInputRef.current?.click()}
           >
             {currentAvatarUrl ? (
-              <Image src={currentAvatarUrl} alt={`${employee.name}'s profile avatar`} fill className="object-cover" sizes="96px" priority />
+              <Image src={currentAvatarUrl} alt={employee.name} fill className="object-cover" sizes="128px" priority />
             ) : (
-              employee.name ? employee.name.split(' ').map((n: string) => n[0]).join('') : 'U'
+              employee.name ? employee.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2).toUpperCase() : 'U'
             )}
             
-            {/* Hover overlay */}
-            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-              {avatarUploading ? <Loader2 className="w-6 h-6 animate-spin" /> : <Camera className="w-6 h-6" />}
+            <div className="absolute inset-0 bg-navy-900/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 backdrop-blur-sm">
+              {avatarUploading ? <Loader2 className="w-8 h-8 animate-spin text-white" /> : <Camera className="w-8 h-8 text-white" />}
             </div>
-            <input 
-              type="file" 
-              ref={fileInputRef} 
-              className="hidden" 
-              accept="image/*" 
-              onChange={handleAvatarChange} 
-            />
+            <input type="file" ref={fileInputRef} className="hidden" accept="image/*" onChange={handleAvatarChange} />
           </div>
-          <h2 className="text-lg font-heading font-bold text-navy-900">{employee.name}</h2>
-          <p className="text-sm text-text-secondary">{employee.designation}</p>
-          <p className="text-xs text-text-muted mt-1">{employee.department}</p>
-          <div className="mt-4 pt-4 border-t border-border">
-            <p className="text-xs text-text-muted">Employee ID</p>
-            <p className="text-sm font-mono font-medium text-navy-900">{employee.id.substring(0, 8).toUpperCase()}</p>
+
+          <div className="text-center md:text-left">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-500/10 border border-primary-500/20 mb-3">
+              <span className="text-[10px] font-black text-primary-400 uppercase tracking-widest">Active Member</span>
+            </div>
+            <h1 className="text-3xl md:text-4xl font-heading font-black text-white mb-2 tracking-tight">
+              {employee.name}
+            </h1>
+            <p className="text-primary-200/70 text-sm md:text-base font-medium flex items-center justify-center md:justify-start gap-2">
+              {employee.designation || 'Team Member'} 
+              <span className="w-1 h-1 rounded-full bg-white/20" /> 
+              {employee.department || 'Primetek'}
+            </p>
           </div>
-          <div className="mt-3">
-            <p className="text-xs text-text-muted">Joined</p>
-            <p className="text-sm font-medium text-navy-900">{employee.created_at ? new Date(employee.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }) : '—'}</p>
+
+          <div className="md:ml-auto flex items-center gap-4">
+            <div className="bg-white/5 backdrop-blur-md rounded-2xl p-4 border border-white/10 text-center min-w-[100px]">
+              <p className="text-[9px] text-primary-300 uppercase font-black tracking-widest mb-1">ID Tag</p>
+              <p className="text-sm font-mono font-bold text-white uppercase tracking-tighter">
+                {employee.id.substring(0, 8)}
+              </p>
+            </div>
           </div>
-        </Card>
+        </div>
+      </div>
 
-        {/* Edit Form */}
-        <Card hover={false} className="lg:col-span-2 p-6 md:p-8">
-          <h2 className="font-heading font-bold text-navy-900 mb-6">Edit Profile</h2>
-
-          <div className="space-y-5">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label htmlFor="profile-name" className="block text-sm font-medium text-navy-900 mb-1.5">Full Name</label>
-                <input id="profile-name" type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClasses} />
-              </div>
-              <div>
-                <label htmlFor="profile-email" className="block text-sm font-medium text-navy-900 mb-1.5">Email</label>
-                <input id="profile-email" type="email" value={form.email} disabled className={`${inputClasses} bg-surface-alt cursor-not-allowed`} />
-              </div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Forms Side */}
+        <div className="lg:col-span-2 space-y-8">
+          <Card hover={false} className="p-8 rounded-[2rem] border-border/40 shadow-sm relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-8 opacity-[0.03] -mr-4 -mt-4">
+              <Save className="w-32 h-32 text-navy-900" />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label htmlFor="profile-phone" className="block text-sm font-medium text-navy-900 mb-1.5">Phone</label>
-                <input id="profile-phone" type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputClasses} />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-8">
+                <div>
+                  <h2 className="text-xl font-heading font-black text-navy-900">Personal Information</h2>
+                  <p className="text-xs text-text-muted mt-1 font-medium">Update your contact details and preferences.</p>
+                </div>
+                <Button onClick={handleSave} disabled={saving} className="rounded-xl shadow-lg shadow-primary-500/20 px-6">
+                  {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
+                  Save Changes
+                </Button>
               </div>
-              <div>
-                <label htmlFor="profile-department" className="block text-sm font-medium text-navy-900 mb-1.5">Department</label>
-                <input id="profile-department" type="text" value={form.department} disabled className={`${inputClasses} bg-surface-alt cursor-not-allowed`} />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-navy-900/40 uppercase tracking-widest ml-1">Display Name</label>
+                  <input type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} className={inputClasses} placeholder="Your full name" />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-navy-900/40 uppercase tracking-widest ml-1">Email Address</label>
+                  <input type="email" value={form.email} disabled className={`${inputClasses} bg-surface-alt/50 text-text-muted cursor-not-allowed`} />
+                </div>
+                <div className="space-y-1.5">
+                  <label className="text-[10px] font-black text-navy-900/40 uppercase tracking-widest ml-1">Phone Number</label>
+                  <input type="tel" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} className={inputClasses} placeholder="+91 00000 00000" />
+                </div>
               </div>
-            </div>
 
-            <div>
-              <label htmlFor="profile-designation" className="block text-sm font-medium text-navy-900 mb-1.5">Designation</label>
-              <input id="profile-designation" type="text" value={form.designation} disabled className={`${inputClasses} bg-surface-alt cursor-not-allowed`} />
-            </div>
-
-            <div className="flex items-center gap-3 pt-2">
-              <Button onClick={handleSave} disabled={saving}>
-                {saving ? <><Loader2 className="w-4 h-4 animate-spin" /> Saving...</> : <><Save className="w-4 h-4" /> Save Changes</>}
-              </Button>
               {saved && (
-                <span className="flex items-center gap-1.5 text-sm text-emerald-600">
-                  <CheckCircle2 className="w-4 h-4" /> Profile updated
-                </span>
+                <div className="mt-6 flex items-center gap-2 text-sm text-emerald-600 font-bold animate-in fade-in slide-in-from-bottom-2">
+                  <CheckCircle2 className="w-5 h-5" /> Changes saved successfully
+                </div>
               )}
             </div>
-          </div>
-        </Card>
+          </Card>
 
-        {/* Security / Password Change */}
-        <div className="lg:col-span-3">
-          <Card hover={false} className="p-6 md:p-8">
+          <Card hover={false} className="p-8 rounded-[2rem] border-border/40 shadow-sm">
             <PasswordChangeForm />
           </Card>
+        </div>
+
+        {/* Info Side */}
+        <div className="space-y-6">
+          <Card hover={false} className="p-8 rounded-[2rem] border-0 bg-navy-900 text-white shadow-xl shadow-navy-900/20">
+            <h3 className="text-lg font-heading font-black mb-6">Work Details</h3>
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                  <Briefcase className="w-5 h-5 text-primary-300" />
+                </div>
+                <div>
+                  <p className="text-[10px] text-primary-300 uppercase font-black tracking-widest mb-1">Current Role</p>
+                  <p className="text-sm font-bold text-white">{employee.designation || 'Team Member'}</p>
+                </div>
+              </div>
+              
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 text-primary-300 font-bold text-center">D</div>
+                </div>
+                <div>
+                  <p className="text-[10px] text-primary-300 uppercase font-black tracking-widest mb-1">Department</p>
+                  <p className="text-sm font-bold text-white">{employee.department || 'Operations'}</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-4">
+                <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center shrink-0">
+                  <div className="w-5 h-5 text-primary-300 font-bold text-center">J</div>
+                </div>
+                <div>
+                  <p className="text-[10px] text-primary-300 uppercase font-black tracking-widest mb-1">Member Since</p>
+                  <p className="text-sm font-bold text-white">
+                    {employee.created_at ? new Date(employee.created_at).toLocaleDateString('en-IN', { month: 'long', year: 'numeric' }) : '—'}
+                  </p>
+                </div>
+              </div>
+            </div>
+          </Card>
+
+          <div className="p-8 rounded-[2rem] bg-primary-50 border border-primary-100">
+            <div className="flex items-center gap-3 mb-3">
+              <div className="w-8 h-8 rounded-xl bg-primary-500 text-white flex items-center justify-center">
+                <CheckCircle2 className="w-5 h-5" />
+              </div>
+              <p className="text-sm font-black text-primary-900">Security Note</p>
+            </div>
+            <p className="text-xs text-primary-800/80 leading-relaxed font-medium">
+              Your email and work details are managed by HR. If you notice any discrepancy, please contact support.
+            </p>
+          </div>
         </div>
       </div>
     </div>

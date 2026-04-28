@@ -42,6 +42,8 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
   const navItems = role === 'admin' ? adminItems : employeeItems;
 
   const handleLogout = async () => {
+    if (!window.confirm('Are you sure you want to sign out?')) return;
+    
     await fetch('/api/auth/logout', { method: 'POST' });
     router.replace(role === 'admin' ? '/admin/login' : '/employee/login');
     router.refresh();

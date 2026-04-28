@@ -22,6 +22,26 @@ export async function checkIn(lat: number, lng: number) {
       return { success: false, error: 'Unauthorized' };
     }
 
+    // --- Safety Feature: Close any stale sessions from previous days ---
+    const { data: stale } = await supabaseAdmin
+      .from('attendance')
+      .select('id, check_in')
+      .eq('employee_id', session.id)
+      .is('check_out', null)
+      .neq('date', getISTDate().toISOString().split('T')[0]);
+
+    if (stale && stale.length > 0) {
+      for (const record of stale) {
+        // Auto check-out at 9 hours after check-in if forgotten
+        const checkInTime = new Date(record.check_in);
+        const autoOut = new Date(checkInTime.getTime() + 9 * 60 * 60 * 1000);
+        await supabaseAdmin
+          .from('attendance')
+          .update({ check_out: autoOut.toISOString() })
+          .eq('id', record.id);
+      }
+    }
+
     console.log(`Employee ${session.id} attempting check-in at ${lat}, ${lng}`);
 
     // 1. Get Office Location
@@ -57,12 +77,15 @@ export async function checkIn(lat: number, lng: number) {
 
     const { data: existing, error: existingError } = await supabaseAdmin
       .from('attendance')
-      .select('id')
+      .select('id, check_out')
       .eq('employee_id', session.id)
       .eq('date', todayStr)
       .maybeSingle();
 
     if (existing) {
+      if (existing.check_out) {
+        return { success: false, error: 'You have already completed your attendance for today.' };
+      }
       return { success: false, error: 'Already checked in today' };
     }
 
@@ -121,5 +144,29 @@ export async function checkOut(recordId: string, lat: number, lng: number) {
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message || 'Internal server error' };
+  }
+}
+
+/**
+ * Resumes a session if it was accidentally closed (e.g. checked out by mistake)
+ */
+export async function resumeSession(recordId: string) {
+  try {
+    const session = await getSession();
+    if (!session || !session.id) return { success: false, error: 'Unauthorized' };
+
+    const { error } = await supabaseAdmin
+      .from('attendance')
+      .update({ check_out: null })
+      .eq('id', recordId)
+      .eq('employee_id', session.id);
+
+    if (error) throw error;
+
+    revalidatePath('/employee/attendance');
+    revalidatePath('/employee/dashboard');
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: 'Failed to resume session' };
   }
 }

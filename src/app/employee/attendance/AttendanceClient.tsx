@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { MapPin, CheckCircle2, LogIn, LogOut, Loader2 } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { checkIn, checkOut } from './actions';
+import { checkIn, checkOut, resumeSession } from './actions';
 
 const statusColors: Record<string, string> = {
   present: 'bg-emerald-50 text-emerald-600 border-emerald-200',
@@ -81,6 +81,8 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
 
   const handleCheckOut = async () => {
     if (!todayRecord) return;
+    if (!window.confirm('Are you sure you want to clock out?')) return;
+    
     setGpsStatus('loading');
     try {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
@@ -106,6 +108,23 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
       setGpsStatus('error');
       const msg = err.message || 'Could not get your location for check-out.';
       alert(msg);
+    }
+  };
+
+  const handleResume = async () => {
+    if (!todayRecord) return;
+    setGpsStatus('loading');
+    try {
+      const result = await resumeSession(todayRecord.id);
+      if (!result.success) {
+        alert(result.error || 'Failed to resume session');
+        setGpsStatus('error');
+      } else {
+        setGpsStatus('success');
+      }
+    } catch (err) {
+      setGpsStatus('error');
+      alert('Failed to resume session');
     }
   };
 
@@ -209,7 +228,19 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
                   <><LogOut className="w-6 h-6" /> Check Out</>
                 )}
               </Button>
-            ) : null}
+            ) : (
+              <div className="space-y-3">
+                <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
+                  <p className="text-sm text-gray-600 font-medium tracking-wider mb-1">Shift Completed</p>
+                </div>
+                <button 
+                  onClick={handleResume}
+                  className="text-xs text-primary-500 hover:text-primary-600 font-bold underline"
+                >
+                  Checked out by mistake? Resume Session
+                </button>
+              </div>
+            )}
           </div>
         </Card>
 
