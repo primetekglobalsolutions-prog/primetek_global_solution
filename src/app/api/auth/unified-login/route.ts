@@ -42,7 +42,9 @@ export async function POST(request: NextRequest) {
     let authError: any = null;
 
     // 3. Admin Check via Supabase Auth
-    if (isEmail) {
+    const ADMIN_EMAIL = process.env.ADMIN_EMAIL || 'admin@globalprimetek.com';
+
+    if (cleanEmail === ADMIN_EMAIL) {
       const supabase = await createClient();
       const { data: authData, error: apiAuthError } = await supabase.auth.signInWithPassword({
         email: cleanEmail,
@@ -57,21 +59,17 @@ export async function POST(request: NextRequest) {
         if (authError.message.includes('Email not confirmed')) {
           return NextResponse.json({ error: 'Please verify your email address. If you created this user manually, ensure "Auto Confirm User?" is checked.' }, { status: 401 });
         }
-      }
-
-      if (!authError && authData?.user) {
-        // Verify this user is actually an admin by checking the admin_users table
-        const { data: adminCheck, error: adminError } = await supabaseAdmin
-          .from('admin_users')
-          .select('id')
-          .eq('id', authData.user.id)
-          .single();
-
-        if (adminError || !adminCheck) {
-          return NextResponse.json({ error: 'Unauthorized. This account is not an administrator.' }, { status: 403 });
+        
+        // If it fails with "Invalid login credentials"
+        if (authError.message === 'Invalid login credentials') {
+          return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
 
-        // Successfully authenticated as Admin via Supabase
+        return NextResponse.json({ error: `Supabase Auth Error: ${authError.message}` }, { status: 401 });
+      }
+
+      if (authData?.user) {
+        // Successfully authenticated as Admin via Supabase matching the ADMIN_EMAIL
         const token = await createToken({
           id: authData.user.id,
           email: authData.user.email || email,
