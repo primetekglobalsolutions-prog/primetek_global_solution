@@ -269,10 +269,15 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
               </tr>
             </thead>
             <tbody>
-              {initialRecords.slice(0, 15).map((record) => (
-                <tr key={record.id} className="border-b border-border last:border-0 hover:bg-surface-alt/30 transition-colors">
-                  <td className="px-6 py-4 text-sm text-navy-900 font-medium">{new Date(record.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', weekday: 'short' })}</td>
-                  <td className="px-6 py-4 text-sm text-text-secondary">{record.check_in || '—'}</td>
+              {initialRecords.slice(0, 15).map((record) => {
+                const dateObj = new Date(record.date);
+                const isValidDate = !isNaN(dateObj.getTime());
+                return (
+                  <tr key={record.id} className="border-b border-border last:border-0 hover:bg-surface-alt/30 transition-colors">
+                    <td className="px-6 py-4 text-sm text-navy-900 font-medium">
+                      {isValidDate ? dateObj.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', weekday: 'short' }) : record.date}
+                    </td>
+                    <td className="px-6 py-4 text-sm text-text-secondary">{record.check_in || '—'}</td>
                   <td className="px-6 py-4 text-sm text-text-secondary">{record.check_out || '—'}</td>
                   <td className="px-6 py-4 text-sm text-text-secondary">{record.duration_hours > 0 ? `${record.duration_hours}h` : '—'}</td>
                   <td className="px-6 py-4">

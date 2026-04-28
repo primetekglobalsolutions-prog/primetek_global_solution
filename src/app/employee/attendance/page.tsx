@@ -17,15 +17,21 @@ export default async function EmployeeAppAttendancePage() {
     const checkIn = r.check_in ? new Date(r.check_in) : null;
     const checkOut = r.check_out ? new Date(r.check_out) : null;
     let durationHours = 0;
-    if (checkIn && checkOut) {
+    
+    // Safety check for Invalid Date
+    const isValidCheckIn = checkIn && !isNaN(checkIn.getTime());
+    const isValidCheckOut = checkOut && !isNaN(checkOut.getTime());
+
+    if (isValidCheckIn && isValidCheckOut) {
       durationHours = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60) * 10) / 10;
     }
+    
     return {
       id: r.id,
       date: r.date,
       check_in_raw: r.check_in,
-      check_in: checkIn ? checkIn.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
-      check_out: checkOut ? checkOut.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
+      check_in: isValidCheckIn ? checkIn.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
+      check_out: isValidCheckOut ? checkOut.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
       duration_hours: durationHours,
       status: r.status,
     };
