@@ -4,21 +4,36 @@ import { useState, useMemo } from 'react';
 import { 
   Search, Plus, UserPlus, Eye, 
   Trash2, Download, X, Mail, 
-  Linkedin, Phone, MapPin, Briefcase, 
+  Globe, Phone, MapPin, Briefcase, 
   GraduationCap, FileText, Loader2 
 } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { createProfile, updateProfile, deleteProfile } from './actions';
 
-export default function ClientProfilesClient({ initialProfiles, employees }: { initialProfiles: any[], employees: any[] }) {
-  const [profiles, setProfiles] = useState(initialProfiles);
+interface ClientProfile {
+  id?: string;
+  client_name: string;
+  client_email: string;
+  client_phone: string;
+  client_role: string;
+  client_address: string;
+  client_linkedin: string;
+  education_details: { bachelors: string; masters: string };
+  assigned_to: string;
+  resume_url: string;
+  status?: string;
+  assigned_employee?: { id: string; name: string };
+}
+
+export default function ClientProfilesClient({ initialProfiles, employees }: { initialProfiles: ClientProfile[], employees: any[] }) {
+  const [profiles, setProfiles] = useState<ClientProfile[]>(initialProfiles);
   const [search, setSearch] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingProfile, setEditingProfile] = useState<any>(null);
+  const [editingProfile, setEditingProfile] = useState<ClientProfile | null>(null);
   const [loading, setLoading] = useState(false);
 
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<ClientProfile>({
     client_name: '',
     client_email: '',
     client_phone: '',
@@ -37,7 +52,7 @@ export default function ClientProfilesClient({ initialProfiles, employees }: { i
     );
   }, [profiles, search]);
 
-  const handleOpenModal = (profile = null) => {
+  const handleOpenModal = (profile: ClientProfile | null = null) => {
     if (profile) {
       setEditingProfile(profile);
       setFormData({
@@ -73,6 +88,7 @@ export default function ClientProfilesClient({ initialProfiles, employees }: { i
     setLoading(true);
     try {
       if (editingProfile) {
+        if (!editingProfile.id) return;
         await updateProfile(editingProfile.id, formData);
         setProfiles(prev => prev.map(p => p.id === editingProfile.id ? { ...p, ...formData } : p));
       } else {
@@ -133,7 +149,7 @@ export default function ClientProfilesClient({ initialProfiles, employees }: { i
                 <button onClick={() => handleOpenModal(profile)} className="p-1.5 hover:bg-surface-alt rounded-lg text-text-muted transition-colors">
                   <Eye className="w-4 h-4" />
                 </button>
-                <button onClick={() => handleDelete(profile.id)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-400 transition-colors">
+                <button onClick={() => handleDelete(profile.id!)} className="p-1.5 hover:bg-red-50 rounded-lg text-red-400 transition-colors">
                   <Trash2 className="w-4 h-4" />
                 </button>
               </div>

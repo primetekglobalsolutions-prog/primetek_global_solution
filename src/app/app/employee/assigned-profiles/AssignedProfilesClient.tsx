@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { 
-  Eye, Download, Mail, Linkedin, 
+  Eye, Download, Mail, Globe, 
   Phone, MapPin, Briefcase, GraduationCap, 
   FileText, X, CheckCircle2, Loader2 
 } from 'lucide-react';
@@ -10,9 +10,23 @@ import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { updateProfileStatus } from './actions';
 
-export default function AssignedProfilesClient({ initialProfiles }: { initialProfiles: any[] }) {
-  const [profiles, setProfiles] = useState(initialProfiles);
-  const [selectedProfile, setSelectedProfile] = useState<any>(null);
+interface ClientProfile {
+  id: string;
+  client_name: string;
+  client_email: string;
+  client_phone: string;
+  client_role: string;
+  client_address: string;
+  client_linkedin: string;
+  education_details: { bachelors: string; masters: string };
+  assigned_to: string;
+  resume_url: string;
+  status: string;
+}
+
+export default function AssignedProfilesClient({ initialProfiles }: { initialProfiles: ClientProfile[] }) {
+  const [profiles, setProfiles] = useState<ClientProfile[]>(initialProfiles);
+  const [selectedProfile, setSelectedProfile] = useState<ClientProfile | null>(null);
   const [updating, setUpdating] = useState<string | null>(null);
 
   const handleStatusChange = async (id: string, status: string) => {
@@ -123,7 +137,7 @@ export default function AssignedProfilesClient({ initialProfiles }: { initialPro
                     </a>
                     {selectedProfile.client_linkedin && (
                       <a href={selectedProfile.client_linkedin} target="_blank" className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-primary-600 transition-colors">
-                        <Linkedin className="w-4 h-4" /> LinkedIn
+                        <Globe className="w-4 h-4" /> LinkedIn
                       </a>
                     )}
                   </div>

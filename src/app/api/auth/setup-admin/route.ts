@@ -15,21 +15,45 @@ export async function GET() {
     });
 
     if (createError) {
-      // If user already exists, update their password via API to fix any bad SQL hashes
-      if (createError.message.includes('already exists') || createError.message.includes('already registered')) {
-        const { data: usersData } = await supabaseAdmin.auth.admin.listUsers();
-        const existingUser = usersData.users.find(u => u.email === email);
+      console.log('[Setup] User creation failed, checking if user already exists...', createError.message);
+      
+      // Handle "already registered" or "already exists" errors
+      const isAlreadyExists = 
+        createError.message.toLowerCase().includes('already registered') || 
+        createError.message.toLowerCase().includes('already exists');
+
+      if (isAlreadyExists) {
+        // Find the user by email in the user list
+        const { data: usersData, error: listError } = await supabaseAdmin.auth.admin.listUsers();
+        
+        if (listError) throw listError;
+
+        const existingUser = usersData.users.find(u => u.email?.toLowerCase() === email.toLowerCase());
         
         if (existingUser) {
-          await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
+          console.log('[Setup] Found existing user:', existingUser.id);
+          
+          // Force update password and confirm email
+          const { error: updateError } = await supabaseAdmin.auth.admin.updateUserById(existingUser.id, {
             password: password,
-            email_confirm: true
+            email_confirm: true,
+            user_metadata: { full_name: 'Administrator' }
           });
+
+          if (updateError) throw updateError;
           
-          // Ensure they are in admin_users
-          await supabaseAdmin.from('admin_users').upsert({ id: existingUser.id, email: email });
+          // Ensure they are in admin_users table for DB access
+          const { error: dbError } = await supabaseAdmin.from('admin_users').upsert({ 
+            id: existingUser.id, 
+            email: email 
+          });
+
+          if (dbError) throw dbError;
           
-          return NextResponse.json({ success: true, message: 'Existing user password fixed and admin rights granted! You can now log in.' });
+          return NextResponse.json({ 
+            success: true, 
+            message: 'Existing Admin user detected. Password has been reset and account confirmed! You can now log in.' 
+          });
         }
       }
       return NextResponse.json({ error: createError.message }, { status: 400 });

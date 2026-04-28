@@ -47,31 +47,31 @@ export async function POST(request: NextRequest) {
 
     // 3. Admin Check via Supabase Auth
     const ADMIN_EMAIL = (process.env.ADMIN_EMAIL || 'admin@globalprimetek.com').trim().toLowerCase();
-    console.log(`[Auth] Checking if ${cleanEmail} matches ADMIN_EMAIL: ${ADMIN_EMAIL}`);
-
+    
     if (cleanEmail === ADMIN_EMAIL) {
-      console.log(`[Auth] Admin detected. Attempting Supabase Auth...`);
-      const supabase = await createClient();
-      const { data: authData, error: apiAuthError } = await supabase.auth.signInWithPassword({
+      console.log(`[Auth] Admin detected. Authenticating via Supabase Admin Client...`);
+      
+      // Use supabaseAdmin for more reliable server-side auth check
+      const { data: authData, error: apiAuthError } = await supabaseAdmin.auth.signInWithPassword({
         email: cleanEmail,
         password: cleanPassword,
       });
       authError = apiAuthError;
 
       if (authError) {
-        console.error('Supabase Auth attempt failed:', authError.message);
+        console.error('[Auth] Supabase Admin Auth failed:', authError.message);
 
-        // If the error is anything other than standard invalid credentials, surface it to the user.
         if (authError.message.includes('Email not confirmed')) {
-          return NextResponse.json({ error: 'Please verify your email address. If you created this user manually, ensure "Auto Confirm User?" is checked.' }, { status: 401 });
+          return NextResponse.json({ 
+            error: 'Email not confirmed. Please ensure "Auto Confirm User?" was checked in Supabase Dashboard.' 
+          }, { status: 401 });
         }
         
-        // If it fails with "Invalid login credentials"
         if (authError.message === 'Invalid login credentials') {
           return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
         }
 
-        return NextResponse.json({ error: `Supabase Auth Error: ${authError.message}` }, { status: 401 });
+        return NextResponse.json({ error: `Auth Error: ${authError.message}` }, { status: 401 });
       }
 
       if (authData?.user) {
