@@ -44,14 +44,14 @@ export default function EmployeeLoginForm() {
     <form onSubmit={handleSubmit} className="space-y-5">
       <div>
         <label htmlFor="emp-email" className="block text-sm font-medium text-navy-900 mb-1.5">
-          Email Address
+          Email or Employee ID
         </label>
         <input
           id="emp-email"
-          type="email"
+          type="text"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="Enter your email"
+          placeholder="Enter email or employee ID"
           required
           className="w-full px-4 py-3 rounded-lg border border-border bg-white text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm"
         />
@@ -82,7 +82,9 @@ export default function EmployeeLoginForm() {
       </div>
 
       {error && (
-        <p className="text-error text-sm bg-red-50 border border-red-200 rounded-lg p-3">{error}</p>
+        <div className="text-error text-sm bg-red-50 border border-red-200 rounded-lg p-3 animate-in fade-in slide-in-from-top-1 duration-200">
+          <p className="font-medium">{error}</p>
+        </div>
       )}
 
       <Button type="submit" className="w-full" size="lg" disabled={loading}>

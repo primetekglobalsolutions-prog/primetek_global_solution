@@ -80,3 +80,20 @@ export async function createEmployee(data: {
   revalidatePath('/admin/employees');
   return { success: true, employee_id, password };
 }
+
+export async function deleteEmployee(id: string) {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
+  const { error } = await supabaseAdmin
+    .from('employees')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting employee:', error);
+    throw new Error('Failed to delete employee');
+  }
+
+  revalidatePath('/admin/employees');
+}

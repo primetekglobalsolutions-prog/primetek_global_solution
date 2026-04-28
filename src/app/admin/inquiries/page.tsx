@@ -1,5 +1,5 @@
 import InquiryTable from '@/components/admin/InquiryTable';
-import { getAdminInquiries, updateInquiryStatus } from './actions';
+import { getAdminInquiries, updateInquiryStatus, deleteInquiry } from './actions';
 
 export default async function AdminAppInquiriesPage() {
   const inquiries = await getAdminInquiries();
@@ -22,7 +22,11 @@ export default async function AdminAppInquiriesPage() {
         <h1 className="text-2xl font-heading font-bold text-navy-900 tracking-tight">Inquiries</h1>
         <p className="text-text-secondary text-sm">Manage business and career inquiries.</p>
       </div>
-      <InquiryTable inquiries={formattedInquiries} updateStatus={updateInquiryStatus} />
+      <InquiryTable 
+        inquiries={formattedInquiries} 
+        updateStatus={updateInquiryStatus} 
+        deleteInquiry={deleteInquiry}
+      />
     </div>
   );
 }

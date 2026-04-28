@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Plus, Search, ToggleLeft, ToggleRight, X, Loader2 } from 'lucide-react';
+import { Plus, Search, ToggleLeft, ToggleRight, X, Loader2, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { toggleEmployeeStatus, createEmployee } from './actions';
+import { toggleEmployeeStatus, createEmployee, deleteEmployee } from './actions';
 
 export interface EmployeeRecord {
   id: string;
@@ -75,6 +75,17 @@ export default function EmployeesClient({ initialEmployees }: { initialEmployees
     }
   };
 
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) return;
+
+    try {
+      await deleteEmployee(id);
+      setEmployees((prev) => prev.filter((e) => e.id !== id));
+    } catch (err) {
+      alert('Failed to delete employee');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Search & Actions */}
@@ -98,12 +109,13 @@ export default function EmployeesClient({ initialEmployees }: { initialEmployees
                 <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Role</th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Department</th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider text-right">Actions</th>
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-8 text-center text-sm text-text-muted">No employees found.</td>
+                  <td colSpan={6} className="px-6 py-8 text-center text-sm text-text-muted">No employees found.</td>
                 </tr>
               ) : (
                 filtered.map((emp) => (
@@ -132,6 +144,15 @@ export default function EmployeesClient({ initialEmployees }: { initialEmployees
                       <button onClick={() => handleToggle(emp.id, emp.status)} className="flex items-center gap-1.5">
                         {emp.status === 'Active' ? <ToggleRight className="w-6 h-6 text-emerald-500" /> : <ToggleLeft className="w-6 h-6 text-gray-300" />}
                         <span className={`text-xs font-medium ${emp.status === 'Active' ? 'text-emerald-600' : 'text-gray-400'}`}>{emp.status}</span>
+                      </button>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <button 
+                        onClick={() => handleDelete(emp.id, emp.name)}
+                        className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                        title="Delete Employee"
+                      >
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </td>
                   </tr>

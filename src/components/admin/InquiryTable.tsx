@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Download, Filter, ChevronLeft, ChevronRight, Eye, X } from 'lucide-react';
+import { Search, Download, Filter, ChevronLeft, ChevronRight, Eye, X, Trash2 } from 'lucide-react';
 import { formatDate, cn } from '@/lib/utils';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -20,6 +20,7 @@ interface Inquiry {
 interface InquiryTableProps {
   inquiries: Inquiry[];
   updateStatus: (id: string, status: string) => Promise<any>;
+  deleteInquiry: (id: string) => Promise<any>;
 }
 
 const statusOptions = ['all', 'new', 'contacted', 'qualified', 'closed'] as const;
@@ -33,7 +34,7 @@ const statusColors: Record<string, string> = {
 
 const ITEMS_PER_PAGE = 8;
 
-export default function InquiryTable({ inquiries, updateStatus }: InquiryTableProps) {
+export default function InquiryTable({ inquiries, updateStatus, deleteInquiry }: InquiryTableProps) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
@@ -70,6 +71,19 @@ export default function InquiryTable({ inquiries, updateStatus }: InquiryTablePr
       setLocalInquiries((prev) =>
         prev.map((inq) => (inq.id === id ? { ...inq, status: oldStatus } : inq))
       );
+    }
+  };
+  
+  const handleDelete = async (id: string, name: string) => {
+    if (!confirm(`Are you sure you want to delete inquiry from ${name}?`)) return;
+    
+    try {
+      await deleteInquiry(id);
+      setLocalInquiries(prev => prev.filter(inq => inq.id !== id));
+      if (selectedInquiry?.id === id) setSelectedInquiry(null);
+    } catch (error) {
+      console.error('Failed to delete inquiry', error);
+      alert('Failed to delete inquiry');
     }
   };
 
@@ -180,12 +194,21 @@ export default function InquiryTable({ inquiries, updateStatus }: InquiryTablePr
                       </select>
                     </td>
                     <td className="px-6 py-4 text-sm text-text-muted whitespace-nowrap">
-                      <button 
-                        onClick={() => setSelectedInquiry(inquiry)}
-                        className="text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1"
-                      >
-                        <Eye className="w-4 h-4" /> View
-                      </button>
+                      <div className="flex items-center gap-3">
+                        <button 
+                          onClick={() => setSelectedInquiry(inquiry)}
+                          className="text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1"
+                        >
+                          <Eye className="w-4 h-4" /> View
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(inquiry.id, inquiry.name)}
+                          className="text-gray-400 hover:text-red-500 transition-colors p-1"
+                          title="Delete Inquiry"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))

@@ -35,5 +35,21 @@ export async function updateInquiryStatus(id: string, status: string) {
   }
 
   revalidatePath('/admin/inquiries');
+}
+
+export async function deleteInquiry(id: string) {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
+  const { error } = await supabaseAdmin
+    .from('inquiries')
+    .delete()
+    .eq('id', id);
+
+  if (error) {
+    console.error('Error deleting inquiry:', error);
+    throw new Error('Failed to delete inquiry');
+  }
+
   revalidatePath('/admin/inquiries');
 }
