@@ -111,13 +111,17 @@ export default function AttendanceClient({
                 filtered.slice(0, 30).map((record) => (
                   <tr key={record.id} className="border-b border-border last:border-0 hover:bg-surface-alt/30 transition-colors">
                     <td className="px-6 py-4 text-sm font-medium text-navy-900">{record.employee_name}</td>
-                    <td className="px-6 py-4 text-sm text-text-secondary whitespace-nowrap">{new Date(record.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', weekday: 'short' })}</td>
+                    <td className="px-6 py-4 text-sm text-text-secondary whitespace-nowrap">
+                      {!isNaN(new Date(record.date).getTime()) 
+                        ? new Date(record.date).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', weekday: 'short' }) 
+                        : record.date || '—'}
+                    </td>
                     <td className="px-6 py-4 text-sm text-text-secondary">{record.check_in || '—'}</td>
                     <td className="px-6 py-4 text-sm text-text-secondary">{record.check_out || '—'}</td>
                     <td className="px-6 py-4 text-sm text-text-secondary">{record.duration_hours > 0 ? `${record.duration_hours}h` : '—'}</td>
                     <td className="px-6 py-4">
-                      <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium border ${statusColors[record.status.toLowerCase()] || statusColors.present}`}>
-                        {record.status.charAt(0).toUpperCase() + record.status.slice(1)}
+                      <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium border ${statusColors[record.status?.toLowerCase()] || statusColors.present}`}>
+                        {(record.status || 'Present').charAt(0).toUpperCase() + (record.status || 'Present').slice(1)}
                       </span>
                     </td>
                   </tr>

@@ -23,18 +23,18 @@ export default async function EmployeeAppDashboard() {
     .from('attendance')
     .select('*')
     .eq('employee_id', session.id)
-    .order('check_in_time', { ascending: false });
+    .order('check_in', { ascending: false });
 
   const empRecords = (records || []).map(r => {
-    const checkIn = new Date(r.check_in_time);
-    const checkOut = r.check_out_time ? new Date(r.check_out_time) : null;
+    const checkIn = new Date(r.check_in);
+    const checkOut = r.check_out ? new Date(r.check_out) : null;
     let durationHours = 0;
     if (checkOut) {
       durationHours = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60) * 10) / 10;
     }
     return {
       id: r.id,
-      date: r.check_in_time.split('T')[0],
+      date: r.date,
       check_in: checkIn.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
       check_out: checkOut ? checkOut.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
       duration_hours: durationHours,
@@ -175,10 +175,10 @@ export default async function EmployeeAppDashboard() {
                   <div key={record.id} className="p-5 flex items-center gap-5 hover:bg-surface-alt/20 transition-colors">
                     <div className="flex flex-col items-center justify-center w-14 h-14 rounded-2xl bg-surface-alt border border-border/30 shrink-0">
                       <span className="text-lg font-black text-navy-900 leading-none">
-                        {new Date(record.date).getDate()}
+                        {!isNaN(new Date(record.date).getTime()) ? new Date(record.date).getDate() : '—'}
                       </span>
                       <span className="text-[9px] text-text-muted uppercase font-black tracking-tighter mt-1">
-                        {new Date(record.date).toLocaleDateString('en-IN', { month: 'short' })}
+                        {!isNaN(new Date(record.date).getTime()) ? new Date(record.date).toLocaleDateString('en-IN', { month: 'short' }) : '—'}
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">
@@ -197,8 +197,8 @@ export default async function EmployeeAppDashboard() {
                     </div>
                     <div className="text-right shrink-0">
                       <p className="text-sm font-black text-navy-900">{record.duration_hours > 0 ? `${record.duration_hours}h` : '—'}</p>
-                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${statusColors[record.status.toLowerCase()] || statusColors.present}`}>
-                        {record.status}
+                      <span className={`inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border ${statusColors[record.status?.toLowerCase()] || statusColors.present}`}>
+                        {record.status || 'Present'}
                       </span>
                     </div>
                   </div>

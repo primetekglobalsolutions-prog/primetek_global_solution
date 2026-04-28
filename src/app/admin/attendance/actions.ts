@@ -23,11 +23,11 @@ export async function getAdminAttendance() {
   }
   
   return data.map((record: Record<string, any>) => {
-    const checkIn = new Date(record.check_in);
+    const checkIn = record.check_in ? new Date(record.check_in) : null;
     const checkOut = record.check_out ? new Date(record.check_out) : null;
     let durationHours = 0;
     
-    if (checkOut) {
+    if (checkIn && checkOut) {
       durationHours = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60) * 10) / 10;
     }
 
@@ -36,8 +36,8 @@ export async function getAdminAttendance() {
       employee_id: record.employee_id,
       employee_name: record.employees?.name || 'Unknown',
       date: record.date || (record.check_in ? record.check_in.split('T')[0] : ''),
-      check_in: checkIn.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
-      check_out: checkOut ? checkOut.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
+      check_in: checkIn && !isNaN(checkIn.getTime()) ? checkIn.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : '—',
+      check_out: checkOut && !isNaN(checkOut.getTime()) ? checkOut.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
       duration_hours: durationHours,
       status: record.status,
       lat: record.lat || 0,
