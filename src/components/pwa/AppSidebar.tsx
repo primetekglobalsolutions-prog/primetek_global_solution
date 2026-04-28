@@ -56,18 +56,30 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
       )}>
         {/* Brand */}
         <div className="flex items-center justify-between p-4 border-b border-white/10 h-16">
-          {!collapsed && (
-            <Link href={role === 'admin' ? '/app/admin/dashboard' : '/app/employee/dashboard'} className="flex items-center gap-2.5">
-              <Logo className="w-32 h-auto" dark={true} />
-            </Link>
+          {!collapsed ? (
+            <>
+              <Link href={role === 'admin' ? '/app/admin/dashboard' : '/app/employee/dashboard'} className="flex items-center gap-2.5">
+                <Logo className="w-32 h-auto" dark={true} />
+              </Link>
+              <button 
+                onClick={() => setCollapsed(true)} 
+                className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-white transition-colors"
+                aria-label="Collapse sidebar"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+            </>
+          ) : (
+            <button 
+              onClick={() => setCollapsed(false)} 
+              className="mx-auto p-1.5 rounded-lg hover:bg-white/10 transition-all active:scale-95"
+              aria-label="Expand sidebar"
+            >
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-lg shadow-primary-500/20">
+                <span className="text-white font-black text-sm">P</span>
+              </div>
+            </button>
           )}
-          <button 
-            onClick={() => setCollapsed(!collapsed)} 
-            className="p-1.5 rounded-lg hover:bg-white/10 text-gray-500 hover:text-white transition-colors"
-            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-          >
-            {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
-          </button>
         </div>
 
         {/* Nav */}

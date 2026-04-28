@@ -78,6 +78,76 @@ export async function getAllEmployees() {
   return data;
 }
 
+export async function getActiveJobs() {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
+  const { data, error } = await supabaseAdmin
+    .from('jobs')
+    .select('id, title')
+    .eq('is_active', true)
+    .order('title');
+
+  if (error) {
+    console.error('Error fetching jobs:', error);
+    return [];
+  }
+  return data;
+}
+
+export async function createFullApplication(formData: any) {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
+  // 1. Create Application
+  const { data: app, error: appError } = await supabaseAdmin
+    .from('applications')
+    .insert({
+      job_id: formData.job_id,
+      name: formData.name,
+      email: formData.email,
+      phone: formData.phone,
+      experience_years: formData.experience_years,
+      status: 'pending',
+      assigned_to: formData.assigned_to || null,
+    })
+    .select()
+    .single();
+
+  if (appError) {
+    console.error('Error creating application:', appError);
+    throw new Error('Failed to create application');
+  }
+
+  // 2. Create Profile
+  const { error: profileError } = await supabaseAdmin
+    .from('application_profiles')
+    .insert({
+      application_id: app.id,
+      assigned_to: formData.assigned_to || null,
+      client_name: formData.name,
+      client_email: formData.email,
+      client_phone: formData.phone,
+      client_address: formData.client_address,
+      client_role: formData.client_role,
+      client_linkedin: formData.client_linkedin,
+      education_details: {
+        bachelors: formData.education_bachelors || '',
+        masters: formData.education_masters || '',
+      },
+      status: formData.assigned_to ? 'assigned' : 'processing',
+    });
+
+  if (profileError) {
+    console.error('Error creating application profile:', profileError);
+    // Don't throw, just log. The app is created.
+  }
+
+  revalidatePath('/app/admin/applications');
+  revalidatePath('/app/admin/client-profiles');
+  return { success: true };
+}
+
 export async function assignApplication(applicationId: string, employeeId: string | null) {
   const session = await getSession();
   if (!session || session.role !== 'admin') throw new Error('Unauthorized');
@@ -92,6 +162,16 @@ export async function assignApplication(applicationId: string, employeeId: strin
     throw new Error('Failed to assign application');
   }
 
+  // Also update profile assignment if it exists
+  await supabaseAdmin
+    .from('application_profiles')
+    .update({ 
+      assigned_to: employeeId,
+      status: employeeId ? 'assigned' : 'processing'
+    })
+    .eq('application_id', applicationId);
+
   revalidatePath('/app/admin/applications');
+  revalidatePath('/app/admin/client-profiles');
   return { success: true };
 }

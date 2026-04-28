@@ -11,20 +11,20 @@ export default async function EmployeeAppAttendancePage() {
     .from('attendance')
     .select('*')
     .eq('employee_id', session.id)
-    .order('check_in_time', { ascending: false });
+    .order('date', { ascending: false });
 
   const empRecords = (records || []).map(r => {
-    const checkIn = new Date(r.check_in_time);
-    const checkOut = r.check_out_time ? new Date(r.check_out_time) : null;
+    const checkIn = r.check_in ? new Date(r.check_in) : null;
+    const checkOut = r.check_out ? new Date(r.check_out) : null;
     let durationHours = 0;
-    if (checkOut) {
+    if (checkIn && checkOut) {
       durationHours = Math.round((checkOut.getTime() - checkIn.getTime()) / (1000 * 60 * 60) * 10) / 10;
     }
     return {
       id: r.id,
-      date: r.check_in_time.split('T')[0],
-      check_in_raw: r.check_in_time,
-      check_in: checkIn.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }),
+      date: r.date,
+      check_in_raw: r.check_in,
+      check_in: checkIn ? checkIn.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
       check_out: checkOut ? checkOut.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
       duration_hours: durationHours,
       status: r.status,

@@ -1,11 +1,12 @@
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
-import { Search, Download, Eye, X, UserPlus, Loader2 } from 'lucide-react';
+import { Search, Download, Eye, X, UserPlus, Loader2, Plus } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { updateApplicationStatus, assignApplication, getAllEmployees } from './actions';
+import AddApplicationForm from '@/components/admin/AddApplicationForm';
 
 export interface ApplicationRecord {
   id: string;
@@ -41,6 +42,7 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
   const [selectedApp, setSelectedApp] = useState<ApplicationRecord | null>(null);
   const [employees, setEmployees] = useState<{id: string, name: string}[]>([]);
   const [assigning, setAssigning] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
 
   useEffect(() => {
     getAllEmployees().then(setEmployees);
@@ -105,10 +107,31 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
           {uniqueJobs.map((j) => <option key={j.id} value={j.id}>{j.title}</option>)}
         </select>
         <div className="flex-1" />
-        <Button size="sm" onClick={() => alert('Add Application Modal logic to be added')}>
-          <UserPlus className="w-4 h-4" /> Add Application
+        <Button size="sm" onClick={() => setIsAdding(true)}>
+          <Plus className="w-4 h-4" /> Add Application
         </Button>
       </div>
+
+      {/* Add Modal */}
+      {isAdding && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
+          <Card hover={false} className="w-full max-w-2xl max-h-[90vh] overflow-y-auto p-6 md:p-8 animate-in fade-in zoom-in-95">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-xl font-heading font-bold text-navy-900">New Application</h2>
+              <button onClick={() => setIsAdding(false)} className="p-2 hover:bg-surface-alt rounded-lg text-text-muted">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <AddApplicationForm 
+              onSuccess={() => {
+                setIsAdding(false);
+                window.location.reload(); 
+              }} 
+              onCancel={() => setIsAdding(false)} 
+            />
+          </Card>
+        </div>
+      )}
 
       <Card hover={false} className="p-0 overflow-hidden">
         <div className="overflow-x-auto">

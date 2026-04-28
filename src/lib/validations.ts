@@ -42,8 +42,28 @@ export const changePasswordSchema = z.object({
   path: ["confirmPassword"],
 });
 
+export const fullApplicationSchema = z.object({
+  job_id: z.string().min(1, 'Please select a job'),
+  name: z.string().min(2, 'Name is required'),
+  email: z.string().email('Invalid email address'),
+  phone: z.string().optional(),
+  experience_years: z.coerce.number().min(0).optional(),
+  
+  // Profile Details
+  client_address: z.string().optional(),
+  client_role: z.string().optional(),
+  client_linkedin: z.string().optional(),
+  education_bachelors: z.string().optional(),
+  education_masters: z.string().optional(),
+  
+  // Assignment
+  assigned_to: z.string().optional(),
+});
+
 export type InquiryFormData = z.infer<typeof inquirySchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type JobFormData = z.input<typeof jobSchema>;
 export type ApplicationFormData = z.input<typeof applicationSchema>;
 export type ChangePasswordFormData = z.infer<typeof changePasswordSchema>;
+export type FullApplicationFormData = z.infer<typeof fullApplicationSchema>;
+
