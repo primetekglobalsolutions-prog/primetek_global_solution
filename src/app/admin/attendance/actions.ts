@@ -2,6 +2,7 @@
 
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { getSession } from '@/lib/auth';
+import ExcelJS from 'exceljs';
 
 export async function getAdminAttendance() {
   const session = await getSession();
@@ -57,4 +58,218 @@ export async function getEmployeesList() {
     
   if (error) return [];
   return data;
+}
+
+export async function exportAttendanceExcel(year: number) {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
+  const { data: employees, error: empError } = await supabaseAdmin
+    .from('employees')
+    .select('id, name')
+    .order('name', { ascending: true });
+
+  if (empError) throw new Error('Failed to fetch employees');
+
+  const startDate = `${year}-01-01`;
+  const endDate = `${year}-12-31`;
+  const { data: attendanceData, error: attError } = await supabaseAdmin
+    .from('attendance')
+    .select('employee_id, date, status')
+    .gte('date', startDate)
+    .lte('date', endDate);
+
+  if (attError) throw new Error('Failed to fetch attendance');
+
+  const attendanceMap: Record<string, Record<string, string>> = {};
+  attendanceData.forEach((rec) => {
+    if (!attendanceMap[rec.employee_id]) attendanceMap[rec.employee_id] = {};
+    attendanceMap[rec.employee_id][rec.date] = rec.status;
+  });
+
+  const wb = new ExcelJS.Workbook();
+  const DARK_TEAL = 'FF1B4D4F';
+  const MID_TEAL = 'FF2A7C7F';
+  const WHITE = 'FFFFFFFF';
+  const WO_BG = 'FFFFEBEE';
+  const thinBorder: Partial<ExcelJS.Borders> = {
+    top: { style: 'thin', color: { argb: 'FFBDBDBD' } },
+    left: { style: 'thin', color: { argb: 'FFBDBDBD' } },
+    bottom: { style: 'thin', color: { argb: 'FFBDBDBD' } },
+    right: { style: 'thin', color: { argb: 'FFBDBDBD' } }
+  };
+
+  const guideSheet = wb.addWorksheet('Guide');
+  guideSheet.getColumn(1).width = 3;
+  guideSheet.getColumn(2).width = 30;
+  guideSheet.getColumn(3).width = 60;
+
+  guideSheet.mergeCells('B2:C2');
+  const b2 = guideSheet.getCell('B2');
+  b2.value = 'Attendance System User Guide';
+  b2.font = { name: 'Calibri', size: 18, bold: true, color: { argb: DARK_TEAL } };
+
+  const b4 = guideSheet.getCell('B4');
+  b4.value = 'How to add new employees:';
+  b4.font = { bold: true, size: 12 };
+  guideSheet.getCell('B5').value = "Simply type the new employee's name in the next empty row under the 'Employee Name' column.";
+  guideSheet.getCell('B6').value = "The S.No and all calculation formulas are already pre-filled for up to 50 rows.";
+
+  const guideHeaders = ["Code", "Description", "Calculation Rule"];
+  guideHeaders.forEach((h, i) => {
+    const cell = guideSheet.getCell(8, i + 2);
+    cell.value = h;
+    cell.font = { bold: true, color: { argb: WHITE } };
+    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: MID_TEAL } };
+    cell.alignment = { horizontal: 'center' };
+    cell.border = thinBorder;
+  });
+
+  const codes = [
+    { code: "P", desc: "Present", rule: "1.0 day" },
+    { code: "A", desc: "Absent", rule: "1.0 day" },
+    { code: "L", desc: "Leave", rule: "1.0 day" },
+    { code: "HD", desc: "Half Day", rule: "0.5 days" },
+    { code: "WO", desc: "Weekly Off", rule: "Sat/Sun" }
+  ];
+  
+  codes.forEach((c, i) => {
+    const row = 9 + i;
+    const cellB = guideSheet.getCell(row, 2);
+    cellB.value = c.code;
+    cellB.alignment = { horizontal: 'center' };
+    cellB.border = thinBorder;
+    
+    const cellC = guideSheet.getCell(row, 3);
+    cellC.value = `${c.desc}: ${c.rule}`;
+    cellC.border = thinBorder;
+  });
+
+  const monthNames = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const daysInMonth = (month: number, yr: number) => new Date(yr, month, 0).getDate();
+
+  for (let m = 0; m < 12; m++) {
+    const monthIndex = m + 1;
+    const days = daysInMonth(monthIndex, year);
+    const ws = wb.addWorksheet(monthNames[m]);
+    
+    ws.getColumn(1).width = 6;
+    ws.getColumn(2).width = 25;
+    const summaryStartCol = days + 3;
+
+    ws.mergeCells(1, 1, 1, summaryStartCol + 3);
+    const a1 = ws.getCell('A1');
+    a1.value = "PRIMETEK GLOBAL SOLUTIONS";
+    a1.font = { size: 16, bold: true, color: { argb: WHITE } };
+    a1.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: DARK_TEAL } };
+    a1.alignment = { horizontal: 'center' };
+
+    ws.mergeCells(2, 1, 2, summaryStartCol + 3);
+    const a2 = ws.getCell('A2');
+    a2.value = `Attendance Register - ${monthNames[m]} ${year}`;
+    a2.font = { size: 12, bold: true, color: { argb: WHITE } };
+    a2.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: MID_TEAL } };
+    a2.alignment = { horizontal: 'center' };
+
+    const c31 = ws.getCell(3, 1); c31.value = "S.No"; c31.border = thinBorder;
+    const c32 = ws.getCell(3, 2); c32.value = "Employee Name"; c32.border = thinBorder;
+
+    for (let d = 1; d <= days; d++) {
+      const c = ws.getCell(3, d + 2);
+      c.value = d;
+      c.border = thinBorder;
+      
+      const dt = new Date(year, m, d);
+      const dayName = dt.toLocaleDateString('en-US', { weekday: 'short' });
+      const r4c = ws.getCell(4, d + 2);
+      r4c.value = dayName;
+      r4c.border = thinBorder;
+    }
+
+    const summaryLabels = ["Present", "Absent", "Leave", "Working Days"];
+    summaryLabels.forEach((label, i) => {
+      const col = summaryStartCol + i;
+      const cell = ws.getCell(3, col);
+      cell.value = label;
+      cell.font = { bold: true, color: { argb: WHITE } };
+      cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: MID_TEAL } };
+      cell.border = thinBorder;
+      ws.mergeCells(3, col, 4, col);
+    });
+
+    const MAX_EMPLOYEES = 50;
+    for (let idx = 0; idx < MAX_EMPLOYEES; idx++) {
+      const r = 5 + idx;
+      const emp = employees[idx] || null;
+      
+      const c1 = ws.getCell(r, 1);
+      c1.value = { formula: `IF(B${r}<>"", ${idx+1}, "")`, result: emp ? idx + 1 : '' };
+      c1.border = thinBorder;
+      
+      const c2 = ws.getCell(r, 2);
+      if (emp) c2.value = emp.name;
+      c2.border = thinBorder;
+
+      let empAtt: Record<string, string> | null = null;
+      if (emp && attendanceMap[emp.id]) {
+        empAtt = attendanceMap[emp.id];
+      }
+
+      for (let d = 1; d <= days; d++) {
+        const col = d + 2;
+        const cell = ws.getCell(r, col);
+        cell.border = thinBorder;
+        const dt = new Date(year, m, d);
+        const dayOfWeek = dt.getDay();
+        
+        let statusCode = "";
+        if (empAtt) {
+          const dateStr = `${year}-${String(monthIndex).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          const status = empAtt[dateStr];
+          if (status === 'Present') statusCode = 'P';
+          else if (status === 'Late') statusCode = 'P';
+          else if (status === 'Absent') statusCode = 'A';
+          else if (status === 'Half-day') statusCode = 'HD';
+        }
+
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+          cell.value = "WO";
+          cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: WO_BG } };
+        } else {
+          if (statusCode) cell.value = statusCode;
+          cell.dataValidation = {
+            type: 'list',
+            allowBlank: true,
+            formulae: ['"P,A,L,HD,WO"']
+          };
+        }
+      }
+
+      const getColLetter = (colIdx: number) => {
+        let temp, letter = '';
+        while (colIdx > 0) {
+          temp = (colIdx - 1) % 26;
+          letter = String.fromCharCode(temp + 65) + letter;
+          colIdx = (colIdx - temp - 1) / 26;
+        }
+        return letter;
+      };
+
+      const rng = `${getColLetter(3)}${r}:${getColLetter(days + 2)}${r}`;
+      
+      ws.getCell(r, summaryStartCol).value = { formula: `IF(B${r}="","", COUNTIF(${rng},"P")+COUNTIF(${rng},"HD")*0.5)` };
+      ws.getCell(r, summaryStartCol + 1).value = { formula: `IF(B${r}="","", COUNTIF(${rng},"A"))` };
+      ws.getCell(r, summaryStartCol + 2).value = { formula: `IF(B${r}="","", COUNTIF(${rng},"L"))` };
+      
+      const pRef = `${getColLetter(summaryStartCol)}${r}`;
+      const aRef = `${getColLetter(summaryStartCol + 1)}${r}`;
+      const lRef = `${getColLetter(summaryStartCol + 2)}${r}`;
+      ws.getCell(r, summaryStartCol + 3).value = { formula: `IF(B${r}="","", ${pRef}+${aRef}+${lRef})` };
+    }
+
+    ws.views = [{ state: 'frozen', xSplit: 2, ySplit: 4 }];
+  }
+
+  const buffer = await wb.xlsx.writeBuffer();
+  return Buffer.from(buffer).toString('base64');
 }

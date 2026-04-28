@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Download } from 'lucide-react';
+import { Search, Download, FileSpreadsheet, Loader2 } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { exportAttendanceExcel } from './actions';
 
 export interface AttendanceRecord {
   id: string;
@@ -35,6 +36,7 @@ export default function AttendanceClient({
   const [search, setSearch] = useState('');
   const [employeeFilter, setEmployeeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [isExporting, setIsExporting] = useState(false);
 
   const filtered = useMemo(() => {
     return initialAttendance.filter((r) => {
@@ -60,6 +62,34 @@ export default function AttendanceClient({
     URL.revokeObjectURL(url);
   };
 
+  const exportExcel = async () => {
+    try {
+      setIsExporting(true);
+      const year = new Date().getFullYear();
+      const base64Str = await exportAttendanceExcel(year);
+      
+      const byteCharacters = atob(base64Str);
+      const byteNumbers = new Array(byteCharacters.length);
+      for (let i = 0; i < byteCharacters.length; i++) {
+        byteNumbers[i] = byteCharacters.charCodeAt(i);
+      }
+      const byteArray = new Uint8Array(byteNumbers);
+      const blob = new Blob([byteArray], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+      
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `Primetek_Attendance_${year}_Master.xlsx`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error('Failed to export Excel:', error);
+      alert('Failed to generate Excel file.');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Filters & Actions */}
@@ -80,9 +110,15 @@ export default function AttendanceClient({
             <option value="absent">Absent</option>
           </select>
         </div>
-        <Button size="sm" variant="outline" onClick={exportCsv} className="w-full sm:w-auto">
-          <Download className="w-4 h-4" /> Export CSV
-        </Button>
+        <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+          <Button size="sm" variant="outline" onClick={exportCsv} className="w-full sm:w-auto">
+            <Download className="w-4 h-4" /> CSV
+          </Button>
+          <Button size="sm" variant="primary" onClick={exportExcel} disabled={isExporting} className="w-full sm:w-auto bg-teal-600 hover:bg-teal-700 text-white">
+            {isExporting ? <Loader2 className="w-4 h-4 animate-spin" /> : <FileSpreadsheet className="w-4 h-4" />}
+            Excel Master
+          </Button>
+        </div>
       </div>
 
       {/* Results Count */}
