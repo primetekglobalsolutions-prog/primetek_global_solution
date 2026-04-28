@@ -4,28 +4,42 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
 
+import { calculateDistance } from '@/lib/utils';
+
+const OFFICE_LAT = 17.3850;
+const OFFICE_LNG = 78.4867;
+const MAX_RADIUS_METERS = 500;
+
 export async function checkIn(lat: number, lng: number) {
   const session = await getSession();
   if (!session || !session.id) throw new Error('Unauthorized');
 
-  const today = new Date();
+  // 1. GPS Validation
+  const distance = calculateDistance(lat, lng, OFFICE_LAT, OFFICE_LNG);
+  if (distance > MAX_RADIUS_METERS) {
+    throw new Error(`Out of office radius. You are ${Math.round(distance)}m away from office.`);
+  }
+
+  // 2. Check for existing record today (using local date string to avoid timezone shifts)
+  const todayStr = new Date().toLocaleDateString('en-CA'); // YYYY-MM-DD
   const { data: existing } = await supabaseAdmin
     .from('attendance')
     .select('id')
     .eq('employee_id', session.id)
-    .gte('check_in_time', `${today.toISOString().split('T')[0]}T00:00:00Z`)
-    .lte('check_in_time', `${today.toISOString().split('T')[0]}T23:59:59Z`)
+    .gte('check_in_time', `${todayStr}T00:00:00Z`)
+    .lte('check_in_time', `${todayStr}T23:59:59Z`)
     .maybeSingle();
 
   if (existing) {
     throw new Error('Already checked in today');
   }
 
+  const today = new Date();
   const { error } = await supabaseAdmin
     .from('attendance')
     .insert({
       employee_id: session.id,
-      check_in_time: new Date().toISOString(),
+      check_in_time: today.toISOString(),
       check_in_location: { lat, lng },
       status: today.getHours() >= 10 ? 'late' : 'present',
     });
@@ -37,8 +51,6 @@ export async function checkIn(lat: number, lng: number) {
 
   revalidatePath('/app/employee/attendance');
   revalidatePath('/app/employee/dashboard');
-  revalidatePath('/employee/attendance');
-  revalidatePath('/employee');
   return { success: true };
 }
 
@@ -62,7 +74,5 @@ export async function checkOut(recordId: string, lat: number, lng: number) {
 
   revalidatePath('/app/employee/attendance');
   revalidatePath('/app/employee/dashboard');
-  revalidatePath('/employee/attendance');
-  revalidatePath('/employee');
   return { success: true };
 }

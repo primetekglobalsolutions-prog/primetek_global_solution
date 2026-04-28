@@ -5,9 +5,10 @@ This roadmap outlines the development of a comprehensive three-layer platform fo
 
 ## Phases
 
-- [ ] **Phase 1: Foundation & Marketing** - Core stack setup and public-facing portfolio with inquiry tracking.
-- [ ] **Phase 2: Job Board & Recruitment** - Interactive job listings and application management for talent acquisition.
+- [x] **Phase 1: Foundation & Marketing** - Core stack setup and public-facing portfolio with inquiry tracking.
+- [x] **Phase 2: Job Board & Recruitment** - Interactive job listings and application management for talent acquisition.
 - [x] **Phase 3: Employee HR & Attendance** - Secure portal for staff with location-verified attendance and history. (MIGRATED TO PWA)
+- [ ] **Phase 4: Optimization & Expansion** - Bug fixes, performance tuning, and Application Profile assignment.
 
 ## Phase Details
 
@@ -22,9 +23,9 @@ This roadmap outlines the development of a comprehensive three-layer platform fo
 **Plans**: 3 plans
 
 Plans:
-- [ ] 01-01: Core Setup (Next.js, Tailwind v4, Express, PostgreSQL, S3).
-- [ ] 01-02: Public Portfolio Frontend (Responsive design, Lucide icons, Framer Motion).
-- [ ] 01-03: Inquiry Lead Flow (API endpoints, Zod validation, Email notification).
+- [x] 01-01: Core Setup (Next.js, Tailwind v4, Express, PostgreSQL, S3).
+- [x] 01-02: Public Portfolio Frontend (Responsive design, Lucide icons, Framer Motion).
+- [x] 01-03: Inquiry Lead Flow (API endpoints, Zod validation, Email notification).
 
 ### Phase 2: Job Board & Recruitment
 **Goal**: Launch the Careers module to attract and manage new talent.
@@ -37,8 +38,8 @@ Plans:
 **Plans**: 2 plans
 
 Plans:
-- [ ] 02-01: Careers Frontend (Job list, Filters, Application form).
-- [ ] 02-02: Recruitment Management (Admin job CRUD, Application tracking).
+- [x] 02-01: Careers Frontend (Job list, Filters, Application form).
+- [x] 02-02: Recruitment Management (Admin job CRUD, Application tracking).
 
 ### Phase 3: Employee HR & Attendance
 **Goal**: Implement the internal employee portal with location-based attendance tracking.
@@ -59,9 +60,10 @@ Plans:
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Foundation & Marketing | 0/3 | In Progress | - |
-| 2. Job Board & Recruitment | 0/2 | In Progress | - |
+| 1. Foundation & Marketing | 3/3 | Completed | 2026-04-28 |
+| 2. Job Board & Recruitment | 2/2 | Completed | 2026-04-28 |
 | 3. Employee HR & Attendance | 3/3 | Completed | 2026-04-28 |
+| 4. Optimization & Expansion | 0/3 | In Progress | - |
 
 ---
 *Roadmap updated: 2026-04-28*

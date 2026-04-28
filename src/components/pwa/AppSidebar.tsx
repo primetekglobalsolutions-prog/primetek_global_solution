@@ -9,6 +9,7 @@ import {
   Settings, ChevronLeft, ChevronRight 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import Logo from '@/components/ui/Logo';
 
 interface AppSidebarProps {
   role: 'admin' | 'employee';
@@ -26,12 +27,14 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
     { href: '/app/admin/jobs', icon: Briefcase, label: 'Jobs' },
     { href: '/app/admin/employees', icon: Users, label: 'Employees' },
     { href: '/app/admin/attendance', icon: Clock, label: 'Reports' },
+    { href: '/app/admin/profile', icon: UserCircle, label: 'Profile' },
     { href: '/app/admin/settings', icon: Settings, label: 'Settings' },
   ];
 
   const employeeItems = [
     { href: '/app/employee/dashboard', icon: LayoutDashboard, label: 'Home' },
     { href: '/app/employee/attendance', icon: Clock, label: 'Attendance' },
+    { href: '/app/employee/assignments', icon: Briefcase, label: 'My Profiles' },
     { href: '/app/employee/profile', icon: UserCircle, label: 'Profile' },
   ];
 
@@ -53,10 +56,9 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
         {/* Brand */}
         <div className="flex items-center justify-between p-4 border-b border-white/10 h-16">
           {!collapsed && (
-            <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center text-white font-bold text-sm shadow-lg shadow-primary-500/30">P</div>
-              <span className="font-heading font-bold text-sm tracking-tight">Portal<span className="text-primary-400">.</span></span>
-            </div>
+            <Link href={role === 'admin' ? '/app/admin/dashboard' : '/app/employee/dashboard'} className="flex items-center gap-2.5">
+              <Logo className="w-32 h-auto" dark={true} />
+            </Link>
           )}
           <button 
             onClick={() => setCollapsed(!collapsed)} 

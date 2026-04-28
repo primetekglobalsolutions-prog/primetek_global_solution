@@ -9,6 +9,7 @@ interface TokenPayload {
   id: string;
   email: string;
   role: string;
+  name?: string;
   [key: string]: unknown;
 }
 

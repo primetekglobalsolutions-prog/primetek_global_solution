@@ -52,11 +52,40 @@ CREATE TABLE public.applications (
     cover_letter TEXT,
     resume_url TEXT, -- Path to file in Supabase Storage
     status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'shortlisted', 'rejected')),
+    assigned_to UUID REFERENCES public.employees(id) ON DELETE SET NULL, -- Employee processing this application
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
 -- ==========================================
--- 4. Employees Table
+-- 4. Application Profiles Table
+-- Detailed client profiles assigned to employees for processing
+-- ==========================================
+CREATE TABLE public.application_profiles (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    application_id UUID NOT NULL REFERENCES public.applications(id) ON DELETE CASCADE,
+    assigned_to UUID REFERENCES public.employees(id) ON DELETE SET NULL,
+    
+    -- Client Personal Details
+    client_name TEXT,
+    client_address TEXT,
+    client_role TEXT,
+    client_phone TEXT,
+    client_email TEXT,
+    client_linkedin TEXT,
+    
+    -- Education Details (JSON for flexibility: masters, bachelors)
+    education_details JSONB DEFAULT '{"bachelors": "", "masters": ""}'::JSONB,
+    
+    -- Documents
+    resume_url TEXT, -- Path to docx in storage
+    
+    status TEXT DEFAULT 'assigned' CHECK (status IN ('assigned', 'processing', 'completed', 'rejected')),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- ==========================================
+-- 5. Employees Table
 -- Stores internal employee HR profiles and auth credentials
 -- ==========================================
 CREATE TABLE public.employees (
@@ -65,7 +94,7 @@ CREATE TABLE public.employees (
     name TEXT NOT NULL,
     email TEXT UNIQUE NOT NULL,
     password_hash TEXT NOT NULL, -- Hashed with bcrypt
-    role TEXT DEFAULT 'employee' CHECK (role IN ('admin', 'employee', 'hr')),
+    role TEXT DEFAULT 'employee' CHECK (role IN ('employee', 'hr')),
     join_date DATE NOT NULL,
     department TEXT,
     status TEXT DEFAULT 'Active' CHECK (status IN ('Active', 'Inactive', 'On Leave')),
@@ -141,6 +170,13 @@ ALTER TABLE public.applications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.employees ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.attendance ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.office_locations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.application_profiles ENABLE ROW LEVEL SECURITY;
+
+-- ... existing policies ...
+
+CREATE TRIGGER update_application_profiles_modtime
+    BEFORE UPDATE ON public.application_profiles
+    FOR EACH ROW EXECUTE FUNCTION update_modified_column();
 
 -- 2. Public Access Policies (Anonymous users)
 -- Anyone can view active jobs
@@ -158,6 +194,47 @@ CREATE POLICY "Public can insert applications" ON public.applications
 -- NOTE: Since Primetek uses custom JWT auth (Next.js server-side) instead of Supabase Auth,
 -- server API routes should use the SUPABASE_SERVICE_ROLE_KEY to bypass RLS for admin operations 
 -- and employee operations. RLS policies here are primarily to restrict direct client-side (anon key) access.
+
+-- ==========================================
+-- 7. Admin Users Table (Linked to auth.users)
+-- ==========================================
+CREATE TABLE public.admin_users (
+    id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
+    email TEXT NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+ALTER TABLE public.admin_users ENABLE ROW LEVEL SECURITY;
+
+-- Only admins can see the admin list
+CREATE POLICY "Admins can view admin_users" ON public.admin_users
+    FOR SELECT USING (auth.uid() = id);
+
+-- ==========================================
+-- Helper Function for RLS
+-- ==========================================
+-- This function allows checking if the current authenticated user is an admin.
+-- Useful if you ever query Supabase directly from the client using the anon key.
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS BOOLEAN AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.admin_users WHERE id = auth.uid()
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+-- ==========================================
+-- Example Admin RLS Policies 
+-- (Grants full access to admins for all tables)
+-- ==========================================
+CREATE POLICY "Admins have full access to inquiries" ON public.inquiries FOR ALL USING (public.is_admin());
+CREATE POLICY "Admins have full access to jobs" ON public.jobs FOR ALL USING (public.is_admin());
+CREATE POLICY "Admins have full access to applications" ON public.applications FOR ALL USING (public.is_admin());
+CREATE POLICY "Admins have full access to employees" ON public.employees FOR ALL USING (public.is_admin());
+CREATE POLICY "Admins have full access to attendance" ON public.attendance FOR ALL USING (public.is_admin());
+CREATE POLICY "Admins have full access to office_locations" ON public.office_locations FOR ALL USING (public.is_admin());
+CREATE POLICY "Admins have full access to application_profiles" ON public.application_profiles FOR ALL USING (public.is_admin());
 
 -- ==========================================
 -- Storage Buckets

@@ -5,6 +5,7 @@ import { Save, Loader2, CheckCircle2, Camera } from 'lucide-react';
 import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import PasswordChangeForm from '@/components/profile/PasswordChangeForm';
 import { updateProfile, updateAvatar } from './actions';
 
 export interface EmployeeProfile {
@@ -163,6 +164,13 @@ export default function ProfileClient({ employee }: { employee: EmployeeProfile 
             </div>
           </div>
         </Card>
+
+        {/* Security / Password Change */}
+        <div className="lg:col-span-3">
+          <Card hover={false} className="p-6 md:p-8">
+            <PasswordChangeForm />
+          </Card>
+        </div>
       </div>
     </div>
   );

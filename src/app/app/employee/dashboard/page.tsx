@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation';
-import { Clock, CalendarCheck, CalendarX, AlertTriangle, ArrowRight, TrendingUp } from 'lucide-react';
+import { Clock, CalendarCheck, CalendarX, AlertTriangle, ArrowRight, TrendingUp, Briefcase } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { getSession } from '@/lib/auth';
@@ -129,46 +129,68 @@ export default async function EmployeeAppDashboard() {
       </div>
 
       {/* Recent Activity — optimized for touch */}
-      <div className="bg-white rounded-2xl border border-border/50 shadow-sm overflow-hidden">
-        <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
-          <h2 className="font-heading font-bold text-navy-900 text-sm">Recent History</h2>
-          {empRecords.length > 5 && (
-            <Link href="/app/employee/attendance" className="text-[10px] font-bold text-primary-500 uppercase tracking-widest">
-              All
-            </Link>
-          )}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div className="bg-white rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
+            <h2 className="font-heading font-bold text-navy-900 text-sm">Recent History</h2>
+            {empRecords.length > 5 && (
+              <Link href="/app/employee/attendance" className="text-[10px] font-bold text-primary-500 uppercase tracking-widest">
+                All
+              </Link>
+            )}
+          </div>
+          <div className="divide-y divide-border/50">
+            {empRecords.slice(0, 5).map((record) => (
+              <div key={record.id} className="px-4 py-3.5 flex items-center gap-3 active:bg-surface-alt/30 transition-colors">
+                <div className="w-10 h-10 rounded-xl bg-surface-alt flex flex-col items-center justify-center shrink-0">
+                  <span className="text-xs font-bold text-navy-900 leading-none">
+                    {new Date(record.date).getDate()}
+                  </span>
+                  <span className="text-[8px] text-text-muted uppercase font-bold leading-none mt-0.5">
+                    {new Date(record.date).toLocaleDateString('en-IN', { month: 'short' })}
+                  </span>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-medium text-navy-900">
+                    {new Date(record.date).toLocaleDateString('en-IN', { weekday: 'long' })}
+                  </p>
+                  <p className="text-xs text-text-muted truncate">
+                    {record.check_in} → {record.check_out || 'Active'}
+                    {record.duration_hours > 0 && <span className="ml-1.5 text-text-secondary">• {record.duration_hours}h</span>}
+                  </p>
+                </div>
+                <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border shrink-0 ${statusColors[record.status.toLowerCase()] || statusColors.present}`}>
+                  {record.status.toUpperCase()}
+                </span>
+              </div>
+            ))}
+          </div>
         </div>
-        <div className="divide-y divide-border/50">
-          {empRecords.slice(0, 5).map((record) => (
-            <div key={record.id} className="px-4 py-3.5 flex items-center gap-3 active:bg-surface-alt/30 transition-colors">
-              <div className="w-10 h-10 rounded-xl bg-surface-alt flex flex-col items-center justify-center shrink-0">
-                <span className="text-xs font-bold text-navy-900 leading-none">
-                  {new Date(record.date).getDate()}
-                </span>
-                <span className="text-[8px] text-text-muted uppercase font-bold leading-none mt-0.5">
-                  {new Date(record.date).toLocaleDateString('en-IN', { month: 'short' })}
-                </span>
+
+        {/* Assigned Profiles Section */}
+        <div className="bg-white rounded-2xl border border-border/50 shadow-sm overflow-hidden">
+          <div className="px-4 py-3 border-b border-border/50 flex items-center justify-between">
+            <h2 className="font-heading font-bold text-navy-900 text-sm">My Assigned Profiles</h2>
+            <Link href="/app/employee/assignments" className="text-[10px] font-bold text-primary-500 uppercase tracking-widest">
+              View All
+            </Link>
+          </div>
+          <div className="p-4 space-y-4">
+            <div className="flex items-center gap-4 p-4 rounded-2xl bg-primary-50 border border-primary-100">
+              <div className="w-10 h-10 rounded-xl bg-primary-500 text-white flex items-center justify-center shrink-0">
+                <Briefcase className="w-5 h-5" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-navy-900">
-                  {new Date(record.date).toLocaleDateString('en-IN', { weekday: 'long' })}
-                </p>
-                <p className="text-xs text-text-muted truncate">
-                  {record.check_in} → {record.check_out || 'Active'}
-                  {record.duration_hours > 0 && <span className="ml-1.5 text-text-secondary">• {record.duration_hours}h</span>}
-                </p>
+              <div>
+                <p className="text-sm font-bold text-navy-900">New Profiles Await</p>
+                <p className="text-xs text-text-secondary">Check your assigned client profiles and update their status.</p>
               </div>
-              <span className={`px-2 py-0.5 rounded-full text-[9px] font-bold border shrink-0 ${statusColors[record.status.toLowerCase()] || statusColors.present}`}>
-                {record.status.toUpperCase()}
-              </span>
             </div>
-          ))}
-          {empRecords.length === 0 && (
-            <div className="px-4 py-10 text-center">
-              <Clock className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-              <p className="text-sm text-text-muted">No attendance records yet.</p>
-            </div>
-          )}
+            <Link href="/app/employee/assignments">
+              <Button variant="outline" size="sm" className="w-full mt-2">
+                Manage Assignments <ArrowRight className="w-4 h-4 ml-auto" />
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

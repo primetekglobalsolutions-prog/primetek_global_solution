@@ -9,16 +9,15 @@ Showcase expertise and capture enterprise leads while providing a seamless self-
 ## Requirements
 
 ### Validated
-(None yet — ship to validate)
+- [x] Responsive Public Portfolio Website (Hero, About, Services, Industries, Careers, Contact) [Phase 1]
+- [x] Lead Generation via Structured Inquiry Forms (with Company field) [Phase 1]
+- [x] Admin CMS for Content and Job Management [Phase 2]
+- [x] Admin Operations Dashboard (Inquiry, Employee, and Attendance tracking) [Phase 3]
+- [x] Employee HR Portal for Attendance Tracking (Check-in/out with location) [Phase 3]
+- [x] JWT-based Authentication for Admin and Employee access [Phase 3]
 
 ### Active
-- [ ] Responsive Public Portfolio Website (Hero, About, Services, Industries, Careers, Contact)
-- [ ] Lead Generation via Structured Inquiry Forms (with Company field)
-- [ ] Admin CMS for Content and Job Management
-- [ ] Admin Operations Dashboard (Inquiry, Employee, and Attendance tracking)
-- [ ] Employee HR Portal for Attendance Tracking (Check-in/out with location)
-- [ ] SaaS HR Tool Integration for Phase 1 Attendance
-- [ ] JWT-based Authentication for Admin and Employee access
+- [ ] SaaS HR Tool Integration for Phase 1 Attendance (Pending Final Sync)
 
 ### Out of Scope
 - [ ] Custom Attendance System — Deferred to Phase 2 (using SaaS first)

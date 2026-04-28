@@ -59,3 +59,39 @@ export async function updateApplicationNotes(id: string, notes: string) {
   // Assuming schema might not have it yet, we just revalidate or log.
   console.log(`Update notes for ${id}: ${notes}`);
 }
+
+export async function getAllEmployees() {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
+  const { data, error } = await supabaseAdmin
+    .from('employees')
+    .select('id, name, department, role')
+    .eq('role', 'employee')
+    .eq('status', 'Active')
+    .order('name');
+
+  if (error) {
+    console.error('Error fetching employees for assignment:', error);
+    return [];
+  }
+  return data;
+}
+
+export async function assignApplication(applicationId: string, employeeId: string | null) {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
+  const { error } = await supabaseAdmin
+    .from('applications')
+    .update({ assigned_to: employeeId })
+    .eq('id', applicationId);
+
+  if (error) {
+    console.error('Error assigning application:', error);
+    throw new Error('Failed to assign application');
+  }
+
+  revalidatePath('/app/admin/applications');
+  return { success: true };
+}

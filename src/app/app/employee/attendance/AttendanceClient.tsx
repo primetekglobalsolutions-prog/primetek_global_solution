@@ -23,7 +23,7 @@ export interface AttendanceRecord {
   status: string;
 }
 
-const getRandomOffset = () => (Math.random() - 0.5) * 0.001;
+
 
 export default function AttendanceClient({ initialRecords }: { initialRecords: AttendanceRecord[] }) {
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -59,13 +59,10 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
       setGpsStatus('success');
       
       await checkIn(lat, lng);
-    } catch {
-      // Demo fallback
-      const lat = 17.385 + getRandomOffset();
-      const lng = 78.4867 + getRandomOffset();
-      setCoords({ lat, lng });
-      setGpsStatus('success');
-      await checkIn(lat, lng);
+    } catch (err: any) {
+      setGpsStatus('error');
+      const msg = err.message || 'Could not get your location. Please ensure GPS is enabled and you have given permission.';
+      alert(msg);
     }
   };
 
@@ -85,13 +82,10 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
       setGpsStatus('success');
       
       await checkOut(todayRecord.id, lat, lng);
-    } catch {
-      // Demo fallback
-      const lat = 17.385 + getRandomOffset();
-      const lng = 78.4867 + getRandomOffset();
-      setCoords({ lat, lng });
-      setGpsStatus('success');
-      await checkOut(todayRecord.id, lat, lng);
+    } catch (err: any) {
+      setGpsStatus('error');
+      const msg = err.message || 'Could not get your location for check-out.';
+      alert(msg);
     }
   };
 

@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Download, Filter, ChevronLeft, ChevronRight } from 'lucide-react';
-import { formatDate, truncate } from '@/lib/utils';
+import { Search, Download, Filter, ChevronLeft, ChevronRight, Eye, X } from 'lucide-react';
+import { formatDate, cn } from '@/lib/utils';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 
@@ -38,6 +38,7 @@ export default function InquiryTable({ inquiries, updateStatus }: InquiryTablePr
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
   const [localInquiries, setLocalInquiries] = useState(inquiries);
+  const [selectedInquiry, setSelectedInquiry] = useState<Inquiry | null>(null);
 
   const filtered = useMemo(() => {
     return localInquiries.filter((inq) => {
@@ -95,95 +96,103 @@ export default function InquiryTable({ inquiries, updateStatus }: InquiryTablePr
   };
 
   return (
-    <Card hover={false} className="p-0 overflow-hidden">
-      {/* Toolbar */}
-      <div className="px-6 py-4 border-b border-border flex flex-col sm:flex-row items-start sm:items-center gap-3">
-        {/* Search */}
-        <div className="relative flex-1 w-full sm:max-w-xs">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-          <input
-            type="text"
-            placeholder="Search by name, email, company..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-            className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
-          />
+    <>
+      <Card hover={false} className="p-0 overflow-hidden">
+        {/* Toolbar */}
+        <div className="px-6 py-4 border-b border-border flex flex-col sm:flex-row items-start sm:items-center gap-3">
+          {/* Search */}
+          <div className="relative flex-1 w-full sm:max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
+            <input
+              type="text"
+              placeholder="Search by name, email, company..."
+              value={search}
+              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+              className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
+            />
+          </div>
+
+          {/* Status Filter */}
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-text-muted" />
+            <select
+              value={statusFilter}
+              onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
+              className="px-3 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary-400"
+            >
+              {statusOptions.map((opt) => (
+                <option key={opt} value={opt}>
+                  {opt === 'all' ? 'All Status' : opt.charAt(0).toUpperCase() + opt.slice(1)}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Export */}
+          <Button variant="outline" size="sm" onClick={handleExportCSV}>
+            <Download className="w-4 h-4" /> Export CSV
+          </Button>
         </div>
 
-        {/* Status Filter */}
-        <div className="flex items-center gap-2">
-          <Filter className="w-4 h-4 text-text-muted" />
-          <select
-            value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-            className="px-3 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary-400"
-          >
-            {statusOptions.map((opt) => (
-              <option key={opt} value={opt}>
-                {opt === 'all' ? 'All Status' : opt.charAt(0).toUpperCase() + opt.slice(1)}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* Export */}
-        <Button variant="outline" size="sm" onClick={handleExportCSV}>
-          <Download className="w-4 h-4" /> Export CSV
-        </Button>
-      </div>
-
-      {/* Table */}
-      <div className="overflow-x-auto">
-        <table className="w-full">
-          <thead>
-            <tr className="border-b border-border bg-surface-alt/50">
-              <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Name</th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Company</th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Requirement</th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
-              <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Date</th>
-            </tr>
-          </thead>
-          <tbody>
-            {paginated.length === 0 ? (
-              <tr>
-                <td colSpan={5} className="px-6 py-12 text-center">
-                  <p className="text-text-muted text-sm">No inquiries found.</p>
-                </td>
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead>
+              <tr className="border-b border-border bg-surface-alt/50">
+                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Name</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Company</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Requirement</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Actions</th>
               </tr>
-            ) : (
-              paginated.map((inquiry) => (
-                <tr key={inquiry.id} className="border-b border-border last:border-0 hover:bg-surface-alt/30 transition-colors">
-                  <td className="px-6 py-4">
-                    <p className="text-sm font-medium text-navy-900">{inquiry.name}</p>
-                    <p className="text-xs text-text-muted">{inquiry.email}</p>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-text-secondary">{inquiry.company}</td>
-                  <td className="px-6 py-4 text-sm text-text-secondary max-w-[250px]">
-                    {truncate(inquiry.requirement, 60)}
-                  </td>
-                  <td className="px-6 py-4">
-                    <select
-                      value={inquiry.status}
-                      onChange={(e) => handleStatusChange(inquiry.id, e.target.value)}
-                      className={`px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer ${statusColors[inquiry.status]} focus:outline-none`}
-                    >
-                      {statusOptions.filter((s) => s !== 'all').map((opt) => (
-                        <option key={opt} value={opt}>
-                          {opt.charAt(0).toUpperCase() + opt.slice(1)}
-                        </option>
-                      ))}
-                    </select>
-                  </td>
-                  <td className="px-6 py-4 text-sm text-text-muted whitespace-nowrap">
-                    {formatDate(inquiry.created_at)}
+            </thead>
+            <tbody>
+              {paginated.length === 0 ? (
+                <tr>
+                  <td colSpan={5} className="px-6 py-12 text-center">
+                    <p className="text-text-muted text-sm">No inquiries found.</p>
                   </td>
                 </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
+              ) : (
+                paginated.map((inquiry) => (
+                  <tr key={inquiry.id} className="border-b border-border last:border-0 hover:bg-surface-alt/30 transition-colors">
+                    <td className="px-6 py-4">
+                      <p className="text-sm font-medium text-navy-900">{inquiry.name}</p>
+                      <p className="text-xs text-text-muted">{inquiry.email}</p>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-text-secondary">{inquiry.company || '—'}</td>
+                    <td className="px-6 py-4 text-sm text-text-secondary max-w-[250px] truncate">
+                      {inquiry.requirement}
+                    </td>
+                    <td className="px-6 py-4">
+                      <select
+                        value={inquiry.status}
+                        onChange={(e) => handleStatusChange(inquiry.id, e.target.value)}
+                        className={`px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer ${statusColors[inquiry.status]} focus:outline-none`}
+                      >
+                        {statusOptions.filter((s) => s !== 'all').map((opt) => (
+                          <option key={opt} value={opt}>
+                            {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                          </option>
+                        ))}
+                      </select>
+                    </td>
+                    <td className="px-6 py-4 text-sm text-text-muted whitespace-nowrap">
+                      <button 
+                        onClick={() => setSelectedInquiry(inquiry)}
+                        className="text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1"
+                      >
+                        <Eye className="w-4 h-4" /> View
+                      </button>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination omitted for brevity, should remain at bottom */}
 
       {/* Pagination */}
       {totalPages > 1 && (
@@ -210,5 +219,74 @@ export default function InquiryTable({ inquiries, updateStatus }: InquiryTablePr
         </div>
       )}
     </Card>
-  );
+
+    {/* Detail Modal */}
+    {selectedInquiry && (
+      <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/30 backdrop-blur-sm" onClick={() => setSelectedInquiry(null)}>
+        <div 
+          className="w-full max-w-lg h-full bg-white shadow-2xl overflow-y-auto"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="p-6 border-b border-border flex items-center justify-between">
+            <h2 className="text-lg font-heading font-bold text-navy-900">Inquiry Details</h2>
+            <button onClick={() => setSelectedInquiry(null)} className="p-2 rounded-lg hover:bg-surface-alt text-text-muted">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+          <div className="p-6 space-y-6">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">From</p>
+                <p className="text-sm font-bold text-navy-900">{selectedInquiry.name}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Date</p>
+                <p className="text-sm text-text-secondary">{formatDate(selectedInquiry.created_at)}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Email</p>
+                <p className="text-sm text-text-secondary">{selectedInquiry.email}</p>
+              </div>
+              <div>
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Phone</p>
+                <p className="text-sm text-text-secondary">{selectedInquiry.phone || '—'}</p>
+              </div>
+              <div className="col-span-2">
+                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Company</p>
+                <p className="text-sm text-text-secondary">{selectedInquiry.company || '—'}</p>
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-border">
+              <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Requirement Details</p>
+              <div className="bg-surface-alt/50 rounded-xl p-4 text-sm text-navy-900 leading-relaxed whitespace-pre-wrap border border-border">
+                {selectedInquiry.requirement}
+              </div>
+            </div>
+
+            <div className="pt-4 border-t border-border">
+              <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">Update Status</p>
+              <div className="flex flex-wrap gap-2">
+                {statusOptions.filter(s => s !== 'all').map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => handleStatusChange(selectedInquiry.id, s)}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
+                      selectedInquiry.status === s
+                        ? statusColors[s] + " scale-105 shadow-md shadow-primary-500/10"
+                        : "bg-white text-gray-400 border-border hover:bg-gray-50"
+                    )}
+                  >
+                    {s.charAt(0).toUpperCase() + s.slice(1)}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    )}
+  </>
+);
 }

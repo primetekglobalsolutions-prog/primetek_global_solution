@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useMemo } from 'react';
-import { Search, Download, Eye, X } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Search, Download, Eye, X, UserPlus, Loader2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { updateApplicationStatus } from './actions';
+import { updateApplicationStatus, assignApplication, getAllEmployees } from './actions';
 
 export interface ApplicationRecord {
   id: string;
@@ -20,6 +20,7 @@ export interface ApplicationRecord {
   status: string;
   created_at: string;
   notes?: string;
+  assigned_to?: string;
 }
 
 const statusColors: Record<string, string> = {
@@ -38,6 +39,24 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
   const [statusFilter, setStatusFilter] = useState('all');
   const [jobFilter, setJobFilter] = useState('all');
   const [selectedApp, setSelectedApp] = useState<ApplicationRecord | null>(null);
+  const [employees, setEmployees] = useState<{id: string, name: string}[]>([]);
+  const [assigning, setAssigning] = useState<string | null>(null);
+
+  useEffect(() => {
+    getAllEmployees().then(setEmployees);
+  }, []);
+
+  const handleAssign = async (appId: string, empId: string) => {
+    setAssigning(appId);
+    try {
+      await assignApplication(appId, empId === 'none' ? null : empId);
+      setApps(prev => prev.map(a => a.id === appId ? { ...a, assigned_to: empId === 'none' ? undefined : empId } : a));
+    } catch (err) {
+      alert('Failed to assign application');
+    } finally {
+      setAssigning(null);
+    }
+  };
 
   const filtered = useMemo(() => {
     return apps.filter((app) => {
@@ -52,7 +71,6 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
   }, [apps, search, statusFilter, jobFilter]);
 
   const handleUpdateStatus = async (id: string, status: string) => {
-    // Optimistic UI
     setApps((prev) => prev.map((a) => (a.id === id ? { ...a, status } : a)));
     if (selectedApp?.id === id) {
       setSelectedApp((prev) => (prev ? { ...prev, status } : null));
@@ -74,7 +92,6 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
         <p className="text-text-secondary text-sm mt-1">Review and manage candidate applications.</p>
       </div>
 
-      {/* Toolbar */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1 max-w-xs">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
@@ -87,9 +104,12 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
           <option value="all">All Jobs</option>
           {uniqueJobs.map((j) => <option key={j.id} value={j.id}>{j.title}</option>)}
         </select>
+        <div className="flex-1" />
+        <Button size="sm" onClick={() => alert('Add Application Modal logic to be added')}>
+          <UserPlus className="w-4 h-4" /> Add Application
+        </Button>
       </div>
 
-      {/* Table */}
       <Card hover={false} className="p-0 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -97,8 +117,8 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
               <tr className="border-b border-border bg-surface-alt/50">
                 <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Applicant</th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Job</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Exp.</th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
+                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Assigned To</th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Date</th>
                 <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Actions</th>
               </tr>
@@ -114,7 +134,6 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
                       <p className="text-xs text-text-muted">{app.email}</p>
                     </td>
                     <td className="px-6 py-4 text-sm text-text-secondary">{app.job_title}</td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">{app.experience_years || 0}y</td>
                     <td className="px-6 py-4">
                       <select
                         value={app.status}
@@ -125,6 +144,23 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
                           <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
                         ))}
                       </select>
+                    </td>
+                    <td className="px-6 py-4">
+                      <div className="relative min-w-[140px]">
+                        <select
+                          value={app.assigned_to || 'none'}
+                          onChange={(e) => handleAssign(app.id, e.target.value)}
+                          disabled={assigning === app.id}
+                          className="w-full pl-8 pr-3 py-1.5 rounded-lg border border-border bg-white text-xs text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary-400 disabled:opacity-50 appearance-none"
+                        >
+                          <option value="none">Unassigned</option>
+                          {employees.map(emp => (
+                            <option key={emp.id} value={emp.id}>{emp.name}</option>
+                          ))}
+                        </select>
+                        <UserPlus className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted" />
+                        {assigning === app.id && <Loader2 className="absolute right-8 top-1/2 -translate-y-1/2 w-3 h-3 animate-spin text-primary-500" />}
+                      </div>
                     </td>
                     <td className="px-6 py-4 text-sm text-text-muted whitespace-nowrap">{formatDate(app.created_at)}</td>
                     <td className="px-6 py-4">
@@ -180,23 +216,11 @@ export default function ApplicationsClient({ initialApps }: { initialApps: Appli
               {selectedApp.resume_url && (
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Resume</p>
-                  <Button variant="outline" size="sm" onClick={() => alert(`Would download ${selectedApp.resume_url}`)}>
-                    <Download className="w-4 h-4" /> Download Resume
+                  <Button variant="outline" size="sm" onClick={() => window.open(selectedApp.resume_url, '_blank')}>
+                    <Download className="w-4 h-4" /> View Resume
                   </Button>
                 </div>
               )}
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Status</p>
-                <select
-                  value={selectedApp.status}
-                  onChange={(e) => handleUpdateStatus(selectedApp.id, e.target.value)}
-                  className={`px-3 py-2 rounded-lg text-sm font-medium border ${statusColors[selectedApp.status] || statusColors.new} focus:outline-none w-full`}
-                >
-                  {statusOptions.filter((s) => s !== 'all').map((s) => (
-                    <option key={s} value={s}>{s.charAt(0).toUpperCase() + s.slice(1)}</option>
-                  ))}
-                </select>
-              </div>
             </div>
           </div>
         </div>
