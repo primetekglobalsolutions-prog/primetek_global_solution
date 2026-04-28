@@ -103,10 +103,12 @@ export async function uploadClientResume(formData: FormData) {
     throw new Error('Failed to upload resume');
   }
 
-  const { data: { publicUrl } } = supabaseAdmin
+  const { data: signedData, error: signedError } = await supabaseAdmin
     .storage
     .from('resumes')
-    .getPublicUrl(uploadData.path);
+    .createSignedUrl(uploadData.path, 315360000); // 10 years expiry for the link
 
-  return { success: true, url: publicUrl };
+  if (signedError) throw new Error('Failed to generate secure link');
+
+  return { success: true, url: signedData.signedUrl };
 }
