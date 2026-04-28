@@ -21,30 +21,46 @@ export async function getAllProfiles() {
 }
 
 export async function createProfile(formData: any) {
-  const session = await getSession();
-  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+  try {
+    const session = await getSession();
+    if (!session || session.role !== 'admin') return { error: 'Unauthorized' };
 
-  const { error } = await supabaseAdmin
-    .from('application_profiles')
-    .insert([formData]);
+    const { error } = await supabaseAdmin
+      .from('application_profiles')
+      .insert([formData]);
 
-  if (error) throw error;
-  revalidatePath('/admin/client-profiles');
-  return { success: true };
+    if (error) {
+      console.error('Create Profile Error:', error);
+      return { error: error.message || 'Database error occurred' };
+    }
+    
+    revalidatePath('/admin/client-profiles');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message || 'Internal server error' };
+  }
 }
 
 export async function updateProfile(id: string, formData: any) {
-  const session = await getSession();
-  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+  try {
+    const session = await getSession();
+    if (!session || session.role !== 'admin') return { error: 'Unauthorized' };
 
-  const { error } = await supabaseAdmin
-    .from('application_profiles')
-    .update(formData)
-    .eq('id', id);
+    const { error } = await supabaseAdmin
+      .from('application_profiles')
+      .update(formData)
+      .eq('id', id);
 
-  if (error) throw error;
-  revalidatePath('/admin/client-profiles');
-  return { success: true };
+    if (error) {
+      console.error('Update Profile Error:', error);
+      return { error: error.message || 'Database error occurred' };
+    }
+
+    revalidatePath('/admin/client-profiles');
+    return { success: true };
+  } catch (err: any) {
+    return { error: err.message || 'Internal server error' };
+  }
 }
 
 export async function deleteProfile(id: string) {

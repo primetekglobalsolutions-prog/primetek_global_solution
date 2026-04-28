@@ -125,10 +125,20 @@ export default function ClientProfilesClient({ initialProfiles, employees }: { i
 
       if (editingProfile) {
         if (!editingProfile.id) return;
-        await updateProfile(editingProfile.id, profileToSave);
+        const res = await updateProfile(editingProfile.id, profileToSave);
+        if (res.error) {
+          alert(res.error);
+          setLoading(false);
+          return;
+        }
         setProfiles(prev => prev.map(p => p.id === editingProfile.id ? { ...p, ...profileToSave } : p));
       } else {
-        await createProfile(profileToSave);
+        const res = await createProfile(profileToSave);
+        if (res.error) {
+          alert(res.error);
+          setLoading(false);
+          return;
+        }
         window.location.reload(); 
       }
       setIsModalOpen(false);
