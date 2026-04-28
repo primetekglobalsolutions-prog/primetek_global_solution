@@ -7,12 +7,12 @@ import { Save, ArrowLeft } from 'lucide-react';
 import { jobSchema, type JobFormData } from '@/lib/validations';
 import Button from '@/components/ui/Button';
 import Card from '@/components/ui/Card';
-import { saveJob } from '@/app/admin/(dashboard)/jobs/actions';
-
 interface JobFormProps {
   jobId?: string;
   defaultValues?: Partial<JobFormData>;
   isEditing?: boolean;
+  saveAction: (data: JobFormData, id?: string) => Promise<any>;
+  onSuccess?: () => void;
 }
 
 const departments = ['Information Technology', 'Healthcare', 'Banking & Finance', 'Manufacturing', 'Retail & E-Commerce'];
@@ -24,7 +24,7 @@ const jobTypes = [
   { value: 'part-time', label: 'Part-time' },
 ];
 
-export default function JobForm({ jobId, defaultValues, isEditing }: JobFormProps) {
+export default function JobForm({ jobId, defaultValues, isEditing, saveAction, onSuccess }: JobFormProps) {
   const router = useRouter();
 
   const {
@@ -41,8 +41,12 @@ export default function JobForm({ jobId, defaultValues, isEditing }: JobFormProp
 
   const onSubmit = async (data: JobFormData) => {
     try {
-      await saveJob(data, jobId);
-      router.push('/admin/jobs');
+      await saveAction(data, jobId);
+      if (onSuccess) {
+        onSuccess();
+      } else {
+        router.push('/admin/jobs');
+      }
     } catch (err) {
       console.error(err);
       alert('Failed to save job. See console.');

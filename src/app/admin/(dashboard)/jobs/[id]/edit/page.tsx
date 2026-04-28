@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import JobForm from '@/components/admin/JobForm';
+import { saveJob } from '../../actions';
 
 export default async function EditJobPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -24,6 +25,7 @@ export default async function EditJobPage({ params }: { params: Promise<{ id: st
       <JobForm
         isEditing
         jobId={job.id}
+        saveAction={saveJob}
         defaultValues={{
           title: job.title,
           department: job.department,

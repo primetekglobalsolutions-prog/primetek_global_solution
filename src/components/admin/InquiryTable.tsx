@@ -19,6 +19,7 @@ interface Inquiry {
 
 interface InquiryTableProps {
   inquiries: Inquiry[];
+  updateStatus: (id: string, status: string) => Promise<any>;
 }
 
 const statusOptions = ['all', 'new', 'contacted', 'qualified', 'closed'] as const;
@@ -32,7 +33,7 @@ const statusColors: Record<string, string> = {
 
 const ITEMS_PER_PAGE = 8;
 
-export default function InquiryTable({ inquiries }: InquiryTableProps) {
+export default function InquiryTable({ inquiries, updateStatus }: InquiryTableProps) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [page, setPage] = useState(1);
@@ -56,17 +57,17 @@ export default function InquiryTable({ inquiries }: InquiryTableProps) {
   const paginated = filtered.slice((page - 1) * ITEMS_PER_PAGE, page * ITEMS_PER_PAGE);
 
   const handleStatusChange = async (id: string, newStatus: string) => {
+    const oldStatus = localInquiries.find(i => i.id === id)?.status || 'new';
     setLocalInquiries((prev) =>
       prev.map((inq) => (inq.id === id ? { ...inq, status: newStatus } : inq))
     );
     try {
-      const { updateInquiryStatus } = await import('@/app/admin/(dashboard)/inquiries/actions');
-      await updateInquiryStatus(id, newStatus);
+      await updateStatus(id, newStatus);
     } catch (error) {
       console.error('Failed to update status', error);
       // Revert if failed
       setLocalInquiries((prev) =>
-        prev.map((inq) => (inq.id === id ? { ...inq, status: prev.find(i => i.id === id)?.status || 'new' } : inq))
+        prev.map((inq) => (inq.id === id ? { ...inq, status: oldStatus } : inq))
       );
     }
   };

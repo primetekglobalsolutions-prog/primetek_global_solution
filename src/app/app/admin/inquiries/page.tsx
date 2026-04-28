@@ -1,11 +1,20 @@
 import InquiryTable from '@/components/admin/InquiryTable';
-import { supabaseAdmin } from '@/lib/supabase-admin';
+import { getAdminInquiries, updateInquiryStatus } from './actions';
 
 export default async function AdminAppInquiriesPage() {
-  const { data: inquiries } = await supabaseAdmin
-    .from('inquiries')
-    .select('*')
-    .order('created_at', { ascending: false });
+  const inquiries = await getAdminInquiries();
+
+  // Map database fields to component expectations
+  const formattedInquiries = (inquiries || []).map((inq: any) => ({
+    id: inq.id,
+    name: inq.name,
+    email: inq.email,
+    company: inq.company || '',
+    phone: inq.phone || '',
+    requirement: inq.message,
+    status: inq.status,
+    created_at: inq.created_at,
+  }));
 
   return (
     <div className="space-y-6">
@@ -13,7 +22,7 @@ export default async function AdminAppInquiriesPage() {
         <h1 className="text-2xl font-heading font-bold text-navy-900 tracking-tight">Inquiries</h1>
         <p className="text-text-secondary text-sm">Manage business and career inquiries.</p>
       </div>
-      <InquiryTable inquiries={inquiries || []} />
+      <InquiryTable inquiries={formattedInquiries} updateStatus={updateInquiryStatus} />
     </div>
   );
 }
