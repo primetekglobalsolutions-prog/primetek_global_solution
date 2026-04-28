@@ -14,7 +14,7 @@ const MAX_ATTEMPTS_PER_WINDOW = 5;
 export async function POST(request: NextRequest) {
   try {
     // 1. Basic Security: Rate Limiting by IP
-    const ip = request.headers.get('x-forwarded-for') || request.ip || 'unknown-ip';
+    const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || (request as any).ip || 'unknown-ip';
     const now = Date.now();
     const limitRecord = rateLimitMap.get(ip);
     
