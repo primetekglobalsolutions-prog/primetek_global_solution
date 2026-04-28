@@ -43,7 +43,7 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
 
   const handleLogout = async () => {
     await fetch('/api/auth/logout', { method: 'POST' });
-    router.replace('/admin/login');
+    router.replace(role === 'admin' ? '/admin/login' : '/employee/login');
     router.refresh();
   };
 
