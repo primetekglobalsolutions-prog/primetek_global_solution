@@ -2,11 +2,11 @@
   "name": "Primetek Global Solutions",
   "short_name": "Primetek",
   "description": "Enterprise Portal for Primetek Global Solutions",
-  "start_url": "/app/login",
+  "start_url": "/admin/login",
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#ffffff",
-  "scope": "/app/",
+  "scope": "/",
   "icons": [
     {
       "src": "/icons/icon-192.png",

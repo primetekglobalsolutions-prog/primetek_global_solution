@@ -15,9 +15,10 @@ export default function PWAStandaloneGuard() {
     if (isStandalone) {
       document.body.classList.add('pwa-standalone');
       
-      // Strict requirement: Block access to any route outside /app/*
       // If user tries to access website pages while in standalone app, redirect to /admin/login
-      if (!pathname.startsWith('/app')) {
+      const isPortalRoute = pathname.startsWith('/admin') || pathname.startsWith('/employee');
+      
+      if (!isPortalRoute) {
         router.replace('/admin/login');
       }
     } else {
