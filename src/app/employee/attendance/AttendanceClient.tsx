@@ -62,9 +62,16 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
       setCoords({ lat, lng });
-      setGpsStatus('success');
       
-      await checkIn(lat, lng);
+      const result = await checkIn(lat, lng);
+      
+      if (!result.success) {
+        setGpsStatus('error');
+        alert(result.error || 'Check-in failed');
+        return;
+      }
+
+      setGpsStatus('success');
     } catch (err: any) {
       setGpsStatus('error');
       const msg = err.message || 'Could not get your location. Please ensure GPS is enabled and you have given permission.';
@@ -85,9 +92,16 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
       const lat = position.coords.latitude;
       const lng = position.coords.longitude;
       setCoords({ lat, lng });
-      setGpsStatus('success');
       
-      await checkOut(todayRecord.id, lat, lng);
+      const result = await checkOut(todayRecord.id, lat, lng);
+
+      if (!result.success) {
+        setGpsStatus('error');
+        alert(result.error || 'Check-out failed');
+        return;
+      }
+
+      setGpsStatus('success');
     } catch (err: any) {
       setGpsStatus('error');
       const msg = err.message || 'Could not get your location for check-out.';
@@ -126,8 +140,6 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-heading font-bold text-navy-900">Attendance</h1>
-
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Check-in Panel */}
         <Card hover={false} className="p-6 md:p-8">
