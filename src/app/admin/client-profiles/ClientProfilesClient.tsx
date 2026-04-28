@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
-import { createProfile, updateProfile, deleteProfile } from './actions';
+import { createProfile, updateProfile, deleteProfile, uploadClientResume } from './actions';
 
 interface ClientProfile {
   id?: string;
@@ -32,6 +32,8 @@ export default function ClientProfilesClient({ initialProfiles, employees }: { i
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<ClientProfile | null>(null);
   const [loading, setLoading] = useState(false);
+  const [resumeFile, setResumeFile] = useState<File | null>(null);
+  const [resumeError, setResumeError] = useState('');
 
   const [formData, setFormData] = useState<ClientProfile>({
     client_name: '',
@@ -80,25 +82,53 @@ export default function ClientProfilesClient({ initialProfiles, employees }: { i
         resume_url: ''
       });
     }
+    setResumeFile(null);
+    setResumeError('');
     setIsModalOpen(true);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setResumeError('');
+    
+    let finalResumeUrl = formData.resume_url;
+
     try {
+      if (resumeFile) {
+        if (resumeFile.size > 1 * 1024 * 1024) {
+          setResumeError('Resume file must be under 1MB');
+          setLoading(false);
+          return;
+        }
+        const fileExt = resumeFile.name.split('.').pop()?.toLowerCase();
+        if (fileExt !== 'docx') {
+          setResumeError('Only DOCX format is supported');
+          setLoading(false);
+          return;
+        }
+
+        const uploadData = new FormData();
+        uploadData.append('resume', resumeFile);
+        const res = await uploadClientResume(uploadData);
+        if (res.success) {
+          finalResumeUrl = res.url;
+        }
+      }
+
+      const profileToSave = { ...formData, resume_url: finalResumeUrl };
+
       if (editingProfile) {
         if (!editingProfile.id) return;
-        await updateProfile(editingProfile.id, formData);
-        setProfiles(prev => prev.map(p => p.id === editingProfile.id ? { ...p, ...formData } : p));
+        await updateProfile(editingProfile.id, profileToSave);
+        setProfiles(prev => prev.map(p => p.id === editingProfile.id ? { ...p, ...profileToSave } : p));
       } else {
-        const res = await createProfile(formData);
-        // Refresh full list or just push locally (simplifying for now)
+        await createProfile(profileToSave);
         window.location.reload(); 
       }
       setIsModalOpen(false);
-    } catch (err) {
-      alert('Failed to save profile');
+    } catch (err: any) {
+      alert(err.message || 'Failed to save profile');
     } finally {
       setLoading(false);
     }
@@ -173,9 +203,9 @@ export default function ClientProfilesClient({ initialProfiles, employees }: { i
                 {profile.status}
               </span>
               {profile.resume_url && (
-                <button className="text-[11px] font-bold text-primary-600 flex items-center gap-1 hover:underline">
+                <a href={profile.resume_url} target="_blank" rel="noopener noreferrer" className="text-[11px] font-bold text-primary-600 flex items-center gap-1 hover:underline">
                   <Download className="w-3 h-3" /> DOCX Resume
-                </button>
+                </a>
               )}
             </div>
           </Card>
@@ -247,6 +277,24 @@ export default function ClientProfilesClient({ initialProfiles, employees }: { i
                     <option key={emp.id} value={emp.id}>{emp.name}</option>
                   ))}
                 </select>
+              </div>
+
+              <div className="space-y-1.5">
+                <label className="text-sm font-semibold text-navy-900">Upload Resume (DOCX only, Max 1MB)</label>
+                <div className="flex items-center gap-4">
+                  <input 
+                    type="file" 
+                    accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
+                    onChange={e => setResumeFile(e.target.files?.[0] || null)}
+                    className="w-full text-sm text-text-secondary file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary-50 file:text-primary-700 hover:file:bg-primary-100"
+                  />
+                  {formData.resume_url && !resumeFile && (
+                    <span className="text-xs font-bold text-emerald-600 flex items-center gap-1 shrink-0">
+                      <FileText className="w-4 h-4" /> Existing file
+                    </span>
+                  )}
+                </div>
+                {resumeError && <p className="text-xs text-red-500 font-medium">{resumeError}</p>}
               </div>
 
               <div className="flex justify-end gap-3 pt-4">

@@ -73,3 +73,40 @@ export async function getAllEmployees() {
   if (error) throw error;
   return data;
 }
+
+export async function uploadClientResume(formData: FormData) {
+  const session = await getSession();
+  if (!session || session.role !== 'admin') throw new Error('Unauthorized');
+
+  const file = formData.get('resume') as File | null;
+  if (!file) throw new Error('No file provided');
+
+  if (file.size > 1 * 1024 * 1024) throw new Error('Resume must be under 1MB');
+  if (!file.name.toLowerCase().endsWith('.docx') && file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    throw new Error('Only DOCX format is supported');
+  }
+
+  const fileExt = file.name.split('.').pop();
+  const fileName = `client-${Date.now()}.${fileExt}`;
+  const buffer = Buffer.from(await file.arrayBuffer());
+
+  const { data: uploadData, error: uploadError } = await supabaseAdmin
+    .storage
+    .from('resumes')
+    .upload(fileName, buffer, {
+      contentType: file.type || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+      upsert: true
+    });
+
+  if (uploadError) {
+    console.error('Resume upload error:', uploadError);
+    throw new Error('Failed to upload resume');
+  }
+
+  const { data: { publicUrl } } = supabaseAdmin
+    .storage
+    .from('resumes')
+    .getPublicUrl(uploadData.path);
+
+  return { success: true, url: publicUrl };
+}
