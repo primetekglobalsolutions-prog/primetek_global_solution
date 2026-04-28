@@ -24,6 +24,11 @@ export async function POST(request: NextRequest) {
 
       if (authError) {
         console.error('Supabase Auth attempt failed:', authError.message);
+
+        // If the error is anything other than standard invalid credentials, surface it to the user.
+        if (authError.message.includes('Email not confirmed')) {
+          return NextResponse.json({ error: 'Please verify your email address. If you created this user manually, ensure "Auto Confirm User?" is checked.' }, { status: 401 });
+        }
       }
 
       if (!authError && authData?.user) {
