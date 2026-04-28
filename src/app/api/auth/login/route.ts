@@ -15,7 +15,7 @@ export async function POST(request: NextRequest) {
     const { data: adminRecord } = await supabaseAdmin
       .from('admin_users')
       .select('id, email')
-      .eq('email', cleanEmail)
+      .ilike('email', cleanEmail)
       .single();
 
     const ADMIN_EMAIL_ENV = (process.env.ADMIN_EMAIL || 'admin@globalprimetek.com').trim().toLowerCase();
@@ -59,10 +59,14 @@ export async function POST(request: NextRequest) {
     const { data: employee, error } = await supabaseAdmin
       .from('employees')
       .select('id, email, password_hash, name, role, status')
-      .eq('email', cleanEmail)
+      .ilike('email', cleanEmail)
       .single();
 
-    if (!error && employee && employee.status === 'Active') {
+    if (error) {
+      console.log(`Login: Employee not found for ${cleanEmail}`);
+    }
+
+    if (!error && employee && employee.status?.toLowerCase() === 'active') {
       const isValidPassword = await bcrypt.compare(password, employee.password_hash);
       if (isValidPassword) {
         const token = await createToken({

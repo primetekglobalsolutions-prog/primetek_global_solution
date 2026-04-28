@@ -62,7 +62,7 @@ export async function createEmployee(data: {
     {
       employee_id,
       name: data.name,
-      email: data.email,
+      email: data.email.trim().toLowerCase(),
       role: data.role,
       department: data.department,
       password_hash,
