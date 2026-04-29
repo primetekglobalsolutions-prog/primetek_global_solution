@@ -6,16 +6,18 @@ import { cn } from '@/lib/utils';
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'outline' | 'ghost';
   size?: 'sm' | 'md' | 'lg';
+  fullWidth?: boolean;
   asChild?: boolean;
 }
 
 const Button = forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = 'primary', size = 'md', children, ...props }, ref) => {
+  ({ className, variant = 'primary', size = 'md', fullWidth = false, children, ...props }, ref) => {
     return (
       <button
         ref={ref}
         className={cn(
           'inline-flex items-center justify-center gap-2 font-medium rounded-lg transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed',
+          fullWidth && 'w-full',
           {
             'bg-primary-500 text-white hover:bg-primary-600 focus:ring-primary-400 shadow-lg hover:shadow-xl hover:shadow-primary-500/25 active:scale-[0.98]':
               variant === 'primary',

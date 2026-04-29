@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, Clock, UserCircle, LogOut, 
   MessageSquare, Briefcase, Users, FileUser,
-  Settings, ChevronLeft 
+  Settings, ChevronLeft, History
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/Logo';
@@ -28,6 +28,7 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
     { href: '/admin/client-profiles', icon: FileUser, label: 'Client Profiles' },
     { href: '/admin/employees', icon: Users, label: 'Employees' },
     { href: '/admin/attendance', icon: Clock, label: 'Reports' },
+    { href: '/admin/audit', icon: History, label: 'Audit Logs' },
     { href: '/admin/profile', icon: UserCircle, label: 'Profile' },
     { href: '/admin/settings', icon: Settings, label: 'Settings' },
   ];

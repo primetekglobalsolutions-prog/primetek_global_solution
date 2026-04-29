@@ -4,6 +4,7 @@ import { supabaseAdmin } from '@/lib/supabase-admin';
 import { formatDate } from '@/lib/utils';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
+import AnalyticsCharts from '@/components/admin/AnalyticsCharts';
 
 export default async function AdminAppDashboard() {
   const [
@@ -53,6 +54,25 @@ export default async function AdminAppDashboard() {
           </div>
         ))}
       </div>
+
+      {/* Analytics Charts */}
+      <AnalyticsCharts 
+        attendanceData={[
+          { label: 'Mon', value: 85 },
+          { label: 'Tue', value: 92 },
+          { label: 'Wed', value: 88 },
+          { label: 'Thu', value: 95 },
+          { label: 'Fri', value: 82 },
+          { label: 'Sat', value: 45 },
+          { label: 'Sun', value: 30 },
+        ]}
+        applicationData={[
+          { label: 'Wk 1', value: 12 },
+          { label: 'Wk 2', value: 18 },
+          { label: 'Wk 3', value: 15 },
+          { label: 'Wk 4', value: 24 },
+        ]}
+      />
 
       {/* Quick Actions — mobile-optimized grid */}
       <div className="grid grid-cols-2 gap-2 md:gap-3">

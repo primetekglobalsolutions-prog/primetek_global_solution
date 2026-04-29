@@ -3,6 +3,8 @@
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { getSession } from '@/lib/auth';
 import { revalidatePath } from 'next/cache';
+import { logAuditAction } from '@/lib/audit';
+import { sendNotificationEmail, getAssignmentTemplate } from '@/lib/notifications';
 
 export async function getAllProfiles() {
   const session = await getSession();
@@ -20,34 +22,51 @@ export async function getAllProfiles() {
   return data;
 }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createProfile(formData: any) {
   try {
     const session = await getSession();
     if (!session || session.role !== 'admin') return { error: 'Unauthorized' };
 
-    const { error } = await supabaseAdmin
+    const { error, data } = await supabaseAdmin
       .from('application_profiles')
-      .insert([formData]);
+      .insert([formData])
+      .select()
+      .single();
 
     if (error) {
       console.error('Create Profile Error:', error);
       return { error: error.message || 'Database error occurred' };
     }
+
+    // Log the action
+    await logAuditAction('CREATE_PROFILE', 'application_profiles', data.id, null, formData);
+
+    // If assigned to an employee, send a notification
+    if (formData.assigned_to) {
+      const { data: employee } = await supabaseAdmin.from('employees').select('name, email').eq('id', formData.assigned_to).single();
+      if (employee) {
+        await sendNotificationEmail(
+          employee.email, 
+          'New Assignment: ' + formData.client_name, 
+          getAssignmentTemplate(employee.name, formData.client_name)
+        );
+      }
+    }
     
     revalidatePath('/admin/client-profiles');
-   
     return { success: true };
   } catch (err: any) {
     return { error: err.message || 'Internal server error' };
   }
-   
 }
 
 export async function updateProfile(id: string, formData: any) {
   try {
     const session = await getSession();
     if (!session || session.role !== 'admin') return { error: 'Unauthorized' };
+
+    // Fetch old data for audit
+    const { data: oldData } = await supabaseAdmin.from('application_profiles').select('*').eq('id', id).single();
 
     const { error } = await supabaseAdmin
       .from('application_profiles')
@@ -58,7 +77,21 @@ export async function updateProfile(id: string, formData: any) {
       console.error('Update Profile Error:', error);
       return { error: error.message || 'Database error occurred' };
     }
-   
+
+    // Log the action
+    await logAuditAction('UPDATE_PROFILE', 'application_profiles', id, oldData, formData);
+
+    // If assignment changed, notify new employee
+    if (formData.assigned_to && formData.assigned_to !== oldData?.assigned_to) {
+      const { data: employee } = await supabaseAdmin.from('employees').select('name, email').eq('id', formData.assigned_to).single();
+      if (employee) {
+        await sendNotificationEmail(
+          employee.email, 
+          'New Assignment: ' + (formData.client_name || oldData.client_name), 
+          getAssignmentTemplate(employee.name, formData.client_name || oldData.client_name)
+        );
+      }
+    }
 
     revalidatePath('/admin/client-profiles');
     return { success: true };
@@ -71,12 +104,19 @@ export async function deleteProfile(id: string) {
   const session = await getSession();
   if (!session || session.role !== 'admin') throw new Error('Unauthorized');
 
+  // Fetch data for audit before deleting
+  const { data: oldData } = await supabaseAdmin.from('application_profiles').select('*').eq('id', id).single();
+
   const { error } = await supabaseAdmin
     .from('application_profiles')
     .delete()
     .eq('id', id);
 
   if (error) throw error;
+
+  // Log the action
+  await logAuditAction('DELETE_PROFILE', 'application_profiles', id, oldData, null);
+
   revalidatePath('/admin/client-profiles');
   return { success: true };
 }
@@ -128,7 +168,6 @@ export async function uploadClientResume(formData: FormData) {
       .storage
       .from('resumes')
       .createSignedUrl(uploadData.path, 315360000); // 10 years
-   
 
     if (signedError) return { error: 'Failed to generate secure link' };
 
