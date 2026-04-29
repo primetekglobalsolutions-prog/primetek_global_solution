@@ -72,6 +72,7 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
       }
 
       setGpsStatus('success');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setGpsStatus('error');
       const msg = err.message || 'Could not get your location. Please ensure GPS is enabled and you have given permission.';
@@ -103,6 +104,7 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
         return;
       }
 
+   
       setGpsStatus('success');
     } catch (err: any) {
       setGpsStatus('error');

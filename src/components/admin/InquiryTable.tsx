@@ -19,8 +19,9 @@ interface Inquiry {
 
 interface InquiryTableProps {
   inquiries: Inquiry[];
-  updateStatus: (id: string, status: string) => Promise<any>;
-  deleteInquiry: (id: string) => Promise<any>;
+   
+  updateStatus: (id: string, status: string) => Promise<unknown>;
+  deleteInquiry: (id: string) => Promise<unknown>;
 }
 
 const statusOptions = ['all', 'new', 'contacted', 'qualified', 'closed'] as const;

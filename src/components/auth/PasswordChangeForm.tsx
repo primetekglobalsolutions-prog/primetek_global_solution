@@ -41,6 +41,7 @@ export default function PasswordChangeForm() {
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setStatus({ type: 'error', message: err.message });
     } finally {

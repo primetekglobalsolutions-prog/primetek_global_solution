@@ -23,6 +23,7 @@ export async function getEmployeeAssignments() {
     return [];
   }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return data.map((app: any) => ({
     id: app.id,
     client_name: app.name,

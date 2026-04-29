@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, Clock, UserCircle, LogOut, 
   MessageSquare, Briefcase, Users, FileUser,
-  Settings, ChevronLeft, ChevronRight 
+  Settings, ChevronLeft 
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/Logo';

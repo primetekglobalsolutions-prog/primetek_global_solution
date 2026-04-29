@@ -3,6 +3,7 @@
 import JobForm from '@/components/admin/JobForm';
 import { useRouter } from 'next/navigation';
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export default function JobFormClient({ job, saveAction }: { job: any, saveAction: any }) {
   const router = useRouter();
 
@@ -15,6 +16,7 @@ export default function JobFormClient({ job, saveAction }: { job: any, saveActio
       defaultValues={{
         title: job.title,
         department: job.department,
+   
         location: job.location,
         type: job.type as any,
         description: job.description,

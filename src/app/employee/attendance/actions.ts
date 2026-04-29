@@ -113,6 +113,7 @@ export async function checkIn(lat: number, lng: number) {
     revalidatePath('/employee/attendance');
     revalidatePath('/employee/dashboard');
     return { success: true };
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error('Check-in system error:', err);
     return { success: false, error: err.message || 'Internal server error' };
@@ -141,6 +142,7 @@ export async function checkOut(recordId: string, lat: number, lng: number) {
 
     revalidatePath('/employee/attendance');
     revalidatePath('/employee/dashboard');
+   
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message || 'Internal server error' };
@@ -164,6 +166,7 @@ export async function resumeSession(recordId: string) {
     if (error) throw error;
 
     revalidatePath('/employee/attendance');
+   
     revalidatePath('/employee/dashboard');
     return { success: true };
   } catch (err: any) {

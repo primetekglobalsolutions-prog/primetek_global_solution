@@ -26,6 +26,7 @@ export async function getAdminApplications() {
 
 
   // Format data to match client expectations
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return data.map((app: Record<string, any>) => ({
     ...app,
     job_title: app.jobs?.title || 'Unknown Job',
@@ -94,6 +95,7 @@ export async function getActiveJobs() {
   }
   return data;
 }
+   
 
 export async function createFullApplication(formData: any) {
   const session = await getSession();

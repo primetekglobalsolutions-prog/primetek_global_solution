@@ -28,6 +28,7 @@ export default function PasswordChangeForm() {
       await changePassword(data);
       setStatus('success');
       reset();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setStatus('error');
       setErrorMsg(err.message || 'Failed to update password');

@@ -139,11 +139,12 @@ export default function AddApplicationForm({ onSuccess, onCancel }: AddApplicati
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className={labelClasses}>Bachelor's Degree</label>
+            <label className={labelClasses}>Bachelor&apos;s Degree</label>
             <input {...register('education_bachelors')} placeholder="Degree, University, Year" className={inputClasses} />
           </div>
+  { }
           <div>
-            <label className={labelClasses}>Master's Degree</label>
+            <label className={labelClasses}>Master&apos;s Degree</label>
             <input {...register('education_masters')} placeholder="Degree, University, Year" className={inputClasses} />
           </div>
         </div>

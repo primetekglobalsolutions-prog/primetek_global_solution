@@ -23,6 +23,7 @@ export async function getAdminAttendance() {
     return [];
   }
   
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return data.map((record: Record<string, any>) => {
     const checkIn = record.check_in ? new Date(record.check_in) : null;
     const checkOut = record.check_out ? new Date(record.check_out) : null;

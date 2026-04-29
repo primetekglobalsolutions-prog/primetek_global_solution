@@ -14,6 +14,7 @@ const MAX_ATTEMPTS_PER_WINDOW = 5;
 export async function POST(request: NextRequest) {
   try {
     // 1. Basic Security: Rate Limiting by IP
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ip = request.headers.get('x-forwarded-for')?.split(',')[0] || (request as any).ip || 'unknown-ip';
     console.log(`[Auth] Attempt from IP: ${ip}`);
 
@@ -42,8 +43,9 @@ export async function POST(request: NextRequest) {
     const cleanPassword = password.trim();
 
     const isEmail = cleanEmail.includes('@');
+   
 
-    let authError: any = null;
+    const authError: any = null;
 
     // 3. Admin Check (Database-first for reliability)
     // First, check if this email exists in the admin_users table

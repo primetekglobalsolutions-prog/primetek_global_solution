@@ -10,6 +10,7 @@ export default function PWAStandaloneGuard() {
   useEffect(() => {
     // Detect standalone mode
     const isStandalone = window.matchMedia('(display-mode: standalone)').matches 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
       || (navigator as any).standalone;
 
     if (isStandalone) {

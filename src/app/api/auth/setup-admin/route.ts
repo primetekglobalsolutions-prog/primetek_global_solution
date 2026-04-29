@@ -61,6 +61,7 @@ export async function GET() {
 
     return NextResponse.json({ error: 'Unknown error occurred' }, { status: 500 });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

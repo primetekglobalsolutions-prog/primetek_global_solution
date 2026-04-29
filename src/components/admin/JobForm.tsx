@@ -11,6 +11,7 @@ interface JobFormProps {
   jobId?: string;
   defaultValues?: Partial<JobFormData>;
   isEditing?: boolean;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   saveAction: (data: JobFormData, id?: string) => Promise<any>;
   onSuccess?: () => void;
 }

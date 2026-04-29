@@ -141,6 +141,7 @@ export default function ClientProfilesClient({ initialProfiles, employees }: { i
         }
         window.location.reload(); 
       }
+   
       setIsModalOpen(false);
     } catch (err: any) {
       alert(err.message || 'Failed to save profile');
@@ -272,13 +273,15 @@ export default function ClientProfilesClient({ initialProfiles, employees }: { i
 
               <div className="bg-surface-alt p-4 rounded-2xl space-y-4">
                 <h3 className="text-xs font-bold uppercase tracking-widest text-text-muted">Education Details</h3>
+  { }
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-navy-900">Master's Degree</label>
+                    <label className="text-xs font-semibold text-navy-900">Master&apos;s Degree</label>
+  { }
                     <input value={formData.education_details.masters} onChange={e => setFormData({...formData, education_details: {...formData.education_details, masters: e.target.value}})} className="w-full px-3 py-2 rounded-lg border border-border" />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-navy-900">Bachelor's Degree</label>
+                    <label className="text-xs font-semibold text-navy-900">Bachelor&apos;s Degree</label>
                     <input value={formData.education_details.bachelors} onChange={e => setFormData({...formData, education_details: {...formData.education_details, bachelors: e.target.value}})} className="w-full px-3 py-2 rounded-lg border border-border" />
                   </div>
                 </div>

@@ -57,6 +57,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Password updated successfully' });
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     console.error('Password change error:', err);
     return NextResponse.json({ error: 'Internal server error' }, { status: 500 });

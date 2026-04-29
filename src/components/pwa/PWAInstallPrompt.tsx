@@ -8,10 +8,12 @@ import Button from '@/components/ui/Button';
 import Logo from '@/components/ui/Logo';
 
 export default function PWAInstallPrompt() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [isVisible, setIsVisible] = useState(false);
   const pathname = usePathname();
 
+   
   useEffect(() => {
     const handler = (e: any) => {
       e.preventDefault();

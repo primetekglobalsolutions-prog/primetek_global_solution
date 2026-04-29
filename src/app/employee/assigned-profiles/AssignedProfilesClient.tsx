@@ -152,9 +152,11 @@ export default function AssignedProfilesClient({ initialProfiles }: { initialPro
                   </h4>
                   <div className="bg-surface-alt rounded-2xl p-4 space-y-4">
                     <div>
+  {/* eslint-disable-next-line react/no-unescaped-entities */}
                       <p className="text-[10px] font-bold text-text-muted uppercase">Master's Degree</p>
                       <p className="text-sm font-medium text-navy-900">{selectedProfile.education_details?.masters || 'Not specified'}</p>
                     </div>
+  { }
                     <div className="pt-3 border-t border-border">
                       <p className="text-[10px] font-bold text-text-muted uppercase">Bachelor's Degree</p>
                       <p className="text-sm font-medium text-navy-900">{selectedProfile.education_details?.bachelors || 'Not specified'}</p>

@@ -116,6 +116,7 @@ export default async function EmployeeAppDashboard() {
                 <CalendarCheck className="w-6 h-6 text-emerald-400" />
               </div>
               <div>
+  {/* eslint-disable-next-line react/no-unescaped-entities */}
                 <p className="text-[10px] text-primary-200 uppercase tracking-widest font-bold">Today's Shift</p>
                 <p className="text-lg font-bold text-white">
                   {todayRecord ? todayRecord.check_in : 'Not Started'}

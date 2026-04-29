@@ -20,6 +20,7 @@ export async function getAllProfiles() {
   return data;
 }
 
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function createProfile(formData: any) {
   try {
     const session = await getSession();
@@ -35,10 +36,12 @@ export async function createProfile(formData: any) {
     }
     
     revalidatePath('/admin/client-profiles');
+   
     return { success: true };
   } catch (err: any) {
     return { error: err.message || 'Internal server error' };
   }
+   
 }
 
 export async function updateProfile(id: string, formData: any) {
@@ -55,6 +58,7 @@ export async function updateProfile(id: string, formData: any) {
       console.error('Update Profile Error:', error);
       return { error: error.message || 'Database error occurred' };
     }
+   
 
     revalidatePath('/admin/client-profiles');
     return { success: true };
@@ -124,6 +128,7 @@ export async function uploadClientResume(formData: FormData) {
       .storage
       .from('resumes')
       .createSignedUrl(uploadData.path, 315360000); // 10 years
+   
 
     if (signedError) return { error: 'Failed to generate secure link' };
 

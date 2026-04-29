@@ -5,6 +5,7 @@ export default async function AdminAppInquiriesPage() {
   const inquiries = await getAdminInquiries();
 
   // Map database fields to component expectations
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const formattedInquiries = (inquiries || []).map((inq: any) => ({
     id: inq.id,
     name: inq.name,
