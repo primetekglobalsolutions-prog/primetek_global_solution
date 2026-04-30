@@ -1,11 +1,12 @@
 import { redirect } from 'next/navigation';
-import { Clock, CalendarCheck, CalendarX, AlertTriangle, ArrowRight, TrendingUp, Briefcase, LogIn, LogOut, CheckCircle2, Plane } from 'lucide-react';
+import { Clock, CalendarCheck, CalendarX, AlertTriangle, ArrowRight, TrendingUp, Briefcase, LogIn, LogOut, CheckCircle2, Plane, Sparkles, User, MapPin } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { getSession } from '@/lib/auth';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { motion } from 'framer-motion';
 
 export default async function EmployeeAppDashboard() {
   const session = await getSession();
@@ -20,8 +21,8 @@ export default async function EmployeeAppDashboard() {
     { data: records },
     { data: balances }
   ] = await Promise.all([
-    supabaseAdmin.from('employees').select('name').eq('id', session.id).single(),
-    supabaseAdmin.from('attendance').select('*').eq('employee_id', session.id).order('date', { ascending: false }).limit(20),
+    supabaseAdmin.from('employees').select('name, employee_id, role, department').eq('id', session.id).single(),
+    supabaseAdmin.from('attendance').select('*').eq('employee_id', session.id).order('date', { ascending: false }).limit(10),
     supabaseAdmin.from('leave_balances').select('*').eq('employee_id', session.id)
   ]);
 
@@ -57,155 +58,165 @@ export default async function EmployeeAppDashboard() {
   const totalRemainingLeaves = (balances || []).reduce((acc, curr) => acc + curr.remaining_days, 0);
 
   const stats = [
-    { label: 'Attendance', value: String(present), icon: CalendarCheck, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { label: 'Remaining Leaves', value: String(totalRemainingLeaves), icon: Plane, color: 'text-blue-500', bg: 'bg-blue-50' },
-    { label: 'Late', value: String(late), icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-50' },
-    { label: 'Absent', value: String(absent), icon: CalendarX, color: 'text-red-500', bg: 'bg-red-50' },
+    { label: 'Attendance', value: String(present), icon: CalendarCheck, color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+    { label: 'Leave Credits', value: String(totalRemainingLeaves), icon: Plane, color: 'text-blue-500', bg: 'bg-blue-500/10' },
+    { label: 'Late Entries', value: String(late), icon: AlertTriangle, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    { label: 'Absences', value: String(absent), icon: CalendarX, color: 'text-red-500', bg: 'bg-red-500/10' },
   ];
 
   const statusColors: Record<string, string> = {
-    present: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    late: 'bg-amber-50 text-amber-600 border-amber-200',
-    absent: 'bg-red-50 text-red-600 border-red-200',
-    'pending wfh': 'bg-violet-50 text-violet-600 border-violet-200',
-    'approved wfh': 'bg-emerald-100 text-emerald-700 border-emerald-300',
-    'rejected wfh': 'bg-red-50 text-red-600 border-red-200',
+    present: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+    late: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+    absent: 'bg-red-500/10 text-red-600 border-red-500/20',
+    'pending wfh': 'bg-violet-500/10 text-violet-600 border-violet-500/20',
+    'approved wfh': 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
+    'rejected wfh': 'bg-red-500/10 text-red-600 border-red-500/20',
   };
 
   const firstName = employee?.name?.split(' ')[0] || 'Employee';
 
   return (
-    <div className="space-y-6 pb-20">
-      {/* Premium Hero Section */}
-      <div className="relative overflow-hidden rounded-[2rem] bg-navy-900 shadow-2xl shadow-navy-900/20">
-        <div className="absolute inset-0 bg-gradient-to-br from-primary-600/20 via-transparent to-transparent" />
-        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl" />
+    <div className="space-y-8 pb-24">
+      {/* Premium Hero Section with Glassmorphism */}
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-navy-900 p-8 md:p-12 text-white shadow-2xl shadow-navy-900/30">
+        {/* Mesh Background */}
+        <div className="absolute top-[-20%] right-[-10%] w-[50%] h-[120%] bg-primary-500/20 rounded-full blur-[100px] animate-pulse" />
+        <div className="absolute bottom-[-10%] left-[-5%] w-[40%] h-[80%] bg-emerald-500/10 rounded-full blur-[80px]" />
         
-        <div className="relative p-6 md:p-8">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-10">
+          <div className="space-y-6">
+            <div className="inline-flex items-center gap-3 px-4 py-2 rounded-2xl bg-white/5 backdrop-blur-xl border border-white/10 shadow-inner">
+              <Sparkles className="w-4 h-4 text-primary-400" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-200">System Node: {employee?.employee_id || 'ACTIVE'}</span>
+            </div>
+            
             <div>
-              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 backdrop-blur-md border border-white/10 mb-4">
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                </span>
-                <span className="text-[10px] font-bold text-white uppercase tracking-wider">Live Portal</span>
-              </div>
-              <h1 className="text-3xl md:text-4xl font-heading font-black text-white mb-2 tracking-tight">
-                Hello, {firstName}!
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-black tracking-tighter leading-tight">
+                Welcome Back,<br />
+                <span className="text-primary-400 drop-shadow-sm">{firstName}</span>
               </h1>
-              <p className="text-primary-200/80 text-sm md:text-base max-w-md leading-relaxed">
-                Track your attendance, manage leaves, and review assigned profiles.
+              <p className="text-gray-400 text-sm md:text-base mt-4 max-w-md font-medium leading-relaxed italic">
+                Infrastructure synchronization complete. Your current operational node is active and ready for commands.
               </p>
             </div>
 
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-4">
               <Link href="/employee/attendance">
-                <Button size="lg" className="bg-white text-navy-900 hover:bg-white/90 font-black shadow-xl shadow-white/5 py-4 px-6 rounded-2xl transition-all active:scale-95">
-                  <Clock className="w-5 h-5 mr-2" /> 
-                  {todayRecord ? 'View Status' : 'Clock In'}
+                <Button className="bg-white text-navy-900 hover:bg-white/90 rounded-2xl px-10 py-6 font-black shadow-2xl shadow-white/5 transition-all active:scale-95 group">
+                  <Clock className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" /> 
+                  {todayRecord ? 'Review Session' : 'Initiate Session'}
                 </Button>
               </Link>
               <Link href="/employee/leaves">
-                <Button size="lg" className="bg-primary-500 text-white hover:bg-primary-600 font-black shadow-xl shadow-primary-500/10 py-4 px-6 rounded-2xl transition-all active:scale-95 border-0">
-                  Apply Leave <Plane className="w-5 h-5 ml-2" />
+                <Button className="bg-primary-500/20 backdrop-blur-md text-primary-200 hover:bg-primary-500/30 rounded-2xl px-8 py-6 font-black border border-primary-500/30 transition-all active:scale-95">
+                  Deploy Request <ArrowRight className="w-5 h-5 ml-3" />
                 </Button>
               </Link>
             </div>
           </div>
 
-          {/* Today's Stats Card - Glassmorphism */}
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-white/5 backdrop-blur-md rounded-[1.5rem] p-5 border border-white/10 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-                <CalendarCheck className="w-6 h-6 text-emerald-400" />
-              </div>
-              <div>
-                <p className="text-[10px] text-primary-200 uppercase tracking-widest font-bold">Today's Record</p>
-                <p className="text-lg font-bold text-white">
-                  {todayRecord ? todayRecord.check_in : 'Not Started'}
-                  {todayRecord?.check_out && <span className="text-primary-300/60 font-medium"> → {todayRecord.check_out}</span>}
-                </p>
-              </div>
-              {todayRecord && (
-                <div className="ml-auto">
-                  <span className={cn(
-                    "px-3 py-1 rounded-full text-[10px] font-black tracking-wider uppercase border",
-                    statusColors[todayRecord.status.toLowerCase()] || 'border-emerald-500/50 bg-emerald-500/10 text-emerald-400'
-                  )}>
-                    {todayRecord.status}
-                  </span>
+          {/* Identity Node Card */}
+          <div className="relative group">
+            <div className="absolute -inset-1 bg-gradient-to-r from-primary-500 to-emerald-500 rounded-[2rem] blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200" />
+            <div className="relative bg-navy-900/50 backdrop-blur-2xl rounded-[2rem] p-8 border border-white/10 w-full lg:w-[320px] shadow-2xl">
+              <div className="flex items-start justify-between mb-8">
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary-500 to-primary-600 flex items-center justify-center shadow-xl shadow-primary-500/20">
+                  <User className="w-8 h-8 text-white" />
                 </div>
-              )}
-            </div>
-
-            <div className="bg-white/5 backdrop-blur-md rounded-[1.5rem] p-5 border border-white/10 flex items-center gap-4">
-              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center">
-                <TrendingUp className="w-6 h-6 text-primary-400" />
+                <div className="text-right">
+                  <p className="text-[10px] font-black text-primary-400 uppercase tracking-widest">Employee Node</p>
+                  <p className="text-sm font-bold text-white">{employee?.employee_id}</p>
+                </div>
               </div>
-              <div>
-                <p className="text-[10px] text-primary-200 uppercase tracking-widest font-bold">Monthly Presence</p>
-                <p className="text-lg font-bold text-white">{present} <span className="text-xs font-normal text-primary-300/60">Days</span></p>
+              
+              <div className="space-y-4">
+                <div>
+                  <p className="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1">Assigned Domain</p>
+                  <p className="text-base font-bold text-white">{employee?.department || 'Operations'}</p>
+                </div>
+                <div>
+                  <p className="text-[9px] font-black text-gray-500 uppercase tracking-[0.2em] mb-1">Access Protocol</p>
+                  <p className="text-xs font-bold text-primary-200 uppercase tracking-widest">{employee?.role || 'Staff'}</p>
+                </div>
+              </div>
+
+              <div className="mt-8 pt-6 border-t border-white/5 flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                  <span className="text-[10px] font-black text-emerald-500 uppercase tracking-widest">Synchronized</span>
+                </div>
+                <MapPin className="w-4 h-4 text-gray-600" />
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Stats Summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {stats.map((stat) => (
-          <div key={stat.label} className="group bg-white rounded-3xl p-5 border border-border/40 shadow-sm hover:shadow-md transition-all hover:-translate-y-1">
-            <div className={`w-10 h-10 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-              <stat.icon className="w-5 h-5" />
+      {/* Modern Stats Grid */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, idx) => (
+          <div key={stat.label} className="group bg-white rounded-[2rem] p-6 border border-border/60 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
+            <div className={`w-12 h-12 rounded-2xl ${stat.bg} ${stat.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+              <stat.icon className="w-6 h-6" />
             </div>
-            <p className="text-3xl font-black text-navy-900 tracking-tight leading-none mb-1">{stat.value}</p>
-            <p className="text-xs text-text-muted font-bold uppercase tracking-wider">{stat.label}</p>
+            <p className="text-4xl font-black text-navy-900 tracking-tight leading-none mb-1 group-hover:text-primary-600 transition-colors">{stat.value}</p>
+            <p className="text-[10px] text-text-muted font-black uppercase tracking-[0.2em]">{stat.label}</p>
           </div>
         ))}
       </div>
 
-      {/* Content Grid */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-4">
-          <div className="flex items-center justify-between px-2">
-            <h2 className="font-heading font-black text-navy-900 text-xl tracking-tight">Recent Activity</h2>
-            <Link href="/employee/attendance" className="text-xs font-bold text-primary-500 hover:underline">View History</Link>
+      {/* Dashboard Matrix */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Activity Logs */}
+        <div className="lg:col-span-2 space-y-6">
+          <div className="flex items-center justify-between px-4">
+            <div className="flex items-center gap-3">
+              <div className="w-1.5 h-6 bg-primary-500 rounded-full" />
+              <h2 className="font-heading font-black text-navy-900 text-2xl tracking-tight">System Logs</h2>
+            </div>
+            <Link href="/employee/attendance" className="text-[10px] font-black text-primary-600 hover:text-primary-700 uppercase tracking-widest bg-primary-50 px-4 py-2 rounded-xl transition-all">Full Archives</Link>
           </div>
           
-          <div className="bg-white rounded-[2rem] border border-border/40 shadow-sm overflow-hidden">
-            <div className="divide-y divide-border/30">
+          <div className="bg-white rounded-[2.5rem] border border-border/60 shadow-sm overflow-hidden">
+            <div className="divide-y divide-border/40">
               {empRecords.length === 0 ? (
-                <div className="p-10 text-center text-text-muted italic">No recent activity found.</div>
+                <div className="p-16 text-center">
+                  <div className="w-16 h-16 rounded-full bg-surface-alt flex items-center justify-center mx-auto mb-4">
+                    <Clock className="w-8 h-8 text-text-muted" />
+                  </div>
+                  <p className="text-sm font-black text-navy-900 uppercase tracking-tight">No Logs Detected</p>
+                  <p className="text-xs text-text-muted mt-1">Initiate your first session to start logging.</p>
+                </div>
               ) : (
-                empRecords.slice(0, 5).map((record) => (
-                  <div key={record.id} className="p-5 flex items-center gap-5 hover:bg-surface-alt/20 transition-colors">
-                    <div className="flex flex-col items-center justify-center w-14 h-14 rounded-2xl bg-surface-alt border border-border/30 shrink-0">
-                      <span className="text-lg font-black text-navy-900 leading-none">
+                empRecords.map((record) => (
+                  <div key={record.id} className="p-6 flex items-center gap-6 hover:bg-surface-alt/30 transition-all group">
+                    <div className="flex flex-col items-center justify-center w-16 h-16 rounded-2xl bg-white border border-border/60 shadow-sm shrink-0 group-hover:bg-navy-900 group-hover:text-white transition-all duration-500">
+                      <span className="text-xl font-black leading-none">
                         {new Date(record.date).getDate()}
                       </span>
-                      <span className="text-[9px] text-text-muted uppercase font-black tracking-tighter mt-1">
+                      <span className="text-[9px] uppercase font-black tracking-widest mt-1 opacity-60">
                         {new Date(record.date).toLocaleDateString('en-IN', { month: 'short' })}
                       </span>
                     </div>
+                    
                     <div className="flex-1 min-w-0">
-                      <p className="text-base font-bold text-navy-900 mb-0.5">
+                      <p className="text-lg font-black text-navy-900 mb-1 tracking-tight">
                         {new Date(record.date).toLocaleDateString('en-IN', { weekday: 'long' })}
                       </p>
-                      <div className="flex items-center gap-2 text-xs text-text-secondary">
-                        <span className="flex items-center gap-1 font-medium">
-                          <LogIn className="w-3 h-3" /> {record.check_in}
-                        </span>
-                        <span className="text-border">•</span>
-                        <span className="flex items-center gap-1 font-medium">
-                          <LogOut className="w-3 h-3" /> {record.check_out || 'Active'}
-                        </span>
+                      <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-alt border border-border/40 text-[10px] font-bold text-text-secondary">
+                          <LogIn className="w-3 h-3 text-emerald-500" /> {record.check_in}
+                        </div>
+                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-surface-alt border border-border/40 text-[10px] font-bold text-text-secondary">
+                          <LogOut className="w-3 h-3 text-primary-500" /> {record.check_out || 'Active Session'}
+                        </div>
                       </div>
                     </div>
+                    
                     <div className="text-right shrink-0">
-                      <p className="text-sm font-black text-navy-900">{record.duration_hours > 0 ? `${record.duration_hours}h` : '—'}</p>
+                      <div className="text-sm font-black text-navy-900 mb-2">{record.duration_hours > 0 ? `${record.duration_hours}h` : 'Running'}</div>
                       <span className={cn(
-                        "inline-block px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-wider border",
+                        "inline-flex px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border",
                         statusColors[record.status?.toLowerCase()] || statusColors.present
                       )}>
                         {record.status}
@@ -218,34 +229,42 @@ export default async function EmployeeAppDashboard() {
           </div>
         </div>
 
-        {/* Action Sidebar */}
-        <div className="space-y-6">
-          <div className="relative overflow-hidden bg-primary-600 rounded-[2rem] p-6 text-white shadow-xl shadow-primary-500/20">
-            <div className="absolute top-0 right-0 p-4 opacity-10">
-              <Briefcase className="w-20 h-20" />
+        {/* Action Matrix */}
+        <div className="space-y-8">
+          {/* Assignments */}
+          <div className="relative group overflow-hidden bg-navy-900 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-navy-900/20">
+            <div className="absolute top-[-20%] right-[-10%] w-32 h-32 bg-primary-500/10 rounded-full blur-2xl" />
+            <div className="relative z-10">
+              <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center mb-6">
+                <Briefcase className="w-6 h-6 text-primary-400" />
+              </div>
+              <h3 className="text-2xl font-heading font-black mb-3 tracking-tight">Assignment<br />Protocol</h3>
+              <p className="text-gray-400 text-xs mb-8 leading-relaxed font-medium">
+                Review and update telemetry for client nodes assigned to your operative profile.
+              </p>
+              <Link href="/employee/assigned-profiles">
+                <Button className="w-full bg-primary-500 text-white hover:bg-primary-600 font-black rounded-2xl py-5 border-0 shadow-lg shadow-primary-500/20 active:scale-95 transition-all">
+                  Open Assignments <ArrowRight className="w-5 h-5 ml-auto" />
+                </Button>
+              </Link>
             </div>
-            <h3 className="text-xl font-heading font-black mb-2">My Assignments</h3>
-            <p className="text-primary-100 text-sm mb-6 leading-relaxed">
-              Review and update status for client profiles assigned to you.
-            </p>
-            <Link href="/employee/assigned-profiles">
-              <Button className="w-full bg-white text-primary-600 hover:bg-primary-50 font-black rounded-2xl py-4 border-0">
-                Manage Profiles <ArrowRight className="w-5 h-5 ml-auto" />
-              </Button>
-            </Link>
           </div>
 
-          <Card className="rounded-[2rem] border-0 bg-emerald-50 p-6">
-            <div className="flex items-center gap-3 mb-3">
-              <div className="w-8 h-8 rounded-xl bg-emerald-500 text-white flex items-center justify-center">
-                <CheckCircle2 className="w-5 h-5" />
-              </div>
-              <p className="text-sm font-black text-emerald-900">Attendance Policy</p>
+          {/* Information Card */}
+          <div className="bg-emerald-500/5 rounded-[2.5rem] p-8 border border-emerald-500/10 relative overflow-hidden">
+            <div className="absolute top-0 right-0 p-4 opacity-10">
+              <CheckCircle2 className="w-16 h-16 text-emerald-500" />
             </div>
-            <p className="text-xs text-emerald-800 leading-relaxed font-medium">
-              WFH requests require location verification and admin approval to be marked as present.
+            <div className="flex items-center gap-3 mb-4">
+              <div className="w-10 h-10 rounded-2xl bg-emerald-500 text-white flex items-center justify-center shadow-lg shadow-emerald-500/20">
+                <Navigation className="w-5 h-5" />
+              </div>
+              <p className="text-sm font-black text-emerald-900 uppercase tracking-widest">Operational Policy</p>
+            </div>
+            <p className="text-xs text-emerald-800/70 leading-relaxed font-medium italic">
+              "Deployment to Remote (WFH) nodes requires geospatial verification and Administrative authorization to maintain synchronized attendance metrics."
             </p>
-          </Card>
+          </div>
         </div>
       </div>
     </div>

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MapPin, CheckCircle2, LogIn, LogOut, Loader2, Home, AlertCircle, X } from 'lucide-react';
+import { MapPin, CheckCircle2, LogIn, LogOut, Loader2, Home, AlertCircle, X, Sparkles, Navigation, History, Calendar as CalendarIcon, Clock } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/lib/utils';
 import Card from '@/components/ui/Card';
@@ -9,13 +9,13 @@ import Button from '@/components/ui/Button';
 import { checkIn, checkOut, resumeSession, requestWFH } from './actions';
 
 const statusColors: Record<string, string> = {
-  present: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-  late: 'bg-amber-50 text-amber-600 border-amber-200',
-  absent: 'bg-red-50 text-red-600 border-red-200',
-  'half-day': 'bg-blue-50 text-blue-600 border-blue-200',
-  'pending wfh': 'bg-amber-50 text-amber-600 border-amber-200',
-  'approved wfh': 'bg-indigo-50 text-indigo-600 border-indigo-200',
-  'rejected wfh': 'bg-red-50 text-red-600 border-red-200',
+  present: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+  late: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+  absent: 'bg-red-500/10 text-red-600 border-red-500/20',
+  'half-day': 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+  'pending wfh': 'bg-violet-500/10 text-violet-600 border-violet-500/20',
+  'approved wfh': 'bg-emerald-500/10 text-emerald-700 border-emerald-500/20',
+  'rejected wfh': 'bg-red-500/10 text-red-600 border-red-500/20',
 };
 
 export interface AttendanceRecord {
@@ -159,121 +159,277 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
 
   const calendarColors: Record<string, string> = {
     present: 'bg-emerald-500 text-white',
-    late: 'bg-amber-400 text-white',
-    absent: 'bg-red-400 text-white',
-    'half-day': 'bg-blue-400 text-white',
-    'pending wfh': 'bg-amber-300 text-white',
-    'approved wfh': 'bg-indigo-500 text-white',
-    'rejected wfh': 'bg-red-300 text-white',
+    late: 'bg-amber-500 text-white',
+    absent: 'bg-red-500 text-white',
+    'half-day': 'bg-blue-500 text-white',
+    'pending wfh': 'bg-violet-400 text-white',
+    'approved wfh': 'bg-primary-500 text-white',
+    'rejected wfh': 'bg-red-400 text-white',
   };
 
   return (
-    <div className="space-y-6 pb-20">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card hover={false} className="p-6 md:p-8 text-center space-y-6">
+    <div className="space-y-8 pb-24">
+      {/* Premium Header */}
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-navy-900 p-8 text-white shadow-xl shadow-navy-900/10">
+        <div className="absolute top-[-20%] right-[-10%] w-[40%] h-[100%] bg-primary-500/10 rounded-full blur-[80px]" />
+        <div className="relative z-10 flex items-center justify-between">
           <div>
-            <p className="text-5xl font-bold text-navy-900 font-mono tracking-wide">
-              {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit' })}
-            </p>
-            <p className="text-sm text-text-muted mt-1">
-              {currentTime.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-5 h-5 text-primary-400" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-200">Temporal Node</span>
+            </div>
+            <h1 className="text-3xl font-heading font-black tracking-tight">Time & Attendance</h1>
+            <p className="text-gray-400 text-xs mt-1 font-medium italic">Synchronize your operational hours with the global HQ.</p>
+          </div>
+          <div className="hidden md:block text-right">
+            <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Local Matrix Time</p>
+            <p className="text-2xl font-black text-white font-mono">
+              {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true })}
             </p>
           </div>
+        </div>
+      </div>
 
-          {checkedIn && !isCheckedOut && (
-            <div className="bg-emerald-50 rounded-xl p-4">
-              <p className="text-xs text-emerald-600 uppercase font-semibold tracking-wider mb-1">Working Since</p>
-              <p className="text-2xl font-bold text-emerald-700 font-mono">
-                {String(elapsedHrs).padStart(2, '0')}:{String(elapsedMin).padStart(2, '0')}:{String(elapsedSec).padStart(2, '0')}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        {/* Main Clock-in Control */}
+        <Card hover={false} className="p-10 rounded-[2.5rem] border-border/60 shadow-sm bg-white overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-10 opacity-[0.03] pointer-events-none">
+            <Clock className="w-48 h-48 text-navy-900" />
+          </div>
+
+          <div className="flex flex-col items-center justify-center space-y-10 py-4">
+            <div className="text-center">
+              <p className="text-6xl md:text-7xl font-black text-navy-900 font-mono tracking-tighter drop-shadow-sm">
+                {currentTime.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false })}
               </p>
-            </div>
-          )}
-
-          {!checkedIn ? (
-            <Button size="lg" className="w-full py-6" onClick={handleCheckIn} disabled={gpsStatus === 'loading'}>
-              {gpsStatus === 'loading' ? <><Loader2 className="w-6 h-6 animate-spin" /> Location...</> : <><LogIn className="w-6 h-6" /> Check In</>}
-            </Button>
-          ) : !isCheckedOut ? (
-            <Button size="lg" variant="outline" className="w-full py-6 border-red-300 text-red-600" onClick={handleCheckOut} disabled={gpsStatus === 'loading'}>
-              {gpsStatus === 'loading' ? <><Loader2 className="w-6 h-6 animate-spin" /> Processing...</> : <><LogOut className="w-6 h-6" /> Check Out</>}
-            </Button>
-          ) : (
-            <div className="space-y-3">
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                <p className="text-sm text-gray-600 font-medium">Shift Completed</p>
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-alt border border-border/40 text-[10px] font-black text-text-muted uppercase tracking-[0.2em] mt-6">
+                <CalendarIcon className="w-3 h-3" />
+                {currentTime.toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long' })}
               </div>
-              <button onClick={handleResume} className="text-xs text-primary-500 font-bold underline">Resume Session</button>
             </div>
-          )}
+
+            {checkedIn && !isCheckedOut && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full max-w-xs p-6 rounded-3xl bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-2xl shadow-emerald-500/20 text-center relative overflow-hidden"
+              >
+                <div className="absolute -top-10 -right-10 w-24 h-24 bg-white/10 rounded-full blur-2xl" />
+                <p className="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-2">Session Active For</p>
+                <p className="text-4xl font-black font-mono tracking-tight">
+                  {String(elapsedHrs).padStart(2, '0')}:{String(elapsedMin).padStart(2, '0')}:{String(elapsedSec).padStart(2, '0')}
+                </p>
+              </motion.div>
+            )}
+
+            <div className="w-full max-w-sm">
+              {!checkedIn ? (
+                <Button 
+                  size="lg" 
+                  className="w-full py-8 rounded-[2rem] bg-navy-900 hover:bg-navy-800 text-white font-black shadow-2xl shadow-navy-900/10 active:scale-95 transition-all text-lg group"
+                  onClick={handleCheckIn} 
+                  disabled={gpsStatus === 'loading'}
+                >
+                  {gpsStatus === 'loading' ? (
+                    <><Loader2 className="w-6 h-6 animate-spin mr-3" /> Locating Node...</>
+                  ) : (
+                    <><LogIn className="w-6 h-6 mr-3 group-hover:-translate-x-1 transition-transform" /> Initiate Session</>
+                  )}
+                </Button>
+              ) : !isCheckedOut ? (
+                <Button 
+                  size="lg" 
+                  className="w-full py-8 rounded-[2rem] bg-white border-2 border-red-500 text-red-500 hover:bg-red-50 font-black active:scale-95 transition-all text-lg group"
+                  onClick={handleCheckOut} 
+                  disabled={gpsStatus === 'loading'}
+                >
+                  {gpsStatus === 'loading' ? (
+                    <><Loader2 className="w-6 h-6 animate-spin mr-3" /> Syncing...</>
+                  ) : (
+                    <><LogOut className="w-6 h-6 mr-3 group-hover:translate-x-1 transition-transform" /> Terminate Session</>
+                  )}
+                </Button>
+              ) : (
+                <div className="space-y-4 text-center">
+                  <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-3xl p-6">
+                    <CheckCircle2 className="w-10 h-10 text-emerald-500 mx-auto mb-3" />
+                    <p className="text-sm font-black text-navy-900 uppercase tracking-tight">Deployment Complete</p>
+                    <p className="text-[10px] text-text-muted mt-1 font-bold">Your hours have been committed to the mainframe.</p>
+                  </div>
+                  <button 
+                    onClick={handleResume} 
+                    className="text-[10px] font-black text-primary-600 hover:text-primary-700 uppercase tracking-widest"
+                  >
+                    Resynchronize Session
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
         </Card>
 
-        {/* Calendar Card (Keep simple) */}
-        <Card hover={false} className="p-6 md:p-8">
-          <h2 className="font-heading font-bold text-navy-900 mb-4">{currentTime.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}</h2>
-          <div className="grid grid-cols-7 gap-1 text-center">
-            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => <div key={d} className="text-[10px] font-bold text-text-muted py-2">{d}</div>)}
-            {calendarDays.map((day, i) => (
-              <div key={i} className={`w-8 h-8 mx-auto rounded-lg flex items-center justify-center text-xs font-medium ${day && getStatusForDay(day) && calendarColors[getStatusForDay(day)!] ? calendarColors[getStatusForDay(day)!] : day ? 'text-navy-900' : ''}`}>
-                {day}
-              </div>
+        {/* Temporal Matrix (Calendar) */}
+        <Card hover={false} className="p-10 rounded-[2.5rem] border-border/60 shadow-sm bg-navy-900 text-white overflow-hidden relative">
+          <div className="absolute top-0 right-0 p-10 opacity-[0.05] pointer-events-none">
+            <CalendarIcon className="w-48 h-48 text-white" />
+          </div>
+          
+          <div className="flex items-center justify-between mb-8">
+            <h2 className="font-heading font-black text-xl tracking-tight">Temporal Matrix</h2>
+            <div className="px-4 py-1.5 rounded-xl bg-white/10 text-[10px] font-black uppercase tracking-widest text-primary-300">
+              {currentTime.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-7 gap-2 text-center">
+            {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map(d => (
+              <div key={d} className="text-[10px] font-black text-gray-500 py-2 uppercase tracking-widest">{d}</div>
             ))}
+            {calendarDays.map((day, i) => {
+              const status = day ? getStatusForDay(day) : null;
+              return (
+                <div key={i} className="aspect-square flex items-center justify-center relative group">
+                  {day && (
+                    <motion.div 
+                      whileHover={{ scale: 1.1 }}
+                      className={cn(
+                        "w-10 h-10 rounded-2xl flex items-center justify-center text-xs font-black transition-all cursor-default relative z-10",
+                        status && calendarColors[status] ? calendarColors[status] : "bg-white/5 text-gray-400 hover:bg-white/10"
+                      )}
+                    >
+                      {day}
+                      {day === new Date().getDate() && !status && (
+                        <div className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-primary-500 rounded-full border-2 border-navy-900" />
+                      )}
+                    </motion.div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+
+          <div className="mt-10 pt-8 border-t border-white/10 grid grid-cols-4 gap-4">
+            <div className="text-center">
+              <p className="text-[8px] font-black text-gray-500 uppercase tracking-tighter mb-1">Present</p>
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 mx-auto" />
+            </div>
+            <div className="text-center">
+              <p className="text-[8px] font-black text-gray-500 uppercase tracking-tighter mb-1">WFH</p>
+              <div className="w-1.5 h-1.5 rounded-full bg-primary-500 mx-auto" />
+            </div>
+            <div className="text-center">
+              <p className="text-[8px] font-black text-gray-500 uppercase tracking-tighter mb-1">Late</p>
+              <div className="w-1.5 h-1.5 rounded-full bg-amber-500 mx-auto" />
+            </div>
+            <div className="text-center">
+              <p className="text-[8px] font-black text-gray-500 uppercase tracking-tighter mb-1">Absent</p>
+              <div className="w-1.5 h-1.5 rounded-full bg-red-500 mx-auto" />
+            </div>
           </div>
         </Card>
       </div>
 
-      {/* History Table */}
-      <Card hover={false} className="p-0 overflow-hidden">
-        <div className="px-6 py-4 border-b border-border"><h2 className="font-heading font-bold text-navy-900">Attendance History</h2></div>
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm text-left">
-            <thead>
-              <tr className="bg-surface-alt/50 border-b border-border text-text-muted">
-                <th className="px-6 py-3">Date</th>
-                <th className="px-6 py-3">Status</th>
-                <th className="px-6 py-3">Duration</th>
-              </tr>
-            </thead>
-            <tbody>
-              {initialRecords.map(r => (
-                <tr key={r.id} className="border-b border-border">
-                  <td className="px-6 py-4 font-medium">{r.date}</td>
-                  <td className="px-6 py-4">
-                    <span className={`px-2 py-0.5 rounded-full text-[10px] border font-bold uppercase ${statusColors[r.status.toLowerCase()] || 'bg-gray-100'}`}>
-                      {r.status}
-                    </span>
-                  </td>
-                  <td className="px-6 py-4">{r.duration_hours}h</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+      {/* History Sequence */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 px-4">
+          <div className="w-1.5 h-6 bg-primary-500 rounded-full" />
+          <h2 className="font-heading font-black text-navy-900 text-2xl tracking-tight">Sync History</h2>
         </div>
-      </Card>
 
-      {/* WFH Modal */}
+        <Card hover={false} className="p-0 overflow-hidden rounded-[2.5rem] border-border/60 shadow-sm bg-white">
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm text-left border-collapse">
+              <thead>
+                <tr className="bg-surface-alt/50 text-[10px] font-black text-text-muted uppercase tracking-[0.2em]">
+                  <th className="px-8 py-5">Temporal Stamp</th>
+                  <th className="px-8 py-5">Node Status</th>
+                  <th className="px-8 py-5">Metric (Hours)</th>
+                  <th className="px-8 py-5 text-right">Telemetry</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border/40">
+                {initialRecords.map(r => (
+                  <tr key={r.id} className="hover:bg-surface-alt/20 transition-all group">
+                    <td className="px-8 py-6">
+                      <p className="font-black text-navy-900 tracking-tight">{new Date(r.date).toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'short' })}</p>
+                      <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-0.5">{r.check_in || '--:--'} → {r.check_out || 'Active'}</p>
+                    </td>
+                    <td className="px-8 py-6">
+                      <span className={cn(
+                        "px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border",
+                        statusColors[r.status.toLowerCase()] || 'bg-gray-100'
+                      )}>
+                        {r.status}
+                      </span>
+                    </td>
+                    <td className="px-8 py-6">
+                      <div className="flex items-center gap-2">
+                        <div className="w-12 h-2 bg-surface-alt rounded-full overflow-hidden">
+                          <div 
+                            className="h-full bg-primary-500 rounded-full" 
+                            style={{ width: `${Math.min((r.duration_hours / 9) * 100, 100)}%` }} 
+                          />
+                        </div>
+                        <span className="text-xs font-black text-navy-900">{r.duration_hours}h</span>
+                      </div>
+                    </td>
+                    <td className="px-8 py-6 text-right">
+                      <History className="w-4 h-4 text-gray-300 ml-auto group-hover:text-primary-500 transition-colors" />
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </Card>
+      </div>
+
+      {/* WFH Request Interface */}
       <AnimatePresence>
         {wfhRequest && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-navy-900/40 backdrop-blur-sm">
-            <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, scale: 0.9 }} className="w-full max-w-sm">
-              <Card hover={false} className="p-6 border-2 border-primary-100 shadow-2xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 p-2"><button onClick={() => setWfhRequest(null)}><X className="w-5 h-5 text-text-muted" /></button></div>
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="w-16 h-16 rounded-full bg-primary-50 flex items-center justify-center text-primary-500 mb-2">
-                    <Home className="w-8 h-8" />
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-navy-900/60 backdrop-blur-md">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.9, y: 20 }} 
+              className="w-full max-w-md"
+            >
+              <Card hover={false} className="p-10 rounded-[3rem] border-0 shadow-2xl bg-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8">
+                  <button 
+                    onClick={() => setWfhRequest(null)}
+                    className="w-10 h-10 rounded-2xl bg-surface-alt flex items-center justify-center text-navy-900 hover:bg-navy-900 hover:text-white transition-all"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+                
+                <div className="flex flex-col items-center text-center space-y-6">
+                  <div className="w-20 h-20 rounded-3xl bg-primary-500 text-white flex items-center justify-center shadow-2xl shadow-primary-500/20 mb-2">
+                    <Home className="w-10 h-10" />
                   </div>
+                  
                   <div>
-                    <h3 className="text-xl font-heading font-bold text-navy-900">Request WFH?</h3>
-                    <p className="text-sm text-text-secondary mt-2">
-                      You are <strong>{wfhRequest.distance}m</strong> away from <strong>{wfhRequest.officeName}</strong>.
-                      Would you like to request Work From Home for today?
-                    </p>
+                    <h3 className="text-2xl font-heading font-black text-navy-900 tracking-tight leading-tight">Remote Node<br />Deployment?</h3>
+                    <div className="mt-6 p-4 rounded-2xl bg-surface-alt border border-border/40 text-xs text-text-muted font-medium leading-relaxed">
+                      You are currently <span className="font-black text-navy-900 text-sm">{(wfhRequest.distance || 0).toLocaleString()}m</span> from <span className="font-black text-navy-900">{wfhRequest.officeName}</span>.
+                      <p className="mt-2 italic">Standard HQ synchronization is unavailable. Deploy to WFH protocol instead?</p>
+                    </div>
                   </div>
-                  <div className="flex flex-col w-full gap-3 pt-4">
-                    <Button onClick={handleWFHRequest} disabled={gpsStatus === 'loading'} className="w-full shadow-lg shadow-primary-500/20">
-                      Yes, Request WFH
+                  
+                  <div className="flex flex-col w-full gap-4 pt-6">
+                    <Button 
+                      onClick={handleWFHRequest} 
+                      disabled={gpsStatus === 'loading'} 
+                      className="w-full py-6 rounded-2xl bg-primary-500 hover:bg-primary-600 text-white font-black shadow-xl shadow-primary-500/20 transition-all text-sm"
+                    >
+                      Initialize WFH Request
                     </Button>
-                    <button onClick={() => setWfhRequest(null)} className="text-sm font-bold text-text-muted py-2">
-                      Cancel
+                    <button 
+                      onClick={() => setWfhRequest(null)} 
+                      className="text-[10px] font-black text-text-muted uppercase tracking-[0.2em] hover:text-navy-900 transition-colors"
+                    >
+                      Abort Deployment
                     </button>
                   </div>
                 </div>

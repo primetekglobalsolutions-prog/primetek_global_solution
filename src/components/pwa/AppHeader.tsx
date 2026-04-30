@@ -12,14 +12,18 @@ export default function AppHeader({ userName }: AppHeaderProps) {
   const pathname = usePathname();
   
   const getTitle = () => {
-    if (pathname.includes('/dashboard')) return 'Dashboard';
+    if (pathname.includes('/dashboard')) return 'Overview';
     if (pathname.includes('/attendance')) return 'Attendance';
     if (pathname.includes('/profile')) return 'My Profile';
     if (pathname.includes('/inquiries')) return 'Inquiries';
     if (pathname.includes('/jobs')) return 'Job Listings';
     if (pathname.includes('/employees')) return 'Staff';
     if (pathname.includes('/settings')) return 'Settings';
-    if (pathname.includes('/admin')) return 'Admin';
+    if (pathname.includes('/assigned-profiles')) return 'Assignments';
+    if (pathname.includes('/leaves')) return 'Leave Requests';
+    if (pathname.includes('/approvals')) return 'Approval Queue';
+    if (pathname.includes('/audit')) return 'Security Audit';
+    if (pathname.includes('/admin')) return 'Admin Portal';
     return 'Portal';
   };
 

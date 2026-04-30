@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Calendar, Plus, X, Clock, CheckCircle2, XCircle, AlertCircle, Loader2 } from 'lucide-react';
+import { Calendar, Plus, X, Clock, CheckCircle2, XCircle, AlertCircle, Loader2, Sparkles, Plane, TrendingUp, History } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -30,9 +30,9 @@ export default function LeavesPage() {
   }, []);
 
   const statusColors: Record<string, string> = {
-    pending: 'bg-amber-50 text-amber-600 border-amber-200',
-    approved: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-    rejected: 'bg-red-50 text-red-600 border-red-200',
+    pending: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+    approved: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+    rejected: 'bg-red-500/10 text-red-600 border-red-500/20',
   };
 
   const statusIcons: Record<string, any> = {
@@ -47,115 +47,150 @@ export default function LeavesPage() {
   };
 
   return (
-    <div className="space-y-6 pb-20">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-heading font-bold text-navy-900">Leave Management</h1>
-          <p className="text-sm text-text-secondary mt-1">Track your time off and balances.</p>
+    <div className="space-y-8 pb-24">
+      {/* Premium Header */}
+      <div className="relative overflow-hidden rounded-[2.5rem] bg-navy-900 p-8 text-white shadow-xl shadow-navy-900/10">
+        <div className="absolute top-[-20%] right-[-10%] w-[40%] h-[100%] bg-primary-500/10 rounded-full blur-[80px]" />
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <Sparkles className="w-5 h-5 text-primary-400" />
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-200">Personnel Status</span>
+            </div>
+            <h1 className="text-3xl font-heading font-black tracking-tight">Leave Management</h1>
+            <p className="text-gray-400 text-xs mt-1 font-medium italic">Track your operational downtime and allocation credits.</p>
+          </div>
+          <Button 
+            onClick={() => setIsApplying(true)} 
+            className="bg-white text-navy-900 hover:bg-white/90 rounded-2xl px-8 py-6 font-black shadow-2xl shadow-white/5 transition-all active:scale-95 group shrink-0"
+          >
+            <Plus className="w-5 h-5 mr-3 group-hover:rotate-90 transition-transform" /> 
+            Deploy Request
+          </Button>
         </div>
-        <Button onClick={() => setIsApplying(true)} size="sm" className="shadow-lg shadow-primary-500/10">
-          <Plus className="w-4 h-4" /> Apply Leave
-        </Button>
       </div>
 
-      {/* Summary Cards (Real Balances) */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <Card hover={false} className="p-4 text-center border-l-4 border-blue-400">
-          <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Sick</p>
-          <p className="text-2xl font-bold text-navy-900 mt-1">{loading ? '...' : getBalance('Sick')}</p>
-        </Card>
-        <Card hover={false} className="p-4 text-center border-l-4 border-emerald-400">
-          <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Casual</p>
-          <p className="text-2xl font-bold text-navy-900 mt-1">{loading ? '...' : getBalance('Casual')}</p>
-        </Card>
-        <Card hover={false} className="p-4 text-center border-l-4 border-indigo-400">
-          <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Earned</p>
-          <p className="text-2xl font-bold text-navy-900 mt-1">{loading ? '...' : getBalance('Earned')}</p>
-        </Card>
-        <Card hover={false} className="p-4 text-center border-l-4 border-amber-400">
-          <p className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Pending</p>
-          <p className="text-2xl font-bold text-amber-500 mt-1">
-            {loading ? '...' : leaves.filter(l => l.status === 'Pending').length}
-          </p>
-        </Card>
+      {/* Summary Matrix */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+        {[
+          { label: 'Sick Credits', type: 'Sick', color: 'text-blue-500', bg: 'bg-blue-500/10' },
+          { label: 'Casual Credits', type: 'Casual', color: 'text-emerald-500', bg: 'bg-emerald-500/10' },
+          { label: 'Earned Credits', type: 'Earned', color: 'text-primary-500', bg: 'bg-primary-500/10' },
+          { label: 'Pending Auth', type: 'Pending', color: 'text-amber-500', bg: 'bg-amber-500/10' },
+        ].map((stat) => (
+          <div key={stat.label} className="group bg-white rounded-[2rem] p-6 border border-border/60 shadow-sm hover:shadow-xl transition-all duration-500 hover:-translate-y-2">
+            <div className={`w-10 h-10 rounded-xl ${stat.bg} ${stat.color} flex items-center justify-center mb-6 group-hover:scale-110 transition-transform`}>
+              <Plane className="w-5 h-5" />
+            </div>
+            <p className="text-4xl font-black text-navy-900 tracking-tight leading-none mb-1 group-hover:text-primary-600 transition-colors">
+              {loading ? '...' : stat.type === 'Pending' ? leaves.filter(l => l.status === 'Pending').length : getBalance(stat.type)}
+            </p>
+            <p className="text-[10px] text-text-muted font-black uppercase tracking-[0.2em]">{stat.label}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Leave List */}
-      <Card hover={false} className="p-0 overflow-hidden">
-        <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-surface-alt/30">
-          <h2 className="font-heading font-bold text-navy-900">Request History</h2>
+      {/* History Sequence */}
+      <div className="space-y-6">
+        <div className="flex items-center gap-3 px-4">
+          <div className="w-1.5 h-6 bg-primary-500 rounded-full" />
+          <h2 className="font-heading font-black text-navy-900 text-2xl tracking-tight">Request Log</h2>
         </div>
-        <div className="divide-y divide-border">
-          {loading ? (
-            <div className="p-12 text-center text-text-muted">
-              <Loader2 className="w-8 h-8 animate-spin mx-auto mb-2 opacity-20" />
-              <p className="text-sm">Loading requests...</p>
-            </div>
-          ) : leaves.length === 0 ? (
-            <div className="p-12 text-center">
-              <Calendar className="w-12 h-12 text-text-muted/30 mx-auto mb-3" />
-              <p className="text-sm text-text-muted">No leave requests found.</p>
-            </div>
-          ) : (
-            leaves.map((leave) => {
-              const Icon = statusIcons[leave.status.toLowerCase()] || AlertCircle;
-              return (
-                <div key={leave.id} className="p-5 hover:bg-surface-alt/20 transition-colors">
-                  <div className="flex items-start justify-between">
-                    <div className="flex gap-4">
+
+        <Card hover={false} className="p-0 overflow-hidden rounded-[2.5rem] border-border/60 shadow-sm bg-white">
+          <div className="divide-y divide-border/40">
+            {loading ? (
+              <div className="p-20 text-center text-text-muted">
+                <Loader2 className="w-12 h-12 animate-spin mx-auto mb-4 opacity-10" />
+                <p className="text-[10px] font-black uppercase tracking-widest">Scanning Registry...</p>
+              </div>
+            ) : leaves.length === 0 ? (
+              <div className="p-20 text-center">
+                <div className="w-20 h-20 rounded-full bg-surface-alt flex items-center justify-center mx-auto mb-6">
+                  <Calendar className="w-10 h-10 text-text-muted/30" />
+                </div>
+                <p className="text-sm font-black text-navy-900 uppercase tracking-tight">No Requests Found</p>
+                <p className="text-xs text-text-muted mt-1 italic">Your personnel record is currently clear of time-off requests.</p>
+              </div>
+            ) : (
+              leaves.map((leave) => {
+                const Icon = statusIcons[leave.status.toLowerCase()] || AlertCircle;
+                return (
+                  <div key={leave.id} className="p-8 hover:bg-surface-alt/30 transition-all group flex flex-col md:flex-row md:items-center justify-between gap-6">
+                    <div className="flex items-start gap-6">
                       <div className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center shrink-0 border",
+                        "w-14 h-14 rounded-2xl flex items-center justify-center shrink-0 border transition-all group-hover:scale-110",
                         statusColors[leave.status.toLowerCase()]
                       )}>
-                        <Icon className="w-5 h-5" />
+                        <Icon className="w-6 h-6" />
                       </div>
-                      <div>
-                        <p className="text-sm font-bold text-navy-900">{leave.type} Leave</p>
-                        <p className="text-xs text-text-muted mt-0.5">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-3">
+                          <p className="text-lg font-black text-navy-900 tracking-tight">{leave.type} Deployment</p>
+                          <span className={cn(
+                            "px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest border",
+                            statusColors[leave.status.toLowerCase()]
+                          )}>
+                            {leave.status}
+                          </span>
+                        </div>
+                        <p className="text-xs text-text-muted font-bold uppercase tracking-widest">
                           {formatDate(leave.start_date)} — {formatDate(leave.end_date)}
                         </p>
                         {leave.reason && (
-                          <p className="text-[11px] text-text-secondary mt-2 bg-surface-alt/50 px-2 py-1 rounded border border-border inline-block italic">
+                          <p className="text-xs text-text-secondary mt-3 italic leading-relaxed max-w-md bg-surface-alt/50 px-4 py-2 rounded-2xl border border-border/40">
                             &ldquo;{leave.reason}&rdquo;
                           </p>
                         )}
                       </div>
                     </div>
-                    <div className={cn(
-                      "px-2.5 py-1 rounded-full text-[10px] font-black uppercase tracking-widest border",
-                      statusColors[leave.status.toLowerCase()]
-                    )}>
-                      {leave.status}
+                    
+                    <div className="flex items-center gap-4 text-right">
+                      <div className="hidden md:block">
+                        <p className="text-[9px] font-black text-text-muted uppercase tracking-widest mb-1">Authorization</p>
+                        <p className="text-xs font-bold text-navy-900">{leave.status === 'Approved' ? 'HQ Verified' : 'Awaiting Review'}</p>
+                      </div>
+                      <div className="w-10 h-10 rounded-xl bg-surface-alt flex items-center justify-center group-hover:bg-navy-900 group-hover:text-white transition-all">
+                        <TrendingUp className="w-4 h-4 opacity-40 group-hover:opacity-100" />
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })
-          )}
-        </div>
-      </Card>
+                );
+              })
+            )}
+          </div>
+        </Card>
+      </div>
 
-      {/* Apply Modal */}
+      {/* Apply Modal Interface */}
       <AnimatePresence>
         {isApplying && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-navy-900/40 backdrop-blur-sm" onClick={() => setIsApplying(false)}>
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-6 bg-navy-900/60 backdrop-blur-md" onClick={() => setIsApplying(false)}>
             <motion.div 
-              initial={{ opacity: 0, y: 20, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: 20, scale: 0.95 }}
-              className="w-full max-w-lg"
+              initial={{ opacity: 0, scale: 0.9, y: 20 }} 
+              animate={{ opacity: 1, scale: 1, y: 0 }} 
+              exit={{ opacity: 0, scale: 0.9, y: 20 }} 
+              className="w-full max-w-2xl"
               onClick={(e) => e.stopPropagation()}
             >
-              <Card hover={false} className="p-6 md:p-8 relative shadow-2xl border-2 border-primary-50">
-                <div className="flex items-center justify-between mb-6">
-                  <div>
-                    <h2 className="text-xl font-heading font-bold text-navy-900">Apply for Leave</h2>
-                    <p className="text-xs text-text-muted mt-1">Submit your time-off request for approval.</p>
-                  </div>
-                  <button onClick={() => setIsApplying(false)} className="p-2 hover:bg-surface-alt rounded-lg text-text-muted">
+              <Card hover={false} className="p-10 rounded-[3rem] border-0 shadow-2xl bg-white relative overflow-hidden">
+                <div className="absolute top-0 right-0 p-8">
+                  <button 
+                    onClick={() => setIsApplying(false)}
+                    className="w-10 h-10 rounded-2xl bg-surface-alt flex items-center justify-center text-navy-900 hover:bg-navy-900 hover:text-white transition-all"
+                  >
                     <X className="w-5 h-5" />
                   </button>
                 </div>
+                
+                <div className="mb-10">
+                  <div className="flex items-center gap-3 mb-2">
+                    <div className="w-2 h-6 bg-primary-500 rounded-full" />
+                    <h2 className="text-3xl font-heading font-black text-navy-900 tracking-tight">Apply for Downtime</h2>
+                  </div>
+                  <p className="text-sm text-text-muted font-medium italic">Initialize a personnel unavailability request for HQ authorization.</p>
+                </div>
+
                 <LeaveRequestForm onSuccess={() => {
                   setIsApplying(false);
                   fetchData();
