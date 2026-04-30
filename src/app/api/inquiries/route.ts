@@ -44,6 +44,13 @@ export async function POST(request: NextRequest) {
 
 export async function GET() {
   try {
+    const { getSession } = await import('@/lib/auth');
+    const session = await getSession();
+    
+    if (!session || session.role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
     const { data, error } = await supabaseAdmin
       .from('inquiries')
       .select('*')
