@@ -61,5 +61,25 @@ export async function getLeaveBalances() {
     return [];
   }
 
+  // If no balances exist, initialize them with defaults
+  if (data.length === 0) {
+    const defaults = [
+      { employee_id: session.id, leave_type: 'Sick', total_days: 12, used_days: 0, remaining_days: 12 },
+      { employee_id: session.id, leave_type: 'Casual', total_days: 12, used_days: 0, remaining_days: 12 },
+      { employee_id: session.id, leave_type: 'Earned', total_days: 15, used_days: 0, remaining_days: 15 },
+    ];
+
+    const { data: newData, error: initError } = await supabaseAdmin
+      .from('leave_balances')
+      .insert(defaults)
+      .select();
+
+    if (initError) {
+      console.error('Error initializing balances:', initError);
+      return [];
+    }
+    return newData;
+  }
+
   return data;
 }

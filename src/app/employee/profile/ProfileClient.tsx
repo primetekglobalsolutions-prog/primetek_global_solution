@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import PasswordChangeForm from '@/components/profile/PasswordChangeForm';
+import { useRouter } from 'next/navigation';
 import { updateProfile, updateAvatar } from './actions';
 
 export interface EmployeeProfile {
@@ -20,6 +21,7 @@ export interface EmployeeProfile {
 }
 
 export default function ProfileClient({ employee }: { employee: EmployeeProfile }) {
+  const router = useRouter();
   const [form, setForm] = useState({
     name: employee.name || '',
     email: employee.email || '',
@@ -36,9 +38,12 @@ export default function ProfileClient({ employee }: { employee: EmployeeProfile 
   const handleSave = async () => {
     setSaving(true);
     try {
-      await updateProfile(form.name, form.phone);
-      setSaved(true);
-      setTimeout(() => setSaved(false), 3000);
+      const res = await updateProfile(form.name, form.phone);
+      if (res.success) {
+        setSaved(true);
+        router.refresh();
+        setTimeout(() => setSaved(false), 3000);
+      }
     } catch (err) {
       console.error(err);
     } finally {

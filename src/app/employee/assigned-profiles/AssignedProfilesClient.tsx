@@ -98,9 +98,14 @@ export default function AssignedProfilesClient({ initialProfiles }: { initialPro
                 </select>
                 
                 {profile.resume_url && (
-                  <button className="flex items-center gap-1.5 text-xs font-bold text-primary-600 hover:underline">
+                  <a 
+                    href={profile.resume_url} 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-1.5 text-xs font-bold text-primary-600 hover:underline"
+                  >
                     <Download className="w-3.5 h-3.5" /> Resume
-                  </button>
+                  </a>
                 )}
               </div>
             </Card>
@@ -152,11 +157,9 @@ export default function AssignedProfilesClient({ initialProfiles }: { initialPro
                   </h4>
                   <div className="bg-surface-alt rounded-2xl p-4 space-y-4">
                     <div>
-  {/* eslint-disable-next-line react/no-unescaped-entities */}
                       <p className="text-[10px] font-bold text-text-muted uppercase">Master's Degree</p>
                       <p className="text-sm font-medium text-navy-900">{selectedProfile.education_details?.masters || 'Not specified'}</p>
                     </div>
-  { }
                     <div className="pt-3 border-t border-border">
                       <p className="text-[10px] font-bold text-text-muted uppercase">Bachelor's Degree</p>
                       <p className="text-sm font-medium text-navy-900">{selectedProfile.education_details?.bachelors || 'Not specified'}</p>
@@ -176,9 +179,16 @@ export default function AssignedProfilesClient({ initialProfiles }: { initialPro
                     </div>
                     {selectedProfile.resume_url && (
                       <div className="pt-4">
-                        <Button variant="outline" className="w-full">
-                          <Download className="w-4 h-4 mr-2" /> Download DOCX Resume
-                        </Button>
+                        <a 
+                          href={selectedProfile.resume_url} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                          className="block"
+                        >
+                          <Button variant="outline" className="w-full">
+                            <Download className="w-4 h-4 mr-2" /> Download DOCX Resume
+                          </Button>
+                        </a>
                       </div>
                     )}
                   </div>

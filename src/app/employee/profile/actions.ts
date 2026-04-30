@@ -8,10 +8,12 @@ export async function updateProfile(name: string, phone: string) {
   const session = await getSession();
   if (!session || !session.id) throw new Error('Unauthorized');
 
-  const { error } = await supabaseAdmin
+  const { data, error } = await supabaseAdmin
     .from('employees')
     .update({ name, phone })
-    .eq('id', session.id);
+    .eq('id', session.id)
+    .select()
+    .single();
 
   if (error) {
     console.error('Error updating profile:', error);
@@ -19,8 +21,8 @@ export async function updateProfile(name: string, phone: string) {
   }
 
   revalidatePath('/employee/profile');
-  revalidatePath('/employee/profile');
-  return { success: true };
+  revalidatePath('/employee/dashboard');
+  return { success: true, employee: data };
 }
 
 export async function updateAvatar(formData: FormData) {

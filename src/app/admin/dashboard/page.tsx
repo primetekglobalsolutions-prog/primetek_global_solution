@@ -1,9 +1,7 @@
-import { MessageSquare, Users, Clock, Briefcase, Plus, Settings, ArrowRight, CheckSquare, TrendingUp, Zap } from 'lucide-react';
-import Card from '@/components/ui/Card';
+import { MessageSquare, Users, Clock, Briefcase, Settings, ArrowRight, CheckSquare, TrendingUp, Zap } from 'lucide-react';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { formatDate } from '@/lib/utils';
 import Link from 'next/link';
-import Button from '@/components/ui/Button';
 import AnalyticsCharts from '@/components/admin/AnalyticsCharts';
 import DashboardGreeting from '@/components/admin/DashboardGreeting';
 
@@ -23,7 +21,7 @@ export default async function AdminAppDashboard() {
     supabaseAdmin.from('leave_requests').select('*', { count: 'exact', head: true }).eq('status', 'Pending'),
     supabaseAdmin.from('attendance').select('*', { count: 'exact', head: true }).eq('status', 'Pending WFH'),
     supabaseAdmin.from('inquiries').select('*').order('created_at', { ascending: false }).limit(5),
-    supabaseAdmin.from('employees').select('name').limit(1).single() // Dummy fetch for name, real name comes from session usually but this is for layout
+    supabaseAdmin.from('employees').select('name').limit(1).single()
   ]);
 
   const totalPending = (pendingLeavesCount || 0) + (pendingWFHCount || 0);
@@ -49,12 +47,54 @@ export default async function AdminAppDashboard() {
     closed: 'bg-gray-100 text-gray-500 border-gray-200',
   };
 
+  // Calculate Real Attendance Trends (Last 7 Days)
+  const last7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    return d.toISOString().split('T')[0];
+  }).reverse();
+
+  const { data: attendanceTrends } = await supabaseAdmin
+    .from('attendance')
+    .select('date, status')
+    .in('date', last7Days);
+
+  const attendanceData = last7Days.map(date => {
+    const dayRecords = (attendanceTrends || []).filter(r => r.date === date);
+    const present = dayRecords.filter(r => !r.status.toLowerCase().includes('absent') && !r.status.toLowerCase().includes('rejected')).length;
+    const percentage = employeesCount ? Math.round((present / employeesCount) * 100) : 0;
+    return { 
+      label: new Date(date).toLocaleDateString('en-US', { weekday: 'short' })[0], 
+      value: percentage 
+    };
+  });
+
+  // Calculate Real Inquiry Velocity (Last 4 Weeks)
+  const last4Weeks = Array.from({ length: 4 }, (_, i) => {
+    const start = new Date();
+    start.setDate(start.getDate() - (i + 1) * 7);
+    const end = new Date();
+    end.setDate(end.getDate() - i * 7);
+    return { start, end, label: `W${4-i}` };
+  }).reverse();
+
+  const { data: inquiryTrends } = await supabaseAdmin
+    .from('inquiries')
+    .select('created_at')
+    .gte('created_at', last4Weeks[0].start.toISOString());
+
+  const applicationData = last4Weeks.map(week => {
+    const count = (inquiryTrends || []).filter(inq => {
+      const d = new Date(inq.created_at);
+      return d >= week.start && d < week.end;
+    }).length;
+    return { label: week.label, value: count };
+  });
+
   return (
     <div className="space-y-8 pb-10">
-      {/* 1. Header Section */}
       <DashboardGreeting userName={me?.name || 'Admin'} />
 
-      {/* 2. Key Metrics — Refined & Interactive */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {stats.map((stat) => (
           <div key={stat.label} className="bg-white rounded-[2rem] p-6 border border-border/60 shadow-sm hover:shadow-xl hover:shadow-navy-900/5 transition-all duration-300 group">
@@ -70,7 +110,6 @@ export default async function AdminAppDashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
-        {/* 3. Main Analytics — Spans 2 cols */}
         <div className="lg:col-span-2 space-y-6 md:space-y-8">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-heading font-black text-navy-900 tracking-tight">Performance Intelligence</h2>
@@ -80,24 +119,10 @@ export default async function AdminAppDashboard() {
           </div>
           
           <AnalyticsCharts 
-            attendanceData={[
-              { label: 'M', value: 85 },
-              { label: 'T', value: 92 },
-              { label: 'W', value: 88 },
-              { label: 'T', value: 95 },
-              { label: 'F', value: 82 },
-              { label: 'S', value: 45 },
-              { label: 'S', value: 30 },
-            ]}
-            applicationData={[
-              { label: 'W1', value: 12 },
-              { label: 'W2', value: 18 },
-              { label: 'W3', value: 15 },
-              { label: 'W4', value: 24 },
-            ]}
+            attendanceData={attendanceData}
+            applicationData={applicationData}
           />
 
-          {/* 4. Recent Inquiries */}
           <div className="bg-white rounded-[2.5rem] border border-border/60 shadow-sm overflow-hidden">
             <div className="px-8 py-6 border-b border-border/50 flex items-center justify-between bg-surface-alt/30">
               <h2 className="font-heading font-black text-navy-900 text-sm uppercase tracking-widest">Global Inquiries</h2>
@@ -107,7 +132,7 @@ export default async function AdminAppDashboard() {
             </div>
             <div className="divide-y divide-border/50">
               {recentInquiries?.map((inq) => (
-                <div key={inq.id} className="px-8 py-5 hover:bg-surface-alt/30 transition-colors group">
+                <div key={inq.id} className="px-8 py-5 hover:bg-surface-alt/30 transition-all group">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-bold text-navy-900 group-hover:text-primary-600 transition-colors">{inq.name}</span>
                     <span className={`px-2.5 py-0.5 rounded-full text-[9px] font-black tracking-widest border shrink-0 ${statusColors[inq.status] || statusColors.new}`}>
@@ -134,7 +159,6 @@ export default async function AdminAppDashboard() {
           </div>
         </div>
 
-        {/* 5. Sidebar Actions & Context */}
         <div className="space-y-6 md:space-y-8">
           <h2 className="text-xl font-heading font-black text-navy-900 tracking-tight">Rapid Controls</h2>
           <div className="grid grid-cols-1 gap-4">
@@ -156,7 +180,6 @@ export default async function AdminAppDashboard() {
             ))}
           </div>
 
-          {/* System Health / Status Card */}
           <div className="bg-navy-900 rounded-[2.5rem] p-8 text-white relative overflow-hidden group">
             <div className="absolute top-0 right-0 p-8 opacity-10">
               <Zap className="w-24 h-24" />
