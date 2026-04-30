@@ -20,16 +20,22 @@ export default function AdminSettingsPage() {
   const [saved, setSaved] = useState(false);
   const [detectingLocation, setDetectingLocation] = useState(false);
   const [mapError, setMapError] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadLocation() {
-      const office = await getOfficeLocation();
-      if (office) {
-        setLat(String(office.lat));
-        setLng(String(office.lng));
-        setName(office.name);
-        setRadius(String(office.radius_meters));
-        setMapError(false);
+      try {
+        const office = await getOfficeLocation();
+        if (office) {
+          setLat(String(office.lat || OFFICE_LOCATION.lat));
+          setLng(String(office.lng || OFFICE_LOCATION.lng));
+          setName(office.name || OFFICE_LOCATION.name);
+          setRadius(String(office.radius_meters || OFFICE_LOCATION.radiusMeters));
+        }
+      } catch (err) {
+        console.error('Failed to load office location:', err);
+      } finally {
+        setLoading(false);
       }
     }
     loadLocation();
@@ -72,6 +78,14 @@ export default function AdminSettingsPage() {
 
   const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lng}&z=17`;
   const inputClasses = 'w-full px-5 py-4 rounded-2xl border border-border/60 bg-white text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all text-sm font-medium shadow-sm';
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <Loader2 className="w-8 h-8 text-primary-500 animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-8 pb-12">
@@ -225,7 +239,7 @@ export default function AdminSettingsPage() {
               {!mapError ? (
                 <Image
                   key={`${lat}-${lng}`}
-                  src={`https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=800&height=400&center=lonlat:${lng.trim()},${lat.trim()}&zoom=15.5&marker=lonlat:${lng.trim()},${lat.trim()};color:%230d9488;size:large&apiKey=${env.NEXT_PUBLIC_GEOAPIFY_API_KEY || 'demo'}`}
+                  src={`https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=800&height=400&center=lonlat:${(lng || '').trim()},${(lat || '').trim()}&zoom=15.5&marker=lonlat:${(lng || '').trim()},${(lat || '').trim()};color:%230d9488;size:large&apiKey=${env.NEXT_PUBLIC_GEOAPIFY_API_KEY || 'demo'}`}
                   alt="Office location map preview"
                   fill
                   className="object-cover group-hover:scale-110 transition-transform duration-[2000ms] ease-out"
