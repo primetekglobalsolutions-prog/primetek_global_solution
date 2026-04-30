@@ -7,7 +7,7 @@ export default async function EmployeeAppProfilePage() {
   const session = await getSession();
   
   if (!session || !session.id) {
-    redirect('/admin/login');
+    redirect('/employee/login');
   }
 
   const { data: employee, error } = await supabaseAdmin

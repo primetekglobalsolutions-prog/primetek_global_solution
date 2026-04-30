@@ -6,6 +6,7 @@ import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import PasswordChangeForm from '@/components/profile/PasswordChangeForm';
+import MFASetup from '@/components/profile/MFASetup';
 import { useRouter } from 'next/navigation';
 import { updateProfile, updateAvatar } from './actions';
 
@@ -18,6 +19,7 @@ export interface EmployeeProfile {
   designation?: string;
   avatar_url?: string;
   created_at?: string;
+  mfa_enabled?: boolean;
 }
 
 export default function ProfileClient({ employee }: { employee: EmployeeProfile }) {
@@ -221,6 +223,10 @@ export default function ProfileClient({ employee }: { employee: EmployeeProfile 
           </Card>
 
           <div className="p-8 rounded-[2rem] bg-primary-50 border border-primary-100">
+            <MFASetup initialEnabled={employee.mfa_enabled || false} />
+          </div>
+
+          <div className="p-8 rounded-[2rem] bg-navy-50/50 border border-navy-100">
             <div className="flex items-center gap-3 mb-3">
               <div className="w-8 h-8 rounded-xl bg-primary-500 text-white flex items-center justify-center">
                 <CheckCircle2 className="w-5 h-5" />

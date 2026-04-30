@@ -141,7 +141,7 @@ export default function AssignedProfilesClient({ initialProfiles }: { initialPro
                       <Phone className="w-4 h-4" /> {selectedProfile.client_phone}
                     </a>
                     {selectedProfile.client_linkedin && (
-                      <a href={selectedProfile.client_linkedin} target="_blank" className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-primary-600 transition-colors">
+                      <a href={selectedProfile.client_linkedin} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 text-sm text-text-secondary hover:text-primary-600 transition-colors">
                         <Globe className="w-4 h-4" /> LinkedIn
                       </a>
                     )}
