@@ -6,7 +6,6 @@ const resend = process.env.RESEND_API_KEY
 
 /**
  * Sends a notification email using Resend.
- * Fallback to console log if API key is missing.
  */
 export async function sendNotificationEmail(to: string, subject: string, html: string) {
   if (!resend) {
@@ -47,6 +46,43 @@ export function getAssignmentTemplate(employeeName: string, clientName: string) 
         <a href="https://primetek-portal.vercel.app/employee/assigned-profiles" 
            style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
           View Assignment
+        </a>
+      </div>
+      <p style="color: #64748b; font-size: 14px;">Regards,<br>Primetek Global Solutions</p>
+    </div>
+  `;
+}
+
+export function getLeaveStatusTemplate(employeeName: string, type: string, status: string, startDate: string, endDate: string) {
+  const color = status === 'Approved' ? '#10b981' : '#ef4444';
+  return `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+      <h2 style="color: #0f172a;">Leave Request ${status}</h2>
+      <p>Hi ${employeeName},</p>
+      <p>Your <strong>${type} Leave</strong> request from ${startDate} to ${endDate} has been <strong style="color: ${color};">${status.toUpperCase()}</strong>.</p>
+      <div style="margin: 30px 0;">
+        <a href="https://primetek-portal.vercel.app/employee/leaves" 
+           style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+          View Leave Status
+        </a>
+      </div>
+      <p style="color: #64748b; font-size: 14px;">Regards,<br>Primetek Global Solutions</p>
+    </div>
+  `;
+}
+
+export function getWFHStatusTemplate(employeeName: string, date: string, status: string) {
+  const color = status.includes('Approved') ? '#10b981' : '#ef4444';
+  const label = status.includes('Approved') ? 'Approved' : 'Rejected';
+  return `
+    <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #eee; border-radius: 10px;">
+      <h2 style="color: #0f172a;">WFH Request ${label}</h2>
+      <p>Hi ${employeeName},</p>
+      <p>Your <strong>Work From Home</strong> request for ${date} has been <strong style="color: ${color};">${label.toUpperCase()}</strong>.</p>
+      <div style="margin: 30px 0;">
+        <a href="https://primetek-portal.vercel.app/employee/attendance" 
+           style="background-color: #3b82f6; color: white; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: bold;">
+          Check Attendance
         </a>
       </div>
       <p style="color: #64748b; font-size: 14px;">Regards,<br>Primetek Global Solutions</p>

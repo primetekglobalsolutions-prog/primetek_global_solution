@@ -1,47 +1,20 @@
-# Project State
+# Project State - Primetek Global Solutions PWA
 
-## Project Reference
+## Current Phase: Phase 4 & 5 (Optimization & Leave/WFH) - COMPLETED
+The core Leave Management and WFH workflow have been implemented, including database migrations, server actions, and UI components. Dashboards have been optimized to reflect these changes.
 
-See: .planning/PROJECT.md (updated 2026-04-27)
+### Accomplishments
+- [x] **Leave Management**: Submission form, history list, and real balance tracking.
+- [x] **WFH Workflow**: Out-of-radius trigger, request modal, and admin approval flow.
+- [x] **Admin Hub**: Centralized "Approvals" page for processing requests.
+- [x] **Email Notifications**: Resend integration with templates for status updates.
+- [x] **Dashboard Optimization**: Added Approval counters and Leave balance displays.
+- [x] **Bug Fixes**: Resolved employee redirect issues and status color consistency.
 
-**Core value:** Showcase expertise and capture enterprise leads while providing a seamless self-service experience for employees.
-**Current focus:** Phase 3: Employee HR & Attendance (PWA Portal)
+### Next Steps
+- [ ] **Final Deployment**: Deploy latest changes to Vercel and verify production DB.
+- [ ] **Testing**: Perform full end-to-end UAT for all roles.
+- [ ] **Documentation**: Update user manual for the new Leave/WFH features.
 
-## Current Position
-
-Phase: 3 of 3 (Employee HR & Attendance)
-Plan: Final UAT Verification
-Status: Verification In Progress
-Last activity: 2026-04-28 — Synced roadmap/project docs and initiated final UAT for PWA portal.
-
-Progress: [██████████] 100% (Core Platform Implementation)
-
-## Performance Metrics
-
-**Velocity:**
-- Total plans completed: 3
-- Average duration: 2h
-- Total execution time: 6.0 hours
-
-## Accumulated Context
-
-### Decisions
-
-- [Init]: Next.js 15 + Tailwind v4 stack (no separate Express — use Next.js API Routes)
-- [Init]: Supabase for PostgreSQL + Auth + RLS
-- [PWA]: Enforce route isolation under /app/ to prevent "website bleed" in standalone mode.
-- [UI]: Mobile-first design with bottom navigation and compact stat grids for PWA users.
-
-### Pending Todos
-
-- None yet.
-
-### Blockers/Concerns
-
-- None yet.
-
-## Session Continuity
-
-Last session: 2026-04-28 06:00
-Stopped at: PWA Portal migration and isolation complete. Pushed to git.
-Resume file: .continue-here.md
+### Known Issues
+- None at this moment.

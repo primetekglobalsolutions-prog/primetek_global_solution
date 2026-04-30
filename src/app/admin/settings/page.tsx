@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { MapPin, Save, Loader2, CheckCircle2, ExternalLink, Navigation, Building } from 'lucide-react';
+import { MapPin, Save, Loader2, CheckCircle2, ExternalLink, Navigation, Building, AlertCircle } from 'lucide-react';
 import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { OFFICE_LOCATION } from '@/lib/location';
 import { getOfficeLocation, saveOfficeLocation } from './actions';
+import { env } from '@/lib/env';
 
 export default function AdminSettingsPage() {
   const [lat, setLat] = useState(String(OFFICE_LOCATION.lat));
@@ -16,6 +17,7 @@ export default function AdminSettingsPage() {
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [detectingLocation, setDetectingLocation] = useState(false);
+  const [mapError, setMapError] = useState(false);
 
   useEffect(() => {
     async function loadLocation() {
@@ -25,6 +27,7 @@ export default function AdminSettingsPage() {
         setLng(String(office.lng));
         setName(office.name);
         setRadius(String(office.radius_meters));
+        setMapError(false);
       }
     }
     loadLocation();
@@ -55,6 +58,7 @@ export default function AdminSettingsPage() {
         setLat(position.coords.latitude.toFixed(6));
         setLng(position.coords.longitude.toFixed(6));
         setDetectingLocation(false);
+        setMapError(false);
       },
       () => {
         alert('Could not detect location. Please enter coordinates manually.');
@@ -108,7 +112,10 @@ export default function AdminSettingsPage() {
                   type="number"
                   step="0.000001"
                   value={lat}
-                  onChange={(e) => setLat(e.target.value)}
+                  onChange={(e) => {
+                    setLat(e.target.value);
+                    setMapError(false);
+                  }}
                   placeholder="17.385044"
                   className={inputClasses}
                 />
@@ -119,7 +126,10 @@ export default function AdminSettingsPage() {
                   type="number"
                   step="0.000001"
                   value={lng}
-                  onChange={(e) => setLng(e.target.value)}
+                  onChange={(e) => {
+                    setLng(e.target.value);
+                    setMapError(false);
+                  }}
                   placeholder="78.486671"
                   className={inputClasses}
                 />
@@ -182,19 +192,33 @@ export default function AdminSettingsPage() {
           {/* Map Preview */}
           <Card hover={false} className="p-6 md:p-8">
             <h2 className="font-heading font-bold text-navy-900 mb-4">Preview on Map</h2>
-            <a
-              href={googleMapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="block relative w-full h-48 bg-surface-alt rounded-xl overflow-hidden border border-border hover:border-primary-300 transition-colors"
-            >
-              <Image
-                src={`https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&height=300&center=lonlat:${lng},${lat}&zoom=15.5&marker=lonlat:${lng},${lat};color:%230d9488;size:large&apiKey=demo`}
-                alt="Office location map preview"
-                fill
-                className="object-cover"
+            <div className="relative w-full h-48 bg-surface-alt rounded-xl overflow-hidden border border-border group">
+              {!mapError ? (
+                <Image
+                  key={`${lat}-${lng}`}
+                  src={`https://maps.geoapify.com/v1/staticmap?style=osm-bright&width=600&height=300&center=lonlat:${lng.trim()},${lat.trim()}&zoom=15.5&marker=lonlat:${lng.trim()},${lat.trim()};color:%230d9488;size:large&apiKey=${env.NEXT_PUBLIC_GEOAPIFY_API_KEY || 'demo'}`}
+                  alt="Office location map preview"
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  onError={() => setMapError(true)}
+                  unoptimized // Skip Next.js image optimization for external static maps
+                />
+              ) : (
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-6 text-center">
+                  <AlertCircle className="w-8 h-8 text-amber-500 mb-2" />
+                  <p className="text-sm font-bold text-navy-900">Map Preview Unavailable</p>
+                  <p className="text-xs text-text-muted mt-1">Please verify your coordinates or check your internet connection.</p>
+                </div>
+              )}
+              
+              <a
+                href={googleMapsUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0 bg-transparent z-10"
+                aria-label="View on Google Maps"
               />
-            </a>
+            </div>
             <div className="flex items-center justify-between mt-3">
               <p className="text-sm text-text-secondary">
                 <MapPin className="w-4 h-4 inline text-primary-500" /> {lat}, {lng}

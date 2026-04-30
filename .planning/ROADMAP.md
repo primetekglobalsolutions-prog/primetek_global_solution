@@ -9,6 +9,7 @@ This roadmap outlines the development of a comprehensive three-layer platform fo
 - [x] **Phase 2: Job Board & Recruitment** - Interactive job listings and application management for talent acquisition.
 - [x] **Phase 3: Employee HR & Attendance** - Secure portal for staff with location-verified attendance and history. (MIGRATED TO PWA)
 - [ ] **Phase 4: Optimization & Expansion** - Bug fixes, performance tuning, and Application Profile assignment.
+- [x] **Phase 5: Leave & WFH Management** - Employee leave requests and automated WFH approval flow.
 
 ## Phase Details
 
@@ -56,6 +57,16 @@ Plans:
 - [x] 03-02: Attendance Tracking (GPS logic, Anti-spoofing, Browser Location API).
 - [x] 03-03: SaaS HR Integration & Export (Sync with Zoho/Keka, CSV export).
 
+### Phase 5: Leave & WFH Management
+**Goal**: Implement a robust Leave Management system and an automated WFH Request flow with Admin approval.
+**Depends on**: Phase 4
+**Requirements**: NEW-04, NEW-05, NEW-06
+**Success Criteria**:
+  1. Employees can apply for leaves and track status in PWA.
+  2. Employees out of office radius can request WFH via check-in.
+  3. Admin can approve/reject Leave and WFH requests in a unified hub.
+**Plans**: 3 plans
+
 ## Progress
 
 | Phase | Plans Complete | Status | Completed |
@@ -63,7 +74,8 @@ Plans:
 | 1. Foundation & Marketing | 3/3 | Completed | 2026-04-28 |
 | 2. Job Board & Recruitment | 2/2 | Completed | 2026-04-28 |
 | 3. Employee HR & Attendance | 3/3 | Completed | 2026-04-28 |
-| 4. Optimization & Expansion | 0/3 | In Progress | - |
+| 4. Optimization & Expansion | 1/3 | In Progress | - |
+| 5. Leave & WFH Management | 0/3 | Pending | - |
 
 ---
 *Roadmap updated: 2026-04-28*

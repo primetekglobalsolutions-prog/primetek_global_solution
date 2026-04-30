@@ -5,6 +5,7 @@ import { Search, Download, FileSpreadsheet, Loader2 } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { exportAttendanceExcel } from './actions';
+import { cn } from '@/lib/utils';
 
 export interface AttendanceRecord {
   id: string;
@@ -24,6 +25,9 @@ const statusColors: Record<string, string> = {
   late: 'bg-amber-50 text-amber-600 border-amber-200',
   absent: 'bg-red-50 text-red-600 border-red-200',
   'half-day': 'bg-blue-50 text-blue-600 border-blue-200',
+  'pending wfh': 'bg-violet-50 text-violet-600 border-violet-200',
+  'approved wfh': 'bg-emerald-100 text-emerald-700 border-emerald-300',
+  'rejected wfh': 'bg-red-100 text-red-700 border-red-300',
 };
 
 export default function AttendanceClient({
@@ -105,9 +109,11 @@ export default function AttendanceClient({
           </select>
           <select value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} className="px-3 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary-400">
             <option value="all">All Status</option>
-            <option value="present">Present</option>
-            <option value="late">Late</option>
-            <option value="absent">Absent</option>
+            <option value="Present">Present</option>
+            <option value="Late">Late</option>
+            <option value="Absent">Absent</option>
+            <option value="Pending WFH">Pending WFH</option>
+            <option value="Approved WFH">Approved WFH</option>
           </select>
         </div>
         <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
@@ -144,7 +150,7 @@ export default function AttendanceClient({
               {filtered.length === 0 ? (
                 <tr><td colSpan={6} className="px-6 py-12 text-center text-text-muted text-sm">No attendance records found.</td></tr>
               ) : (
-                filtered.slice(0, 30).map((record) => (
+                filtered.map((record) => (
                   <tr key={record.id} className="border-b border-border last:border-0 hover:bg-surface-alt/30 transition-colors">
                     <td className="px-6 py-4 text-sm font-medium text-navy-900">{record.employee_name}</td>
                     <td className="px-6 py-4 text-sm text-text-secondary whitespace-nowrap">
@@ -156,8 +162,11 @@ export default function AttendanceClient({
                     <td className="px-6 py-4 text-sm text-text-secondary">{record.check_out || '—'}</td>
                     <td className="px-6 py-4 text-sm text-text-secondary">{record.duration_hours > 0 ? `${record.duration_hours}h` : '—'}</td>
                     <td className="px-6 py-4">
-                      <span className={`inline-block px-2.5 py-1 rounded-full text-xs font-medium border ${statusColors[record.status?.toLowerCase()] || statusColors.present}`}>
-                        {(record.status || 'Present').charAt(0).toUpperCase() + (record.status || 'Present').slice(1)}
+                      <span className={cn(
+                        "inline-block px-2.5 py-1 rounded-full text-xs font-medium border",
+                        statusColors[record.status?.toLowerCase()] || statusColors.present
+                      )}>
+                        {record.status}
                       </span>
                     </td>
                   </tr>

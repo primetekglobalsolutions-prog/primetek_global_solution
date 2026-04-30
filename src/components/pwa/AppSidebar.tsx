@@ -6,7 +6,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { 
   LayoutDashboard, Clock, UserCircle, LogOut, 
   MessageSquare, Briefcase, Users, FileUser,
-  Settings, ChevronLeft, History
+  Settings, ChevronLeft, History, Calendar, CheckSquare
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import Logo from '@/components/ui/Logo';
@@ -23,6 +23,7 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
 
   const adminItems = [
     { href: '/admin/dashboard', icon: LayoutDashboard, label: 'Overview' },
+    { href: '/admin/approvals', icon: CheckSquare, label: 'Approvals' },
     { href: '/admin/inquiries', icon: MessageSquare, label: 'Inquiries' },
     { href: '/admin/jobs', icon: Briefcase, label: 'Jobs' },
     { href: '/admin/client-profiles', icon: FileUser, label: 'Client Profiles' },
@@ -36,6 +37,7 @@ export default function AppSidebar({ role, userName }: AppSidebarProps) {
   const employeeItems = [
     { href: '/employee/dashboard', icon: LayoutDashboard, label: 'Overview' },
     { href: '/employee/attendance', icon: Clock, label: 'Attendance' },
+    { href: '/employee/leaves', icon: Calendar, label: 'Leaves' },
     { href: '/employee/assigned-profiles', icon: FileUser, label: 'Profiles' },
     { href: '/employee/profile', icon: UserCircle, label: 'My Profile' },
   ];

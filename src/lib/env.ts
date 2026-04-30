@@ -4,6 +4,7 @@ const envSchema = z.object({
   // Public
   NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(1),
+  NEXT_PUBLIC_GEOAPIFY_API_KEY: z.string().optional(),
   
   // Private
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(1),
@@ -16,6 +17,7 @@ const envSchema = z.object({
 export const env = envSchema.parse({
   NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
   NEXT_PUBLIC_SUPABASE_ANON_KEY: process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+  NEXT_PUBLIC_GEOAPIFY_API_KEY: process.env.NEXT_PUBLIC_GEOAPIFY_API_KEY,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   RESEND_API_KEY: process.env.RESEND_API_KEY,
   JWT_SECRET: process.env.JWT_SECRET,

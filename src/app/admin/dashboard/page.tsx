@@ -1,4 +1,4 @@
-import { MessageSquare, Users, Clock, Briefcase, Plus, Settings, ArrowRight } from 'lucide-react';
+import { MessageSquare, Users, Clock, Briefcase, Plus, Settings, ArrowRight, CheckSquare } from 'lucide-react';
 import Card from '@/components/ui/Card';
 import { supabaseAdmin } from '@/lib/supabase-admin';
 import { formatDate } from '@/lib/utils';
@@ -11,23 +11,29 @@ export default async function AdminAppDashboard() {
     { count: inquiriesCount },
     { count: activeJobsCount },
     { count: employeesCount },
+    { count: pendingLeavesCount },
+    { count: pendingWFHCount },
     { data: recentInquiries }
   ] = await Promise.all([
     supabaseAdmin.from('inquiries').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('jobs').select('*', { count: 'exact', head: true }).eq('is_active', true),
     supabaseAdmin.from('employees').select('*', { count: 'exact', head: true }),
+    supabaseAdmin.from('leave_requests').select('*', { count: 'exact', head: true }).eq('status', 'Pending'),
+    supabaseAdmin.from('attendance').select('*', { count: 'exact', head: true }).eq('status', 'Pending WFH'),
     supabaseAdmin.from('inquiries').select('*').order('created_at', { ascending: false }).limit(5)
   ]);
+
+  const totalPending = (pendingLeavesCount || 0) + (pendingWFHCount || 0);
 
   const stats = [
     { label: 'Inquiries', value: inquiriesCount || '0', icon: MessageSquare, color: 'text-primary-500', bg: 'bg-primary-50' },
     { label: 'Jobs', value: activeJobsCount || '0', icon: Briefcase, color: 'text-amber-500', bg: 'bg-amber-50' },
     { label: 'Staff', value: employeesCount || '0', icon: Users, color: 'text-emerald-500', bg: 'bg-emerald-50' },
-    { label: 'Tracking', value: '✓', icon: Clock, color: 'text-violet-500', bg: 'bg-violet-50' },
+    { label: 'Approvals', value: totalPending.toString(), icon: Clock, color: 'text-violet-500', bg: 'bg-violet-50' },
   ];
 
   const quickActions = [
-    { href: '/admin/inquiries', label: 'View Inquiries', icon: MessageSquare, desc: 'Review new leads' },
+    { href: '/admin/approvals', label: 'Approvals', icon: CheckSquare, desc: 'Manage requests' },
     { href: '/admin/employees', label: 'Manage Staff', icon: Users, desc: 'Employee directory' },
     { href: '/admin/attendance', label: 'Attendance', icon: Clock, desc: 'View reports' },
     { href: '/admin/settings', label: 'Settings', icon: Settings, desc: 'System config' },
