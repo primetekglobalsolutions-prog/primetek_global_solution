@@ -1,10 +1,11 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Search, Download, Filter, ChevronLeft, ChevronRight, Eye, X, Trash2 } from 'lucide-react';
+import { Search, Download, Filter, ChevronLeft, ChevronRight, Eye, X, Trash2, MessageSquare, Building2, Phone, Mail, Clock, ShieldCheck } from 'lucide-react';
 import { formatDate, cn } from '@/lib/utils';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
+import { motion, AnimatePresence } from 'framer-motion';
 
 interface Inquiry {
   id: string;
@@ -19,7 +20,6 @@ interface Inquiry {
 
 interface InquiryTableProps {
   inquiries: Inquiry[];
-   
   updateStatus: (id: string, status: string) => Promise<unknown>;
   deleteInquiry: (id: string) => Promise<unknown>;
 }
@@ -27,10 +27,10 @@ interface InquiryTableProps {
 const statusOptions = ['all', 'new', 'contacted', 'qualified', 'closed'] as const;
 
 const statusColors: Record<string, string> = {
-  new: 'bg-blue-50 text-blue-600 border-blue-200',
-  contacted: 'bg-amber-50 text-amber-600 border-amber-200',
-  qualified: 'bg-emerald-50 text-emerald-600 border-emerald-200',
-  closed: 'bg-gray-100 text-gray-500 border-gray-200',
+  new: 'bg-blue-500/10 text-blue-600 border-blue-500/20',
+  contacted: 'bg-amber-500/10 text-amber-600 border-amber-500/20',
+  qualified: 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20',
+  closed: 'bg-gray-500/10 text-gray-500 border-gray-500/20',
 };
 
 const ITEMS_PER_PAGE = 8;
@@ -66,9 +66,10 @@ export default function InquiryTable({ inquiries, updateStatus, deleteInquiry }:
     );
     try {
       await updateStatus(id, newStatus);
+      if (selectedInquiry?.id === id) {
+        setSelectedInquiry({ ...selectedInquiry, status: newStatus });
+      }
     } catch (error) {
-      console.error('Failed to update status', error);
-      // Revert if failed
       setLocalInquiries((prev) =>
         prev.map((inq) => (inq.id === id ? { ...inq, status: oldStatus } : inq))
       );
@@ -77,13 +78,11 @@ export default function InquiryTable({ inquiries, updateStatus, deleteInquiry }:
   
   const handleDelete = async (id: string, name: string) => {
     if (!confirm(`Are you sure you want to delete inquiry from ${name}?`)) return;
-    
     try {
       await deleteInquiry(id);
       setLocalInquiries(prev => prev.filter(inq => inq.id !== id));
       if (selectedInquiry?.id === id) setSelectedInquiry(null);
     } catch (error) {
-      console.error('Failed to delete inquiry', error);
       alert('Failed to delete inquiry');
     }
   };
@@ -111,101 +110,116 @@ export default function InquiryTable({ inquiries, updateStatus, deleteInquiry }:
   };
 
   return (
-    <>
-      <Card hover={false} className="p-0 overflow-hidden">
-        {/* Toolbar */}
-        <div className="px-6 py-4 border-b border-border flex flex-col sm:flex-row items-start sm:items-center gap-3">
-          {/* Search */}
-          <div className="relative flex-1 w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted" />
-            <input
-              type="text"
-              placeholder="Search by name, email, company..."
-              value={search}
-              onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-              className="w-full pl-9 pr-4 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent"
-            />
-          </div>
+    <div className="space-y-8">
+      {/* 1. Toolbar */}
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center gap-4">
+        <div className="relative flex-1 group">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-text-muted group-focus-within:text-primary-500 transition-colors" />
+          <input
+            type="text"
+            placeholder="Search leads by name, email, or firm..."
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+            className="w-full pl-11 pr-4 py-3 rounded-2xl border border-border/60 bg-white text-sm text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all shadow-sm"
+          />
+        </div>
 
-          {/* Status Filter */}
-          <div className="flex items-center gap-2">
-            <Filter className="w-4 h-4 text-text-muted" />
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <Filter className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-text-muted" />
             <select
               value={statusFilter}
               onChange={(e) => { setStatusFilter(e.target.value); setPage(1); }}
-              className="px-3 py-2 rounded-lg border border-border bg-white text-sm text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary-400"
+              className="pl-9 pr-8 py-3 rounded-2xl border border-border/60 bg-white text-xs font-black uppercase tracking-widest text-navy-900 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all shadow-sm appearance-none cursor-pointer"
             >
               {statusOptions.map((opt) => (
                 <option key={opt} value={opt}>
-                  {opt === 'all' ? 'All Status' : opt.charAt(0).toUpperCase() + opt.slice(1)}
+                  {opt === 'all' ? 'All Status' : opt.toUpperCase()}
                 </option>
               ))}
             </select>
           </div>
 
-          {/* Export */}
-          <Button variant="outline" size="sm" onClick={handleExportCSV}>
-            <Download className="w-4 h-4" /> Export CSV
+          <Button 
+            variant="outline" 
+            size="sm" 
+            onClick={handleExportCSV}
+            className="rounded-2xl border-border/60 font-bold px-5 py-3 h-auto active:scale-95 transition-all shadow-sm bg-white"
+          >
+            <Download className="w-4 h-4 mr-2" /> Export
           </Button>
         </div>
+      </div>
 
-        {/* Table */}
+      {/* 2. Table */}
+      <Card hover={false} className="p-0 overflow-hidden border border-border/60 rounded-[2rem] shadow-sm bg-white">
         <div className="overflow-x-auto">
-          <table className="w-full">
+          <table className="w-full text-left">
             <thead>
               <tr className="border-b border-border bg-surface-alt/50">
-                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Name</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Company</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Requirement</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Status</th>
-                <th className="text-left px-6 py-3 text-xs font-semibold text-text-muted uppercase tracking-wider">Actions</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-text-muted">Inquirer</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-text-muted">Entity</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-text-muted">Message Preview</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-text-muted">Engagement</th>
+                <th className="px-8 py-5 text-[10px] font-black uppercase tracking-[0.15em] text-text-muted text-right">Actions</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-border/60">
               {paginated.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="px-6 py-12 text-center">
-                    <p className="text-text-muted text-sm">No inquiries found.</p>
+                  <td colSpan={5} className="px-8 py-20 text-center">
+                    <div className="w-16 h-16 rounded-full bg-surface-alt flex items-center justify-center mx-auto mb-4">
+                      <MessageSquare className="w-8 h-8 text-gray-300" />
+                    </div>
+                    <p className="text-sm text-text-muted font-bold">No active inquiries in the ledger.</p>
                   </td>
                 </tr>
               ) : (
                 paginated.map((inquiry) => (
-                  <tr key={inquiry.id} className="border-b border-border last:border-0 hover:bg-surface-alt/30 transition-colors">
-                    <td className="px-6 py-4">
-                      <p className="text-sm font-medium text-navy-900">{inquiry.name}</p>
-                      <p className="text-xs text-text-muted">{inquiry.email}</p>
-                    </td>
-                    <td className="px-6 py-4 text-sm text-text-secondary">{inquiry.company || '—'}</td>
-                    <td className="px-6 py-4">
-                      <div className="text-sm text-text-secondary max-w-[400px] break-words">
-                        {inquiry.requirement}
+                  <tr key={inquiry.id} className="group hover:bg-surface-alt/30 transition-colors">
+                    <td className="px-8 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="w-10 h-10 rounded-xl bg-navy-900 text-white flex items-center justify-center text-[10px] font-black shadow-lg shadow-navy-900/10">
+                          {inquiry.name.substring(0, 2).toUpperCase()}
+                        </div>
+                        <div>
+                          <p className="text-sm font-black text-navy-900 leading-tight group-hover:text-primary-600 transition-colors">{inquiry.name}</p>
+                          <p className="text-[11px] text-text-muted font-medium mt-0.5">{inquiry.email}</p>
+                        </div>
                       </div>
                     </td>
-                    <td className="px-6 py-4">
-                      <select
-                        value={inquiry.status}
-                        onChange={(e) => handleStatusChange(inquiry.id, e.target.value)}
-                        className={`px-2.5 py-1 rounded-full text-xs font-medium border cursor-pointer ${statusColors[inquiry.status]} focus:outline-none`}
-                      >
-                        {statusOptions.filter((s) => s !== 'all').map((opt) => (
-                          <option key={opt} value={opt}>
-                            {opt.charAt(0).toUpperCase() + opt.slice(1)}
-                          </option>
-                        ))}
-                      </select>
+                    <td className="px-8 py-5 whitespace-nowrap">
+                      <div className="flex items-center gap-2 text-[11px] font-bold text-navy-900 uppercase tracking-tighter">
+                        <Building2 className="w-3.5 h-3.5 text-primary-500/50" />
+                        {inquiry.company || 'Private'}
+                      </div>
                     </td>
-                    <td className="px-6 py-4 text-sm text-text-muted whitespace-nowrap">
-                      <div className="flex items-center gap-3">
+                    <td className="px-8 py-5">
+                      <p className="text-xs text-text-secondary line-clamp-1 max-w-[300px] font-medium italic">
+                        "{inquiry.requirement}"
+                      </p>
+                    </td>
+                    <td className="px-8 py-5">
+                      <div className={cn(
+                        "inline-flex px-3 py-1 rounded-full text-[9px] font-black tracking-widest border uppercase",
+                        statusColors[inquiry.status]
+                      )}>
+                        {inquiry.status}
+                      </div>
+                    </td>
+                    <td className="px-8 py-5 text-right">
+                      <div className="flex items-center justify-end gap-2">
                         <button 
                           onClick={() => setSelectedInquiry(inquiry)}
-                          className="text-primary-500 hover:text-primary-600 font-medium flex items-center gap-1"
+                          className="w-9 h-9 rounded-xl text-primary-500 hover:bg-primary-50 transition-all flex items-center justify-center active:scale-90"
+                          title="View Details"
                         >
-                          <Eye className="w-4 h-4" /> View
+                          <Eye className="w-4 h-4" />
                         </button>
                         <button 
                           onClick={() => handleDelete(inquiry.id, inquiry.name)}
-                          className="text-gray-400 hover:text-red-500 transition-colors p-1"
-                          title="Delete Inquiry"
+                          className="w-9 h-9 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center active:scale-90"
+                          title="Delete"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -218,101 +232,137 @@ export default function InquiryTable({ inquiries, updateStatus, deleteInquiry }:
           </table>
         </div>
 
-        {/* Pagination omitted for brevity, should remain at bottom */}
+        {/* 3. Pagination */}
+        {totalPages > 1 && (
+          <div className="px-8 py-5 border-t border-border/60 flex items-center justify-between bg-surface-alt/10">
+            <p className="text-[11px] font-bold text-text-muted uppercase tracking-widest">
+              Record {(page - 1) * ITEMS_PER_PAGE + 1} – {Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
+            </p>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="w-10 h-10 rounded-xl border border-border/60 flex items-center justify-center bg-white text-navy-900 hover:bg-surface-alt disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-90"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="w-10 h-10 rounded-xl border border-border/60 flex items-center justify-center bg-white text-navy-900 hover:bg-surface-alt disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-90"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </Card>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="px-6 py-4 border-t border-border flex items-center justify-between">
-          <p className="text-sm text-text-muted">
-            Showing {(page - 1) * ITEMS_PER_PAGE + 1}–{Math.min(page * ITEMS_PER_PAGE, filtered.length)} of {filtered.length}
-          </p>
-          <div className="flex gap-1">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="p-2 rounded-lg border border-border text-text-secondary hover:bg-surface-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+      {/* 4. Side Detail Drawer (Premium Redesign) */}
+      <AnimatePresence>
+        {selectedInquiry && (
+          <>
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-[100] bg-navy-900/40 backdrop-blur-md" 
+              onClick={() => setSelectedInquiry(null)} 
+            />
+            <motion.div 
+              initial={{ x: '100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="fixed right-0 top-0 bottom-0 z-[101] w-full max-w-xl bg-white shadow-2xl overflow-y-auto border-l border-border/50"
+              onClick={(e) => e.stopPropagation()}
             >
-              <ChevronLeft className="w-4 h-4" />
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="p-2 rounded-lg border border-border text-text-secondary hover:bg-surface-alt disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
-            >
-              <ChevronRight className="w-4 h-4" />
-            </button>
-          </div>
-        </div>
-      )}
-    </Card>
+              {/* Drawer Header */}
+              <div className="sticky top-0 z-20 px-10 py-8 bg-white/80 backdrop-blur-xl border-b border-border/50 flex items-center justify-between">
+                <div>
+                  <div className="flex items-center gap-2 mb-1">
+                    <div className="w-1.5 h-1.5 rounded-full bg-primary-500 animate-pulse" />
+                    <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-500">Inquiry Context</span>
+                  </div>
+                  <h2 className="text-2xl font-heading font-black text-navy-900 tracking-tight">Request Details</h2>
+                </div>
+                <button 
+                  onClick={() => setSelectedInquiry(null)} 
+                  className="w-12 h-12 rounded-2xl bg-surface-alt flex items-center justify-center text-text-muted hover:text-navy-900 transition-colors active:scale-90"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
 
-    {/* Detail Modal */}
-    {selectedInquiry && (
-      <div className="fixed inset-0 z-50 flex items-center justify-end bg-black/30 backdrop-blur-sm" onClick={() => setSelectedInquiry(null)}>
-        <div 
-          className="w-full max-w-lg h-full bg-white shadow-2xl overflow-y-auto"
-          onClick={(e) => e.stopPropagation()}
-        >
-          <div className="p-6 border-b border-border flex items-center justify-between">
-            <h2 className="text-lg font-heading font-bold text-navy-900">Inquiry Details</h2>
-            <button onClick={() => setSelectedInquiry(null)} className="p-2 rounded-lg hover:bg-surface-alt text-text-muted">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-          <div className="p-6 space-y-6">
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">From</p>
-                <p className="text-sm font-bold text-navy-900">{selectedInquiry.name}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Date</p>
-                <p className="text-sm text-text-secondary">{formatDate(selectedInquiry.created_at)}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Email</p>
-                <p className="text-sm text-text-secondary">{selectedInquiry.email}</p>
-              </div>
-              <div>
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Phone</p>
-                <p className="text-sm text-text-secondary">{selectedInquiry.phone || '—'}</p>
-              </div>
-              <div className="col-span-2">
-                <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-1">Company</p>
-                <p className="text-sm text-text-secondary">{selectedInquiry.company || '—'}</p>
-              </div>
-            </div>
+              {/* Drawer Content */}
+              <div className="p-10 space-y-10 pb-20">
+                {/* 1. Profile Section */}
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-24 h-24 rounded-[2.5rem] bg-gradient-to-br from-navy-900 to-navy-800 text-white flex items-center justify-center text-2xl font-black shadow-2xl shadow-navy-900/20 mb-6">
+                    {selectedInquiry.name.substring(0, 2).toUpperCase()}
+                  </div>
+                  <h3 className="text-2xl font-black text-navy-900 tracking-tight">{selectedInquiry.name}</h3>
+                  <p className="text-primary-500 font-bold text-sm mt-1">{selectedInquiry.company || 'Independent Lead'}</p>
+                </div>
 
-            <div className="pt-4 border-t border-border">
-              <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-2">Requirement Details</p>
-              <div className="bg-surface-alt/50 rounded-xl p-4 text-sm text-navy-900 leading-relaxed whitespace-pre-wrap border border-border">
-                {selectedInquiry.requirement}
-              </div>
-            </div>
+                {/* 2. Contact Metadata */}
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="bg-surface-alt/50 rounded-3xl p-6 border border-border/50">
+                    <Mail className="w-5 h-5 text-primary-500 mb-3" />
+                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Email Endpoint</p>
+                    <p className="text-sm font-bold text-navy-900 break-all">{selectedInquiry.email}</p>
+                  </div>
+                  <div className="bg-surface-alt/50 rounded-3xl p-6 border border-border/50">
+                    <Phone className="w-5 h-5 text-emerald-500 mb-3" />
+                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Direct Line</p>
+                    <p className="text-sm font-bold text-navy-900">{selectedInquiry.phone || 'N/A'}</p>
+                  </div>
+                  <div className="col-span-2 bg-surface-alt/50 rounded-3xl p-6 border border-border/50">
+                    <Clock className="w-5 h-5 text-violet-500 mb-3" />
+                    <p className="text-[10px] font-black text-text-muted uppercase tracking-widest mb-1">Received On</p>
+                    <p className="text-sm font-bold text-navy-900">{formatDate(selectedInquiry.created_at)}</p>
+                  </div>
+                </div>
 
-            <div className="pt-4 border-t border-border">
-              <p className="text-xs font-semibold uppercase tracking-wider text-text-muted mb-3">Update Status</p>
-              <div className="flex flex-wrap gap-2">
-                {statusOptions.filter(s => s !== 'all').map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => handleStatusChange(selectedInquiry.id, s)}
-                    className={cn(
-                      "px-4 py-2 rounded-xl text-xs font-bold transition-all border",
-                      selectedInquiry.status === s
-                        ? statusColors[s] + " scale-105 shadow-md shadow-primary-500/10"
-                        : "bg-white text-gray-400 border-border hover:bg-gray-50"
-                    )}
-                  >
-                    {s.charAt(0).toUpperCase() + s.slice(1)}
-                  </button>
-                ))}
+                {/* 3. Requirement Details */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <MessageSquare className="w-4 h-4 text-primary-500" />
+                    <h4 className="text-[11px] font-black text-navy-900 uppercase tracking-widest">Requirement Statement</h4>
+                  </div>
+                  <div className="bg-white rounded-[2rem] p-8 text-sm text-navy-900 leading-relaxed font-medium border border-border shadow-inner-lg">
+                    {selectedInquiry.requirement}
+                  </div>
+                </div>
+
+                {/* 4. Action Center */}
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck className="w-4 h-4 text-emerald-500" />
+                    <h4 className="text-[11px] font-black text-navy-900 uppercase tracking-widest">Pipeline Management</h4>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {statusOptions.filter(s => s !== 'all').map((s) => (
+                      <button
+                        key={s}
+                        onClick={() => handleStatusChange(selectedInquiry.id, s)}
+                        className={cn(
+                          "px-6 py-4 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border text-center",
+                          selectedInquiry.status === s
+                            ? "bg-navy-900 text-white border-navy-900 shadow-lg shadow-navy-900/10 scale-[1.02]"
+                            : "bg-white text-gray-500 border-border hover:border-navy-200"
+                        )}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    )}
-  </>
-);
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
+  );
 }
