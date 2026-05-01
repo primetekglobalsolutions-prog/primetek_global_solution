@@ -19,6 +19,7 @@ This file tracks the latest updates, bug fixes, and operational changes made to 
 - **Dashboard Greeting Contrast**: Improved visibility of the "Welcome Back" section for both Admins and Employees. Changed gradient/transparent text to high-contrast white.
 - **Subtext Legibility**: Brightened secondary text in premium headers to meet contrast standards.
 - **Login Portal Synchronization**: Standardized the Employee login experience to match the premium Admin portal. Both now use the dark glassmorphism aesthetic with high-security visual cues.
+- **Resilient Approvals Hub**: Refactored the leave and WFH request fetching logic to be case-insensitive and resilient to relationship mapping issues, ensuring all pending requests are visible to admins.
 
 ### ⚙️ DevOps & Stability
 - **Build Verification**: Successfully ran `npm run build` to ensure all TypeScript and Server Component changes are production-ready.
