@@ -11,38 +11,57 @@ export async function getPendingApprovals() {
     return { leaves: [], wfh: [] };
   }
 
-  // 1. Fetch Pending Leaves
-  const { data: leaves } = await supabaseAdmin
-    .from('leave_requests')
-    .select(`
-      *,
-      employees ( name, email )
-    `)
-    .eq('status', 'Pending')
-    .order('created_at', { ascending: false });
+  try {
+    // 1. Fetch Pending Leaves - Use a more resilient join or manual mapping if needed
+    const { data: leaves, error: leavesError } = await supabaseAdmin
+      .from('leave_requests')
+      .select('*')
+      .ilike('status', 'Pending') // Case-insensitive status check
+      .order('created_at', { ascending: false });
 
-  // 2. Fetch Pending WFH (from attendance table)
-  const { data: wfh } = await supabaseAdmin
-    .from('attendance')
-    .select(`
-      *,
-      employees ( name, email )
-    `)
-    .eq('status', 'Pending WFH')
-    .order('date', { ascending: false });
+    if (leavesError) throw leavesError;
 
-  return {
-    leaves: (leaves || []).map((l: any) => ({ 
-      ...l, 
-      employee_name: l.employees?.name || 'Unknown',
-      employee_email: l.employees?.email
-    })),
-    wfh: (wfh || []).map((w: any) => ({ 
-      ...w, 
-      employee_name: w.employees?.name || 'Unknown',
-      employee_email: w.employees?.email
-    }))
-  };
+    // 2. Fetch Pending WFH
+    const { data: wfh, error: wfhError } = await supabaseAdmin
+      .from('attendance')
+      .select('*')
+      .ilike('status', 'Pending WFH') // Case-insensitive status check
+      .order('date', { ascending: false });
+
+    if (wfhError) throw wfhError;
+
+    // 3. Enrich with Employee Names (Batch query to avoid join issues)
+    const allEmpIds = Array.from(new Set([
+      ...(leaves || []).map(l => l.employee_id),
+      ...(wfh || []).map(w => w.employee_id)
+    ])).filter(Boolean);
+
+    const { data: employees } = await supabaseAdmin
+      .from('employees')
+      .select('id, name, email')
+      .in('id', allEmpIds);
+
+    const empMap = (employees || []).reduce((acc: any, emp: any) => {
+      acc[emp.id] = emp;
+      return acc;
+    }, {});
+
+    return {
+      leaves: (leaves || []).map((l: any) => ({ 
+        ...l, 
+        employee_name: empMap[l.employee_id]?.name || 'Unknown Employee',
+        employee_email: empMap[l.employee_id]?.email
+      })),
+      wfh: (wfh || []).map((w: any) => ({ 
+        ...w, 
+        employee_name: empMap[w.employee_id]?.name || 'Unknown Employee',
+        employee_email: empMap[w.employee_id]?.email
+      }))
+    };
+  } catch (error) {
+    console.error('Error in getPendingApprovals:', error);
+    return { leaves: [], wfh: [] };
+  }
 }
 
 export async function updateLeaveStatus(id: string, status: 'Approved' | 'Rejected') {

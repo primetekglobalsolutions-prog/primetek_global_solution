@@ -21,8 +21,8 @@ export default async function AdminAppDashboard() {
     supabaseAdmin.from('inquiries').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('jobs').select('*', { count: 'exact', head: true }).eq('is_active', true),
     supabaseAdmin.from('employees').select('*', { count: 'exact', head: true }),
-    supabaseAdmin.from('leave_requests').select('*', { count: 'exact', head: true }).eq('status', 'Pending'),
-    supabaseAdmin.from('attendance').select('*', { count: 'exact', head: true }).eq('status', 'Pending WFH'),
+    supabaseAdmin.from('leave_requests').select('*', { count: 'exact', head: true }).ilike('status', 'Pending'),
+    supabaseAdmin.from('attendance').select('*', { count: 'exact', head: true }).ilike('status', 'Pending WFH'),
     supabaseAdmin.from('inquiries').select('*').order('created_at', { ascending: false }).limit(5)
   ]);
 
