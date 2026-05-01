@@ -69,16 +69,20 @@ export async function updateLeaveStatus(id: string, status: 'Approved' | 'Reject
   if (!session || session.role !== 'admin') throw new Error('Unauthorized');
 
   // 1. Get request details first for email and balance
-  const { data: request } = await supabaseAdmin
+  const { data: request, error: fetchError } = await supabaseAdmin
     .from('leave_requests')
-    .select(`
-      *,
-      employees ( name, email )
-    `)
+    .select('*')
     .eq('id', id)
     .single();
 
-  if (!request) throw new Error('Request not found');
+  if (fetchError || !request) throw new Error('Request not found');
+
+  // Fetch employee details separately for email notifications
+  const { data: employee } = await supabaseAdmin
+    .from('employees')
+    .select('name, email')
+    .eq('id', request.employee_id)
+    .single();
 
   // 2. Update Status
   const { error } = await supabaseAdmin
@@ -98,17 +102,20 @@ export async function updateLeaveStatus(id: string, status: 'Approved' | 'Reject
     // Fetch current balance
     const { data: balance } = await supabaseAdmin
       .from('leave_balances')
-      .select('used_days')
+      .select('total_days, used_days')
       .eq('employee_id', request.employee_id)
       .eq('leave_type', request.type)
       .single();
 
     if (balance) {
+      const newUsed = (balance.used_days || 0) + days;
+      const newRemaining = (balance.total_days || 0) - newUsed;
+      
       await supabaseAdmin
         .from('leave_balances')
         .update({ 
-          used_days: (balance.used_days || 0) + days,
-          remaining_days: request.total_days - ((balance.used_days || 0) + days) // Note: request might not have total_days, let's fix that
+          used_days: newUsed,
+          remaining_days: newRemaining
         })
         .eq('employee_id', request.employee_id)
         .eq('leave_type', request.type);
@@ -119,15 +126,15 @@ export async function updateLeaveStatus(id: string, status: 'Approved' | 'Reject
   }
 
   // 4. Send Email
-  if (request.employees?.email) {
+  if (employee?.email) {
     const html = getLeaveStatusTemplate(
-      request.employees.name,
+      employee.name,
       request.type,
       status,
       request.start_date,
       request.end_date
     );
-    await sendNotificationEmail(request.employees.email, `Leave Request ${status}`, html);
+    await sendNotificationEmail(employee.email, `Leave Request ${status}`, html);
   }
 
   revalidatePath('/admin/approvals');
@@ -140,16 +147,20 @@ export async function updateWFHStatus(id: string, status: 'Approved WFH' | 'Reje
   if (!session || session.role !== 'admin') throw new Error('Unauthorized');
 
   // 1. Get request details
-  const { data: request } = await supabaseAdmin
+  const { data: request, error: fetchError } = await supabaseAdmin
     .from('attendance')
-    .select(`
-      *,
-      employees ( name, email )
-    `)
+    .select('*')
     .eq('id', id)
     .single();
 
-  if (!request) throw new Error('Request not found');
+  if (fetchError || !request) throw new Error('Request not found');
+
+  // Fetch employee details separately
+  const { data: employee } = await supabaseAdmin
+    .from('employees')
+    .select('name, email')
+    .eq('id', request.employee_id)
+    .single();
 
   // 2. Update Status
   const { error } = await supabaseAdmin
@@ -160,13 +171,13 @@ export async function updateWFHStatus(id: string, status: 'Approved WFH' | 'Reje
   if (error) throw error;
 
   // 3. Send Email
-  if (request.employees?.email) {
+  if (employee?.email) {
     const html = getWFHStatusTemplate(
-      request.employees.name,
+      employee.name,
       request.date,
       status
     );
-    await sendNotificationEmail(request.employees.email, `WFH Request ${status.includes('Approved') ? 'Approved' : 'Rejected'}`, html);
+    await sendNotificationEmail(employee.email, `WFH Request ${status.includes('Approved') ? 'Approved' : 'Rejected'}`, html);
   }
 
   revalidatePath('/admin/approvals');
