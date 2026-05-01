@@ -26,7 +26,7 @@ export default async function AuditLogsPage() {
               <ShieldCheck className="w-5 h-5 text-primary-400" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-200">Security Ledger</span>
             </div>
-            <h1 className="text-3xl font-heading font-black tracking-tight">System Audit Logs</h1>
+            <h1 className="text-3xl font-heading font-black tracking-tight text-white">System Audit Logs</h1>
             <p className="text-gray-400 text-xs mt-1 font-medium">Immutable record of all critical administrative actions.</p>
           </div>
           <div className="relative group">

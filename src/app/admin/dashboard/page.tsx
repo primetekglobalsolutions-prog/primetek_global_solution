@@ -4,24 +4,26 @@ import { formatDate } from '@/lib/utils';
 import Link from 'next/link';
 import AnalyticsCharts from '@/components/admin/AnalyticsCharts';
 import DashboardGreeting from '@/components/admin/DashboardGreeting';
+import { getSession } from '@/lib/auth';
 
 export default async function AdminAppDashboard() {
+  const session = await getSession();
+  const userName = session?.name || 'Administrator';
+
   const [
     { count: inquiriesCount },
     { count: activeJobsCount },
     { count: employeesCount },
     { count: pendingLeavesCount },
     { count: pendingWFHCount },
-    { data: recentInquiries },
-    { data: me }
+    { data: recentInquiries }
   ] = await Promise.all([
     supabaseAdmin.from('inquiries').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('jobs').select('*', { count: 'exact', head: true }).eq('is_active', true),
     supabaseAdmin.from('employees').select('*', { count: 'exact', head: true }),
     supabaseAdmin.from('leave_requests').select('*', { count: 'exact', head: true }).eq('status', 'Pending'),
     supabaseAdmin.from('attendance').select('*', { count: 'exact', head: true }).eq('status', 'Pending WFH'),
-    supabaseAdmin.from('inquiries').select('*').order('created_at', { ascending: false }).limit(5),
-    supabaseAdmin.from('employees').select('name').limit(1).single()
+    supabaseAdmin.from('inquiries').select('*').order('created_at', { ascending: false }).limit(5)
   ]);
 
   const totalPending = (pendingLeavesCount || 0) + (pendingWFHCount || 0);
@@ -93,7 +95,7 @@ export default async function AdminAppDashboard() {
 
   return (
     <div className="space-y-8 pb-10">
-      <DashboardGreeting userName={me?.name || 'Admin'} />
+      <DashboardGreeting userName={userName} />
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
         {stats.map((stat) => (
@@ -184,7 +186,7 @@ export default async function AdminAppDashboard() {
             <div className="absolute top-0 right-0 p-8 opacity-10">
               <Zap className="w-24 h-24" />
             </div>
-            <h3 className="text-lg font-heading font-black tracking-tight mb-2 relative z-10">Node Status</h3>
+            <h3 className="text-lg font-heading font-black tracking-tight mb-2 relative z-10 text-white">Node Status</h3>
             <p className="text-xs text-gray-400 font-medium mb-6 relative z-10">Real-time health check across all service modules.</p>
             
             <div className="space-y-4 relative z-10">

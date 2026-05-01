@@ -57,7 +57,7 @@ export default function LeavesPage() {
               <Sparkles className="w-5 h-5 text-primary-400" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-200">Personnel Status</span>
             </div>
-            <h1 className="text-3xl font-heading font-black tracking-tight">Leave Management</h1>
+            <h1 className="text-3xl font-heading font-black tracking-tight text-white">Leave Management</h1>
             <p className="text-gray-400 text-xs mt-1 font-medium italic">Track your operational downtime and allocation credits.</p>
           </div>
           <Button 

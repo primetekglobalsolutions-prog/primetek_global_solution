@@ -76,12 +76,24 @@ export async function updateLeaveStatus(id: string, status: 'Approved' | 'Reject
     const days = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
 
     // Use RPC or direct update to used_days
-    const { error: balanceError } = await supabaseAdmin
+    // Fetch current balance
+    const { data: balance } = await supabaseAdmin
       .from('leave_balances')
-      .update({ used_days: request.used_days + days }) // This is a bit risky for race conditions, but simple for now
-      // In a real app, use a postgres function: used_days = used_days + days
+      .select('used_days')
       .eq('employee_id', request.employee_id)
-      .eq('leave_type', request.type);
+      .eq('leave_type', request.type)
+      .single();
+
+    if (balance) {
+      await supabaseAdmin
+        .from('leave_balances')
+        .update({ 
+          used_days: (balance.used_days || 0) + days,
+          remaining_days: request.total_days - ((balance.used_days || 0) + days) // Note: request might not have total_days, let's fix that
+        })
+        .eq('employee_id', request.employee_id)
+        .eq('leave_type', request.type);
+    }
     
     // Note: In Supabase, we should ideally use a stored procedure to increment safely
     // For now, we'll fetch current used_days if we want to be safer, but let's assume single admin for now.

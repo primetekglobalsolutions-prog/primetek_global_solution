@@ -9,9 +9,9 @@ interface DashboardGreetingProps {
 
 export default function DashboardGreeting({ userName }: DashboardGreetingProps) {
   const firstName = userName ? userName.split(' ')[0] : 'Admin';
-  
+
   return (
-    <motion.div 
+    <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       className="relative overflow-hidden rounded-[2.5rem] bg-navy-900 p-8 md:p-10 text-white shadow-2xl shadow-navy-900/20 mb-6 group"
@@ -29,13 +29,13 @@ export default function DashboardGreeting({ userName }: DashboardGreetingProps) 
             <Sparkles className="w-3 h-3 text-primary-400" />
             <span className="text-[10px] font-bold text-primary-200 uppercase tracking-[0.2em]">System Status: Optimal</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-heading font-black tracking-tight leading-tight">
+          <h1 className="text-3xl md:text-4xl font-heading font-black tracking-tight leading-tight text-white">
             Welcome Back,<br />
-            <span className="bg-gradient-to-r from-primary-400 to-teal-400 bg-clip-text text-transparent">
+            <span className="text-white drop-shadow-md brightness-110">
               {firstName}
             </span>
           </h1>
-          <p className="text-gray-400 text-sm mt-3 font-medium max-w-md">
+          <p className="text-gray-300 text-sm mt-3 font-medium max-w-md">
             Here's what's happening across the Primetek Global ecosystem today.
           </p>
         </div>
@@ -43,9 +43,9 @@ export default function DashboardGreeting({ userName }: DashboardGreetingProps) 
         <div className="w-full md:w-auto md:min-w-[300px]">
           <div className="relative group/search">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 group-focus-within/search:text-primary-400 transition-colors" />
-            <input 
-              type="text" 
-              placeholder="Search anything..." 
+            <input
+              type="text"
+              placeholder="Search anything..."
               className="w-full pl-11 pr-4 py-4 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-xl text-white placeholder:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500/50 transition-all font-medium"
             />
           </div>

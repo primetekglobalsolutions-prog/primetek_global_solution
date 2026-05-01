@@ -178,7 +178,7 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
               <Sparkles className="w-5 h-5 text-primary-400" />
               <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-200">Temporal Node</span>
             </div>
-            <h1 className="text-3xl font-heading font-black tracking-tight">Time & Attendance</h1>
+            <h1 className="text-3xl font-heading font-black tracking-tight text-white">Time & Attendance</h1>
             <p className="text-gray-400 text-xs mt-1 font-medium italic">Synchronize your operational hours with the global HQ.</p>
           </div>
           <div className="hidden md:block text-right">
@@ -275,7 +275,7 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
           </div>
           
           <div className="flex items-center justify-between mb-8">
-            <h2 className="font-heading font-black text-xl tracking-tight">Temporal Matrix</h2>
+            <h2 className="font-heading font-black text-xl tracking-tight text-white">Temporal Matrix</h2>
             <div className="px-4 py-1.5 rounded-xl bg-white/10 text-[10px] font-black uppercase tracking-widest text-primary-300">
               {currentTime.toLocaleDateString('en-IN', { month: 'long', year: 'numeric' })}
             </div>

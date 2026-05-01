@@ -97,7 +97,7 @@ export default function AdminSettingsPage() {
             <Sparkles className="w-5 h-5 text-primary-400" />
             <span className="text-[10px] font-black uppercase tracking-[0.2em] text-primary-200">Infrastructure Config</span>
           </div>
-          <h1 className="text-3xl font-heading font-black tracking-tight">System Settings</h1>
+          <h1 className="text-3xl font-heading font-black tracking-tight text-white">System Settings</h1>
           <p className="text-gray-400 text-xs mt-1 font-medium italic">Define the geofence and operational boundaries for the PWA nodes.</p>
         </div>
       </div>
@@ -294,7 +294,7 @@ export default function AdminSettingsPage() {
               <HelpCircle className="w-48 h-48 text-white" />
             </div>
             
-            <h2 className="font-heading font-black text-xl mb-8 tracking-tight flex items-center gap-2">
+            <h2 className="font-heading font-black text-xl mb-8 tracking-tight flex items-center gap-2 text-white">
               <HelpCircle className="w-6 h-6 text-primary-400" />
               Provisioning Guide
             </h2>
