@@ -6,7 +6,7 @@ import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import { OFFICE_LOCATION } from '@/lib/location';
-import { getOfficeLocation, saveOfficeLocation } from './actions';
+import { getOfficeLocation, saveOfficeLocation, getSystemStatus } from './actions';
 import { env } from '@/lib/env';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
@@ -22,6 +22,8 @@ export default function AdminSettingsPage() {
   const [mapError, setMapError] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const [systemNodes, setSystemNodes] = useState<any[]>([]);
+
   useEffect(() => {
     async function loadLocation() {
       try {
@@ -32,8 +34,11 @@ export default function AdminSettingsPage() {
           setName(office.name || OFFICE_LOCATION.name);
           setRadius(String(office.radius_meters || OFFICE_LOCATION.radiusMeters));
         }
+
+        const nodes = await getSystemStatus();
+        setSystemNodes(nodes);
       } catch (err) {
-        console.error('Failed to load office location:', err);
+        console.error('Failed to load settings:', err);
       } finally {
         setLoading(false);
       }
@@ -329,10 +334,20 @@ export default function AdminSettingsPage() {
               ))}
             </div>
 
-            <div className="mt-10 pt-8 border-t border-white/10">
-              <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
-                System Status: <span className="text-emerald-500">Operational</span>
-              </p>
+            <div className="mt-10 pt-8 border-t border-white/10 space-y-2">
+              <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] mb-2">Node Vitality Check:</p>
+              {systemNodes.map((node, i) => (
+                <p key={i} className="text-[9px] font-black text-gray-400 uppercase tracking-[0.2em] flex items-center justify-between">
+                  {node.node_name}: <span className={cn(
+                    node.status === 'Active' || node.status === 'Optimal' ? "text-emerald-500" : "text-amber-500"
+                  )}>{node.status}</span>
+                </p>
+              ))}
+              {systemNodes.length === 0 && (
+                <p className="text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] flex items-center gap-2">
+                  System Status: <span className="text-emerald-500">Operational</span>
+                </p>
+              )}
             </div>
           </Card>
         </div>

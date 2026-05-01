@@ -58,7 +58,7 @@ export async function createEmployee(data: {
   const password = employee_id;
   const password_hash = await bcrypt.hash(password, 10);
 
-  const { error } = await supabaseAdmin.from('employees').insert([
+  const { data: newEmp, error } = await supabaseAdmin.from('employees').insert([
     {
       employee_id,
       name: data.name,
@@ -69,12 +69,29 @@ export async function createEmployee(data: {
       join_date: new Date().toISOString().split('T')[0],
       status: 'Active',
     },
-  ]);
+  ]).select('id').single();
 
-  if (error) {
+  if (error || !newEmp) {
     console.error('Error creating employee:', error);
-    throw new Error(error.message || 'Failed to create employee');
+    throw new Error(error?.message || 'Failed to create employee');
   }
+
+  // Initialize Balances from Portal Config
+  const { data: config } = await supabaseAdmin.from('portal_config').select('*');
+  const configMap = (config || []).reduce((acc: any, curr: any) => {
+    acc[curr.config_key] = curr.config_value;
+    return acc;
+  }, {});
+
+  const sick = parseInt(configMap['default_sick_leave'] || '12');
+  const casual = parseInt(configMap['default_casual_leave'] || '10');
+  const earned = parseInt(configMap['default_earned_leave'] || '15');
+
+  await supabaseAdmin.from('leave_balances').insert([
+    { employee_id: newEmp.id, leave_type: 'Sick', total_days: sick, used_days: 0, remaining_days: sick },
+    { employee_id: newEmp.id, leave_type: 'Casual', total_days: casual, used_days: 0, remaining_days: casual },
+    { employee_id: newEmp.id, leave_type: 'Earned', total_days: earned, used_days: 0, remaining_days: earned },
+  ]);
 
   revalidatePath('/admin/employees');
   revalidatePath('/admin/dashboard');

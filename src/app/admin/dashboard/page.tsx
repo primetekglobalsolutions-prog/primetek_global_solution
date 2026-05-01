@@ -93,6 +93,19 @@ export default async function AdminAppDashboard() {
     return { label: week.label, value: count };
   });
 
+  // Fetch System Node Status
+  const { data: systemNodes } = await supabaseAdmin
+    .from('system_status')
+    .select('node_name, status, color')
+    .order('node_name');
+
+  const nodes = systemNodes?.length ? systemNodes : [
+    { node_name: 'Authentication', status: 'Active', color: 'bg-emerald-500' },
+    { node_name: 'DB Cluster', status: 'Syncing', color: 'bg-emerald-500' },
+    { node_name: 'Mail Server', status: 'Active', color: 'bg-emerald-500' },
+    { node_name: 'API Gateway', status: 'Optimal', color: 'bg-primary-400' },
+  ];
+
   return (
     <div className="space-y-8 pb-10">
       <DashboardGreeting userName={userName} />
@@ -190,14 +203,9 @@ export default async function AdminAppDashboard() {
             <p className="text-xs text-gray-400 font-medium mb-6 relative z-10">Real-time health check across all service modules.</p>
             
             <div className="space-y-4 relative z-10">
-              {[
-                { label: 'Authentication', status: 'Active', color: 'bg-emerald-500' },
-                { label: 'DB Cluster', status: 'Syncing', color: 'bg-emerald-500' },
-                { label: 'Mail Server', status: 'Active', color: 'bg-emerald-500' },
-                { label: 'API Gateway', status: 'Optimal', color: 'bg-primary-400' },
-              ].map(node => (
-                <div key={node.label} className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold text-gray-300 uppercase tracking-widest">{node.label}</span>
+              {nodes.map(node => (
+                <div key={node.node_name} className="flex items-center justify-between">
+                  <span className="text-[11px] font-bold text-gray-300 uppercase tracking-widest">{node.node_name}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] font-black uppercase text-gray-500">{node.status}</span>
                     <div className={`w-1.5 h-1.5 rounded-full ${node.color} shadow-[0_0_8px_rgba(16,185,129,0.5)]`} />

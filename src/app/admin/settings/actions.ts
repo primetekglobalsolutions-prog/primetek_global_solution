@@ -70,3 +70,16 @@ export async function saveOfficeLocation(data: {
   revalidatePath('/employee/attendance');
   return { success: true };
 }
+
+export async function getSystemStatus() {
+  const { data, error } = await supabaseAdmin
+    .from('system_status')
+    .select('*')
+    .order('node_name');
+
+  if (error) {
+    console.error('Error fetching system status:', error);
+    return [];
+  }
+  return data;
+}

@@ -18,12 +18,21 @@ export default async function EmployeeAppDashboard() {
   const [
     { data: employee },
     { data: records },
-    { data: balances }
+    { data: balances },
+    { data: configData }
   ] = await Promise.all([
     supabaseAdmin.from('employees').select('name, employee_id, role, department').eq('id', session.id).single(),
     supabaseAdmin.from('attendance').select('*').eq('employee_id', session.id).order('date', { ascending: false }).limit(10),
-    supabaseAdmin.from('leave_balances').select('*').eq('employee_id', session.id)
+    supabaseAdmin.from('leave_balances').select('*').eq('employee_id', session.id),
+    supabaseAdmin.from('portal_config').select('config_key, config_value')
   ]);
+
+  const configMap = (configData || []).reduce((acc: any, curr: any) => {
+    acc[curr.config_key] = curr.config_value;
+    return acc;
+  }, {});
+
+  const operationalPolicy = configMap['operational_policy'] || "Deployment to Remote (WFH) nodes requires geospatial verification and Administrative authorization to maintain synchronized attendance metrics.";
 
   const empRecords = (records || []).map(r => {
     const checkIn = r.check_in ? new Date(r.check_in) : null;
@@ -261,7 +270,7 @@ export default async function EmployeeAppDashboard() {
               <p className="text-sm font-black text-emerald-900 uppercase tracking-widest">Operational Policy</p>
             </div>
             <p className="text-xs text-emerald-800/70 leading-relaxed font-medium italic">
-              "Deployment to Remote (WFH) nodes requires geospatial verification and Administrative authorization to maintain synchronized attendance metrics."
+              "{operationalPolicy}"
             </p>
           </div>
         </div>

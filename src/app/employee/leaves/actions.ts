@@ -61,12 +61,22 @@ export async function getLeaveBalances() {
     return [];
   }
 
-  // If no balances exist, initialize them with defaults
+  // If no balances exist, initialize them with defaults from portal_config
   if (data.length === 0) {
+    const { data: config } = await supabaseAdmin.from('portal_config').select('*');
+    const configMap = (config || []).reduce((acc: any, curr: any) => {
+      acc[curr.config_key] = curr.config_value;
+      return acc;
+    }, {});
+
+    const sick = parseInt(configMap['default_sick_leave'] || '12');
+    const casual = parseInt(configMap['default_casual_leave'] || '10');
+    const earned = parseInt(configMap['default_earned_leave'] || '15');
+
     const defaults = [
-      { employee_id: session.id, leave_type: 'Sick', total_days: 0, used_days: 0, remaining_days: 0 },
-      { employee_id: session.id, leave_type: 'Casual', total_days: 0, used_days: 0, remaining_days: 0 },
-      { employee_id: session.id, leave_type: 'Earned', total_days: 0, used_days: 0, remaining_days: 0 },
+      { employee_id: session.id, leave_type: 'Sick', total_days: sick, used_days: 0, remaining_days: sick },
+      { employee_id: session.id, leave_type: 'Casual', total_days: casual, used_days: 0, remaining_days: casual },
+      { employee_id: session.id, leave_type: 'Earned', total_days: earned, used_days: 0, remaining_days: earned },
     ];
 
     const { data: newData, error: initError } = await supabaseAdmin
