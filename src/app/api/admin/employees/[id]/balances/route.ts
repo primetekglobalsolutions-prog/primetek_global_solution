@@ -4,9 +4,10 @@ import { getSession } from '@/lib/auth';
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session || session.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -15,7 +16,7 @@ export async function GET(
     const { data: balances, error } = await supabaseAdmin
       .from('leave_balances')
       .select('*')
-      .eq('employee_id', params.id);
+      .eq('employee_id', id);
 
     if (error) throw error;
 
@@ -27,9 +28,10 @@ export async function GET(
 
 export async function POST(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
     const session = await getSession();
     if (!session || session.role !== 'admin') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
@@ -38,9 +40,9 @@ export async function POST(
     const { sick, casual, earned } = await req.json();
 
     const updates = [
-      { employee_id: params.id, leave_type: 'Sick', total_days: sick, remaining_days: sick, used_days: 0 },
-      { employee_id: params.id, leave_type: 'Casual', total_days: casual, remaining_days: casual, used_days: 0 },
-      { employee_id: params.id, leave_type: 'Earned', total_days: earned, remaining_days: earned, used_days: 0 },
+      { employee_id: id, leave_type: 'Sick', total_days: sick, remaining_days: sick, used_days: 0 },
+      { employee_id: id, leave_type: 'Casual', total_days: casual, remaining_days: casual, used_days: 0 },
+      { employee_id: id, leave_type: 'Earned', total_days: earned, remaining_days: earned, used_days: 0 },
     ];
 
     for (const update of updates) {
