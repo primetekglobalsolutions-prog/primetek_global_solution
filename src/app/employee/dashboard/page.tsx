@@ -92,7 +92,7 @@ export default async function EmployeeAppDashboard() {
             <div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-heading font-black tracking-tighter leading-tight text-white">
                 Welcome Back,<br />
-                <span className="text-white drop-shadow-md brightness-125">{firstName}</span>
+                <span className="text-primary-400 drop-shadow-md brightness-125">{firstName}</span>
               </h1>
               <p className="text-gray-400 text-sm md:text-base mt-4 max-w-md font-medium leading-relaxed italic">
                 Infrastructure synchronization complete. Your current operational node is active and ready for commands.
