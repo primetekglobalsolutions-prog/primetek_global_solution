@@ -87,10 +87,13 @@ export async function updateLeaveStatus(id: string, status: 'Approved' | 'Reject
   // 2. Update Status
   const { error } = await supabaseAdmin
     .from('leave_requests')
-    .update({ status, approved_by: session.id })
+    .update({ status }) // Removed approved_by as it may not exist in the schema
     .eq('id', id);
 
-  if (error) throw error;
+  if (error) {
+    console.error('Database update error:', error);
+    throw new Error('Database update failed');
+  }
 
   // 3. Deduct Balance if Approved
   if (status === 'Approved') {
