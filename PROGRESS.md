@@ -18,6 +18,7 @@ This file tracks the latest updates, bug fixes, and operational changes made to 
 - **Invisible Headings Fix**: Resolved a critical CSS issue where `h1`, `h2`, and `h3` tags defaulted to `navy-900` color, making them invisible on dark dashboard headers.
 - **Dashboard Greeting Contrast**: Improved visibility of the "Welcome Back" section for both Admins and Employees. Changed gradient/transparent text to high-contrast white.
 - **Subtext Legibility**: Brightened secondary text in premium headers to meet contrast standards.
+- **Login Portal Synchronization**: Standardized the Employee login experience to match the premium Admin portal. Both now use the dark glassmorphism aesthetic with high-security visual cues.
 
 ### ⚙️ DevOps & Stability
 - **Build Verification**: Successfully ran `npm run build` to ensure all TypeScript and Server Component changes are production-ready.
