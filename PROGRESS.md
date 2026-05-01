@@ -1,44 +1,29 @@
-# 🚀 Project Progress & Audit Log
+# Primetek HR Portal - Project Progress
 
-This file tracks the latest updates, bug fixes, and operational changes made to the Primetek HR Portal. Use this to quickly see where we left off.
+### 📍 Current Phase: Final Stabilization & Optimization (Completed)
 
----
+#### ✅ Completed Tasks
 
-## ✅ Latest Updates (May 1, 2026)
+**1. UI/UX Harmonization & Aesthetics**
+- **Greetings**: Unified "Welcome Back" headers across Admin and Employee portals. User names now use `primary-400` (Electric Indigo) for maximum visibility on dark backgrounds.
+- **Login Standardization**: Both Admin and Employee login forms now share the same premium design, including unified labels: "Portal Identity" and "Access Key".
+- **Contrast Polish**: Fixed invisible heading issues where `navy-900` text was bleeding into dark backgrounds.
 
-### 🛠️ Functional Fixes
-- **Admin Dashboard Personalization**: Removed the random name "Bhavana". The dashboard now correctly displays the logged-in user's name from the session or "Administrator".
-- **Attendance Timezone Correction**: Fixed attendance log times to use **Asia/Kolkata (IST)**. Previously, they defaulted to the server's local time or UTC.
-- **Leave Balance Logic**: 
-  - Fixed a critical bug in `updateLeaveStatus` that caused balance deduction failures.
-  - Correctly implemented `remaining_days` calculation during admin approval.
-- **Default Data Cleanup**: Removed "fake" hardcoded leave balances (12/12/15) for new employees. Balances now default to `0` until configured by HR.
+**2. Timezone & Reporting Stabilization**
+- **IST Enforced**: Standardized all date/time displays to `Asia/Kolkata` (IST) using `en-IN` locale.
+- **Activity Logs**: Corrected time drift in Dashboard activity logs and Attendance reports.
+- **Export Consistency**: Ensured timezone-aware formatting for CSV and Excel exports.
 
-### 🎨 UI/UX Contrast & Aesthetics
-- **Invisible Headings Fix**: Resolved a critical CSS issue where `h1`, `h2`, and `h3` tags defaulted to `navy-900` color, making them invisible on dark dashboard headers.
-- **Dashboard Greeting Contrast**: Improved visibility of the "Welcome Back" section for both Admins and Employees. Changed gradient/transparent text to high-contrast white.
-- **Subtext Legibility**: Brightened secondary text in premium headers to meet contrast standards.
-- **Login Portal Synchronization**: Standardized the Employee login experience to match the premium Admin portal. Both now use the dark glassmorphism aesthetic with high-security visual cues.
-- **Resilient Approvals Hub**: Refactored the leave and WFH request fetching logic to be case-insensitive and resilient to relationship mapping issues, ensuring all pending requests are visible to admins.
+**3. Leave Balance & Data Integrity**
+- **Balance Management**: Added a new "Wallet" tool in the **Admin > Staff Directory**. Admins can now manually view and edit leave credits (Sick, Casual, Earned) for any employee.
+- **Fix for "Fake" Data**: Refactored `getLeaveBalances` to initialize new employees with 0 credits, replacing the legacy 12/10/15 placeholders.
+- **Backend Sync**: Implemented `/api/admin/employees/[id]/balances` for secure, server-side credit updates.
 
-### ⚙️ DevOps & Stability
-- **Build Verification**: Successfully ran `npm run build` to ensure all TypeScript and Server Component changes are production-ready.
-- **Source Control**: Staged, committed, and pushed all changes to the `main` branch.
+**4. Deployment & DevOps**
+- **Production Push**: Successfully built and pushed latest code to the `main` branch.
+- **Stability**: Verified all server actions and client components for SSR compatibility.
 
----
-
-## 📍 Where We Left Off
-- **Status**: The portal is fully functional with critical regressions resolved.
-- **Next Task**: Coordinate with the user for any final visual tweaks or specialized feature requests (e.g., advanced reporting filters).
-- **Environment**: All changes are committed to [GitHub](https://github.com/primetekglobalsolutions-prog/primetek_global_solution).
-
----
-
-## 📁 Key Files Modified
-- `src/app/admin/dashboard/page.tsx`
-- `src/app/admin/attendance/actions.ts`
-- `src/app/admin/approvals/actions.ts`
-- `src/app/employee/dashboard/page.tsx`
-- `src/app/employee/leaves/actions.ts`
-- `src/components/admin/DashboardGreeting.tsx`
-- `src/app/globals.css` (Context audit)
+#### ⏭️ Next Steps for User
+1. **Verify Balance Editor**: Go to **Admin > Staff Directory** and click the **Wallet** icon for an employee to fix their "fake" credits.
+2. **Check Login Forms**: Verify that both Admin and Employee login screens are now visually identical and use the new labels.
+3. **Audit Attendance**: Confirm that "Check In" and "Check Out" times now accurately reflect Indian Standard Time.
