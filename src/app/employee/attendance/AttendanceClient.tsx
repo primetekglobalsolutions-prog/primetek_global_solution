@@ -107,14 +107,27 @@ export default function AttendanceClient({ initialRecords }: { initialRecords: A
   const handleCheckOut = async () => {
     if (!todayRecord) return;
     if (!window.confirm('Clock out now?')) return;
-    setGpsStatus('loading');
+    let lat: number | undefined;
+    let lng: number | undefined;
+
     try {
       const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
+        navigator.geolocation.getCurrentPosition(resolve, reject, { 
+          enableHighAccuracy: true, 
+          timeout: 5000 
+        });
       });
-      const result = await checkOut(todayRecord.id, position.coords.latitude, position.coords.longitude);
-      if (result.success) setGpsStatus('success');
-      else {
+      lat = position.coords.latitude;
+      lng = position.coords.longitude;
+    } catch (gpsErr) {
+      console.warn('GPS failed for checkout, proceeding without location:', gpsErr);
+    }
+
+    try {
+      const result = await checkOut(todayRecord.id, lat || 0, lng || 0);
+      if (result.success) {
+        setGpsStatus('success');
+      } else {
         alert(result.error);
         setGpsStatus('error');
       }
