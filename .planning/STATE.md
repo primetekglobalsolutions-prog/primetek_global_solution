@@ -9,7 +9,8 @@ The core Leave Management and WFH workflow have been implemented, including data
 - [x] **Admin Hub**: Centralized "Approvals" page for processing requests.
 - [x] **Email Notifications**: Resend integration with templates for status updates.
 - [x] **Dashboard Optimization**: Added Approval counters and Leave balance displays.
-- [x] **Bug Fixes**: Resolved employee redirect issues and status color consistency.
+- [x] **Bug Fixes**: Resolved employee redirect issues, fixed "Bhavana" name regression, corrected attendance timezone to IST, and fixed invisible heading contrast.
+- [x] **Leave Balances**: Removed fake placeholder data and fixed deduction logic in approvals.
 
 ### Next Steps
 - [ ] **Final Deployment**: Deploy latest changes to Vercel and verify production DB.
