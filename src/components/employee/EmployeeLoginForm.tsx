@@ -2,8 +2,9 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { LogIn, Loader2, Eye, EyeOff } from 'lucide-react';
+import { Loader2, LogIn, Eye, EyeOff, ShieldCheck } from 'lucide-react';
 import Button from '@/components/ui/Button';
+import { cn } from '@/lib/utils';
 
 export default function EmployeeLoginForm() {
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function EmployeeLoginForm() {
       router.push('/employee');
       router.refresh();
     } catch {
-      setError('Something went wrong. Please try again.');
+      setError('Network error. Please try again.');
       setLoading(false);
     }
   };
@@ -83,37 +84,44 @@ export default function EmployeeLoginForm() {
 
   if (showMFA) {
     return (
-      <form onSubmit={handleMFAVerify} className="space-y-6">
+      <form onSubmit={handleMFAVerify} className="space-y-8 relative z-10 animate-in fade-in zoom-in-95 duration-300">
         <div className="text-center">
-          <p className="text-sm text-navy-900 font-bold mb-2">Two-Step Verification</p>
-          <p className="text-xs text-text-muted">Enter the code from your authenticator app.</p>
+          <div className="w-16 h-16 rounded-3xl bg-primary-500/10 text-primary-500 flex items-center justify-center mx-auto mb-4 border border-primary-500/20">
+            <ShieldCheck className="w-8 h-8" />
+          </div>
+          <h2 className="text-xl font-black text-white mb-2">Two-Step Verification</h2>
+          <p className="text-xs text-gray-400 font-medium">Please enter the security code from your device.</p>
         </div>
-        
+
         <input
           type="text"
           value={mfaCode}
           onChange={(e) => setMfaCode(e.target.value.replace(/\D/g, '').substring(0, 6))}
-          placeholder="000000"
-          className="w-full px-4 py-4 rounded-xl border border-border bg-white text-center font-mono text-2xl font-black tracking-[0.5em] focus:ring-2 focus:ring-primary-400 focus:outline-none"
+          placeholder="000 000"
+          className="w-full px-5 py-5 rounded-2xl bg-white/5 border border-white/10 text-white text-center font-mono text-3xl font-black tracking-[0.4em] focus:outline-none focus:ring-2 focus:ring-primary-500/50"
           required
           autoFocus
         />
 
         {error && (
-          <div className="text-error text-sm bg-red-50 border border-red-200 rounded-lg p-3">
-            <p className="font-medium text-center">{error}</p>
+          <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold text-center">
+            {error}
           </div>
         )}
 
-        <Button type="submit" className="w-full" size="lg" disabled={loading || mfaCode.length !== 6}>
-          {loading ? <Loader2 className="w-5 h-5 animate-spin mr-2" /> : <LogIn className="w-5 h-5 mr-2" />}
-          Verify & Sign In
+        <Button 
+          type="submit" 
+          size="lg" 
+          className="w-full bg-primary-500 hover:bg-primary-600 text-white font-black rounded-2xl py-5" 
+          disabled={loading || mfaCode.length !== 6}
+        >
+          {loading ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Confirm Identity'}
         </Button>
 
         <button 
           type="button" 
           onClick={() => setShowMFA(false)} 
-          className="w-full text-xs font-bold text-text-muted hover:text-navy-900 transition-colors py-2"
+          className="w-full text-[10px] font-black text-gray-500 hover:text-white uppercase tracking-widest transition-colors"
         >
           Back to Login
         </button>
@@ -122,32 +130,42 @@ export default function EmployeeLoginForm() {
   }
 
   return (
-    <form onSubmit={handleLogin} className="space-y-5">
+    <form onSubmit={handleLogin} className="space-y-6 relative z-10">
       {lockout && (
-        <div className="bg-red-900 text-white p-4 rounded-xl text-center space-y-2 mb-4 animate-in zoom-in-95">
-          <p className="text-xs font-black uppercase tracking-widest">Account Locked</p>
-          <p className="text-[11px] opacity-80">Security threshold exceeded. Please contact IT support to unlock your credentials.</p>
+        <div className="p-5 rounded-2xl bg-red-500/10 border border-red-500/20 text-center space-y-2 mb-6 animate-in slide-in-from-top-4">
+          <p className="text-xs font-black text-red-400 uppercase tracking-widest">Access Blocked</p>
+          <p className="text-[11px] text-red-400/70 font-medium leading-relaxed">Security threshold exceeded. System access is temporarily locked for this endpoint.</p>
         </div>
       )}
 
-      <div>
-        <label htmlFor="emp-email" className="block text-[10px] font-black text-navy-900/40 uppercase tracking-widest mb-1.5 ml-1">
+      {error && !lockout && (
+        <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-bold text-center animate-in fade-in zoom-in duration-300">
+          {error}
+        </div>
+      )}
+
+      {/* Email */}
+      <div className="space-y-2">
+        <label htmlFor="emp-email" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
           Endpoint Identity
         </label>
-        <input
-          id="emp-email"
-          type="text"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email or Employee ID"
-          required
-          disabled={lockout}
-          className="w-full px-4 py-3 rounded-lg border border-border bg-white text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm disabled:opacity-50"
-        />
+        <div className="relative group">
+          <input
+            id="emp-email"
+            type="text"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email or Employee ID"
+            required
+            disabled={lockout}
+            className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 transition-all text-sm font-medium disabled:opacity-50"
+          />
+        </div>
       </div>
 
-      <div>
-        <label htmlFor="emp-password" className="block text-[10px] font-black text-navy-900/40 uppercase tracking-widest mb-1.5 ml-1">
+      {/* Password */}
+      <div className="space-y-2">
+        <label htmlFor="emp-password" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
           Access Key
         </label>
         <div className="relative">
@@ -159,12 +177,12 @@ export default function EmployeeLoginForm() {
             placeholder="••••••••"
             required
             disabled={lockout}
-            className="w-full px-4 py-3 pr-11 rounded-lg border border-border bg-white text-navy-900 placeholder:text-text-muted focus:outline-none focus:ring-2 focus:ring-primary-400 text-sm disabled:opacity-50"
+            className="w-full px-5 py-4 pr-14 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 transition-all text-sm font-medium disabled:opacity-50"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-text-muted hover:text-navy-900 transition-colors"
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-white transition-colors p-1"
           >
             {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           </button>
@@ -172,22 +190,25 @@ export default function EmployeeLoginForm() {
       </div>
 
       {showCaptcha && !lockout && (
-        <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 text-[11px] font-bold">
-          Multiple failed attempts. CAPTCHA required for next try.
+        <div className="p-3 bg-primary-500/5 border border-primary-500/20 rounded-xl text-primary-200 text-[10px] font-bold uppercase tracking-widest text-center">
+          Security Verification Required
         </div>
       )}
 
-      {error && !lockout && (
-        <div className="text-error text-sm bg-red-50 border border-red-200 rounded-lg p-3 animate-in fade-in slide-in-from-top-1 duration-200">
-          <p className="font-medium">{error}</p>
-        </div>
-      )}
-
-      <Button type="submit" className="w-full" size="lg" disabled={loading || lockout}>
+      {/* Submit */}
+      <Button 
+        type="submit" 
+        size="lg" 
+        className="w-full bg-primary-500 hover:bg-primary-600 text-white font-black rounded-2xl py-5 shadow-xl shadow-primary-500/20 border-0 active:scale-[0.98] transition-all" 
+        disabled={loading || lockout}
+      >
         {loading ? (
-          <><Loader2 className="w-5 h-5 animate-spin mr-2" /> Authenticating...</>
+          <Loader2 className="w-5 h-5 animate-spin mx-auto" />
         ) : (
-          <><LogIn className="w-5 h-5 mr-2" /> Sign In</>
+          <div className="flex items-center justify-center gap-2">
+            <ShieldCheck className="w-5 h-5" /> 
+            <span>Authenticate</span>
+          </div>
         )}
       </Button>
     </form>
