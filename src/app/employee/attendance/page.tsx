@@ -30,8 +30,8 @@ export default async function EmployeeAppAttendancePage() {
       id: r.id,
       date: r.date,
       check_in_raw: r.check_in,
-      check_in: isValidCheckIn ? checkIn.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
-      check_out: isValidCheckOut ? checkOut.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true }) : null,
+      check_in: isValidCheckIn ? checkIn.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' }) : null,
+      check_out: isValidCheckOut ? checkOut.toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit', hour12: true, timeZone: 'Asia/Kolkata' }) : null,
       duration_hours: durationHours,
       status: r.status,
     };

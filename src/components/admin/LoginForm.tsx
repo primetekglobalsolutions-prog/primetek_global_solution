@@ -150,7 +150,7 @@ export default function LoginForm() {
       {/* Email */}
       <div className="space-y-2">
         <label htmlFor="login-email" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-          Identity Identifier
+          Portal Identity
         </label>
         <div className="relative group">
           <input
@@ -172,7 +172,7 @@ export default function LoginForm() {
       {/* Password */}
       <div className="space-y-2">
         <label htmlFor="login-password" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-          Security Key
+          Access Key
         </label>
         <div className="relative">
           <input

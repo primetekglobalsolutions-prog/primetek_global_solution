@@ -147,7 +147,7 @@ export default function EmployeeLoginForm() {
       {/* Email */}
       <div className="space-y-2">
         <label htmlFor="emp-email" className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">
-          Endpoint Identity
+          Portal Identity
         </label>
         <div className="relative group">
           <input
@@ -155,7 +155,7 @@ export default function EmployeeLoginForm() {
             type="text"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="Email or Employee ID"
+            placeholder="Email or Staff ID"
             required
             disabled={lockout}
             className="w-full px-5 py-4 rounded-2xl bg-white/5 border border-white/10 text-white placeholder:text-gray-600 focus:outline-none focus:ring-2 focus:ring-primary-500/50 focus:border-primary-500/50 transition-all text-sm font-medium disabled:opacity-50"

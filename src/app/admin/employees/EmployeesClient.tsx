@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useMemo } from 'react';
-import { Plus, Search, ToggleLeft, ToggleRight, X, Loader2, Trash2, Users, ShieldCheck, Mail, Briefcase, Sparkles } from 'lucide-react';
+import { Plus, Search, ToggleLeft, ToggleRight, X, Loader2, Trash2, Users, ShieldCheck, Mail, Briefcase, Sparkles, Wallet } from 'lucide-react';
 import Image from 'next/image';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
@@ -30,6 +30,10 @@ export default function EmployeesClient({ initialEmployees }: { initialEmployees
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [newEmployeeData, setNewEmployeeData] = useState({ name: '', email: '', role: 'employee', department: '' });
   const [successMessage, setSuccessMessage] = useState<{ id: string; pass: string } | null>(null);
+  const [isBalanceModalOpen, setIsBalanceModalOpen] = useState(false);
+  const [selectedEmployee, setSelectedEmployee] = useState<EmployeeRecord | null>(null);
+  const [isUpdatingBalance, setIsUpdatingBalance] = useState(false);
+  const [balances, setBalances] = useState({ sick: 0, casual: 0, earned: 0 });
 
   const stats = useMemo(() => {
     const total = employees.length;
@@ -89,6 +93,46 @@ export default function EmployeesClient({ initialEmployees }: { initialEmployees
       setEmployees((prev) => prev.filter((e) => e.id !== id));
     } catch (err) {
       alert('Failed to delete employee');
+    }
+  };
+
+  const handleOpenBalanceModal = async (emp: EmployeeRecord) => {
+    setSelectedEmployee(emp);
+    setIsBalanceModalOpen(true);
+    // Fetch current balances
+    try {
+      const res = await fetch(`/api/admin/employees/${emp.id}/balances`);
+      const data = await res.json();
+      if (data.balances) {
+        const b = data.balances;
+        setBalances({
+          sick: b.find((x: any) => x.leave_type === 'Sick')?.total_days || 0,
+          casual: b.find((x: any) => x.leave_type === 'Casual')?.total_days || 0,
+          earned: b.find((x: any) => x.leave_type === 'Earned')?.total_days || 0,
+        });
+      }
+    } catch (err) {
+      console.error('Failed to fetch balances');
+    }
+  };
+
+  const handleUpdateBalances = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedEmployee) return;
+    setIsUpdatingBalance(true);
+    try {
+      const res = await fetch(`/api/admin/employees/${selectedEmployee.id}/balances`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(balances),
+      });
+      if (!res.ok) throw new Error('Failed to update');
+      alert('Balances updated successfully');
+      setIsBalanceModalOpen(false);
+    } catch (err) {
+      alert('Failed to update balances');
+    } finally {
+      setIsUpdatingBalance(false);
     }
   };
 
@@ -211,12 +255,22 @@ export default function EmployeesClient({ initialEmployees }: { initialEmployees
                       </button>
                     </td>
                     <td className="px-8 py-5 text-right">
-                      <button 
-                        onClick={() => handleDelete(emp.id, emp.name)}
-                        className="w-9 h-9 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center active:scale-90"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
+                      <div className="flex items-center justify-end gap-2">
+                        <button 
+                          onClick={() => handleOpenBalanceModal(emp)}
+                          className="w-9 h-9 rounded-xl text-gray-400 hover:text-primary-500 hover:bg-primary-50 transition-all flex items-center justify-center active:scale-90"
+                          title="Manage Balances"
+                        >
+                          <Wallet className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(emp.id, emp.name)}
+                          className="w-9 h-9 rounded-xl text-gray-400 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center active:scale-90"
+                          title="Delete Employee"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))
@@ -346,6 +400,61 @@ export default function EmployeesClient({ initialEmployees }: { initialEmployees
           </div>
         )}
       </AnimatePresence>
+      {/* 5. Balance Management Modal */}
+      <AnimatePresence>
+        {isBalanceModalOpen && selectedEmployee && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-navy-900/60 backdrop-blur-xl">
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              className="bg-white rounded-[3rem] shadow-2xl w-full max-w-md overflow-hidden border border-white/20 relative"
+            >
+              <div className="flex items-center justify-between px-10 py-8 border-b border-border/40">
+                <div>
+                  <h3 className="font-heading font-black text-xl text-navy-900 tracking-tight">Leave Credits</h3>
+                  <p className="text-[10px] text-text-muted font-bold uppercase tracking-widest mt-1">{selectedEmployee.name}</p>
+                </div>
+                <button 
+                  onClick={() => setIsBalanceModalOpen(false)} 
+                  className="w-10 h-10 rounded-2xl bg-surface-alt flex items-center justify-center text-text-muted hover:text-navy-900 transition-colors"
+                >
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              <form onSubmit={handleUpdateBalances} className="p-10 space-y-6">
+                <div className="space-y-4">
+                  {[
+                    { key: 'sick', label: 'Sick Leave Allocation' },
+                    { key: 'casual', label: 'Casual Leave Allocation' },
+                    { key: 'earned', label: 'Earned Leave Allocation' },
+                  ].map((field) => (
+                    <div key={field.key} className="space-y-2">
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest ml-1">{field.label}</label>
+                      <input 
+                        type="number" 
+                        value={(balances as any)[field.key]} 
+                        onChange={(e) => setBalances({...balances, [field.key]: parseInt(e.target.value) || 0})}
+                        className="w-full px-5 py-4 rounded-2xl bg-surface-alt border-0 focus:ring-2 focus:ring-primary-500/50 transition-all text-sm font-black text-navy-900"
+                      />
+                    </div>
+                  ))}
+                </div>
+
+                <Button 
+                  type="submit" 
+                  disabled={isUpdatingBalance}
+                  className="w-full bg-navy-900 hover:bg-navy-800 text-white font-black rounded-2xl py-5 shadow-xl shadow-navy-900/10 border-0 active:scale-98 transition-all"
+                >
+                  {isUpdatingBalance ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : 'Synchronize Balances'}
+                </Button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
+
